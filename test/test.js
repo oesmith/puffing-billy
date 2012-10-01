@@ -29,7 +29,7 @@ describe('puffing-billy', function () {
     this.server.close();
   });
 
-  it('should proxy stuff', function (done) {
+  it('should proxy to upstream servers', function (done) {
     request.get({
       url: 'http://localhost:' + this.server.address().port + '/foobarbaz',
       proxy: 'http://localhost:' + this.proxy.address().port
@@ -40,4 +40,10 @@ describe('puffing-billy', function () {
       done();
     });
   });
+
+  it('should proxy HTTPS to upstream servers');
+  it('should mock HTTP responses');
+  it('should mock HTTPS responses');
+  it('should cache upstream requests that are cacheable');
+  it('should not cache upstream requests that are not cacheable');
 });
