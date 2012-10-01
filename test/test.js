@@ -1,5 +1,7 @@
 var assert = require('assert'),
+    fs = require('fs'),
     http = require('http'),
+    https = require('https'),
     request = require('request'),
     connect = require('connect'),
     async = require('async'),
@@ -8,18 +10,27 @@ var assert = require('assert'),
 describe('puffing-billy', function () {
   beforeEach(function (done) {
     var self = this;
+    var app = connect();
+    app.use(function (req, res) {
+      res.end(req.url);
+    });
     async.parallel([
       function (callback) {
         self.proxy = billy(callback);
       },
       function (callback) {
-        var app = connect();
-        app.use(function (req, res) {
-          res.end(req.url);
-        });
         self.server = http.createServer(app);
         self.server.listen(0, '127.0.0.1');
         self.server.on('listening', callback);
+      },
+      function (callback) {
+        var options = {
+          key: fs.readFileSync('test/fixtures/billy.key'),
+          cert: fs.readFileSync('test/fixtures/billy.crt')
+        };
+        self.ssl_server = https.createServer(options, app);
+        self.ssl_server.listen(0, '127.0.0.1');
+        self.ssl_server.on('listening', callback);
       }
     ], done);
   });
@@ -41,7 +52,18 @@ describe('puffing-billy', function () {
     });
   });
 
-  it('should proxy HTTPS to upstream servers');
+  it('should proxy HTTPS to upstream servers', function (done) {
+    request.get({
+      url: 'https://localhost:' + this.ssl_server.address().port + '/foobarbill',
+      proxy: 'http://localhost:' + this.proxy.address().port
+    }, function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, '/foobarbill');
+      done();
+    });
+  });
+
   it('should mock HTTP responses');
   it('should mock HTTPS responses');
   it('should cache upstream requests that are cacheable');
