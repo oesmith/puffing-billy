@@ -1,26 +1,28 @@
-var http = require('http');
+var http = require('http'),
+    request = require('request');
 
-module.exports = http.createServer(function (req, res) {
-  var proxy_req = http.request({
-    hostname: req.headers['host'],
-    path: req.url,
-    method: req.method,
-    headers: req.headers
-  });
-  proxy_req.addListener('response', function (proxy_res) {
-    proxy_res.addListener('data', function(chunk) {
-      res.write(chunk, 'binary');
+module.exports = function (callback) {
+  var proxy = http.createServer(function (req, res) {
+    var proxy_req = request({
+      url: req.url,
+      method: req.method,
+      headers: req.headers,
+      followRedirect: false
+    }, function (error, response, body) {
+      // TODO
     });
-    proxy_res.addListener('end', function() {
-      res.end();
-    });
-    res.writeHead(proxy_res.statusCode, proxy_res.headers);
+
+    req.pipe(proxy_req).pipe(res);
   });
-  req.addListener('data', function(chunk) {
-    proxy_req.write(chunk, 'binary');
+
+  proxy.listen(0);
+
+  proxy.on('listening', function () {
+    if (callback !== undefined) {
+      callback(null, proxy);
+    }
   });
-  req.addListener('end', function() {
-    proxy_req.end();
-  });
-});
+
+  return proxy;
+};
 
