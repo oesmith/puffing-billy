@@ -16,7 +16,8 @@ describe('puffing-billy', function () {
     });
     async.parallel([
       function (callback) {
-        self.proxy = billy(callback);
+        self.proxy = new billy.Proxy();
+        self.proxy.on('listening', callback);
       },
       function (callback) {
         self.server = http.createServer(app);
@@ -40,10 +41,10 @@ describe('puffing-billy', function () {
     this.server.close();
   });
 
-  it('should proxy to upstream servers', function (done) {
+  it('should proxy HTTP to upstream servers', function (done) {
     request.get({
       url: 'http://localhost:' + this.server.address().port + '/foobarbaz',
-      proxy: 'http://localhost:' + this.proxy.address().port
+      proxy: 'http://localhost:' + this.proxy.port()
     }, function (error, response, body) {
       assert.equal(error, null);
       assert.equal(response.statusCode, 200);
@@ -55,7 +56,7 @@ describe('puffing-billy', function () {
   it('should proxy HTTPS to upstream servers', function (done) {
     request.get({
       url: 'https://localhost:' + this.ssl_server.address().port + '/foobarbill',
-      proxy: 'http://localhost:' + this.proxy.address().port
+      proxy: 'http://localhost:' + this.proxy.port()
     }, function (error, response, body) {
       assert.equal(error, null);
       assert.equal(response.statusCode, 200);
