@@ -50,8 +50,27 @@ Proxy.prototype.proxy_https_request = function (req, res) {
 };
 
 Proxy.prototype.proxy_request = function (url, req, res) {
-  var stub = this.stubs[url];
-  if (stub) {
+  var self = this, stub = this.stubs[url];
+  if (req.headers['http-x-puffing-billy']) {
+    if (req.method == 'POST') {
+      var opts = "";
+      req.on('data', function (chunk) { opts += chunk });
+      req.on('end', function () {
+        opts = JSON.parse(opts);
+        var stub_url = opts.url;
+        delete opts.url;
+        self.stub(stub_url, opts);
+        res.statusCode = 204;
+        res.end();
+      });
+    }
+    else if (req.method == 'DELETE') {
+      this.reset();
+      res.statusCode = 204;
+      res.end();
+    }
+  }
+  else if (stub) {
     if (stub['data']) {
       res.setHeader('Content-Type', stub['type'] || 'text/plain');
       res.end(stub['data']);

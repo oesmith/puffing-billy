@@ -90,6 +90,10 @@ describe('puffing-billy', function () {
       });
     });
 
+    it('should stub POSTs');
+    it('should stub PUTs');
+    it('should stub DELETEs');
+
     it('should stub JSON data', function (done) {
       this.proxy.stub(this.https_url + '/stub_json', {json: {stub: ['json', 'data'], awesome: true}});
       this.request.get(this.https_url + '/stub_json', function (error, response, body) {
@@ -136,8 +140,45 @@ describe('puffing-billy', function () {
   });
 
   describe('RESTful configuration', function () {
-    it('should add new stubs');
-    it('should reset stubs');
+    it('should add new stubs', function (done) {
+      var self = this;
+      request({
+        url: this.proxy_url + '/puffing-billy/stub',
+        method: 'POST',
+        headers: { 'HTTP-X-Puffing-Billy': 1 },
+        json: {
+          url: this.https_url + '/restful_config',
+          data: 'restfully configured stub'
+        }
+      }, function (error) {
+        assert.equal(error, null);
+        self.request.get(self.https_url + '/restful_config', function (error, response, body) {
+          assert.equal(error, null);
+          assert.equal(response.statusCode, 200);
+          assert.equal(body, 'restfully configured stub');
+          assert.equal(response.headers['content-type'], 'text/plain');
+          done();
+        });
+      });
+    });
+
+    it('should reset stubs', function (done) {
+      var self = this;
+      this.proxy.stub(this.https_url + '/restful_reset', 'restfully reset stub');
+      request({
+        url: this.proxy_url,
+        method: 'DELETE',
+        headers: { 'HTTP-X-Puffing-Billy': 1 }
+      }, function (error) {
+        assert.equal(error, null);
+        self.request.get(self.https_url + '/restful_reset', function (error, response, body) {
+          assert.equal(error, null);
+          assert.equal(response.statusCode, 200);
+          assert.equal(body, '/restful_reset');
+          done();
+        });
+      });
+    });
   });
 
   describe('caching', function () {
