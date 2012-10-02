@@ -120,6 +120,17 @@ describe('puffing-billy', function () {
     });
   });
 
+  it('should be able to reset all stubs', function (done) {
+    this.proxy.stub(this.https_url + '/reset', {data: 'reset_content'});
+    this.proxy.reset();
+    this.request.get(this.https_url + '/reset', function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, '/reset');
+      done();
+    });
+  });
+
   it('should cache upstream requests that are cacheable');
   it('should not cache upstream requests that are not cacheable');
 });

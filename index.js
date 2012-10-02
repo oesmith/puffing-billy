@@ -112,8 +112,12 @@ Proxy.prototype.close = function () {
   this.https_proxy.close();
 };
 
-Proxy.prototype.stub = function(url, options) {
+Proxy.prototype.stub = function (url, options) {
   this.stubs[url] = options;
+};
+
+Proxy.prototype.reset = function () {
+  this.stubs = {};
 };
 
 module.exports.Proxy = Proxy;
