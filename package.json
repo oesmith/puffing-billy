@@ -10,8 +10,11 @@
   "author": "Olly Smith <olly.smith@gmail.com>",
   "license": "BSD",
   "devDependencies": {
+    "connect": "2.4.x"
+  },
+  "dependencies": {
     "async": "0.1.x",
-    "connect": "2.4.x",
-    "request": "2.11.x"
+    "request": "2.11.x",
+    "mime": "1.2.x"
   }
 }

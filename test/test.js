@@ -33,7 +33,13 @@ describe('puffing-billy', function () {
         self.ssl_server.listen(0, '127.0.0.1');
         self.ssl_server.on('listening', callback);
       }
-    ], done);
+    ], function (error) {
+      self.http_url = 'http://localhost:' + self.server.address().port;
+      self.https_url = 'https://localhost:' + self.ssl_server.address().port;
+      self.proxy_url = 'http://localhost:' + self.proxy.port();
+      self.request = request.defaults({ proxy: self.proxy_url });
+      done(error);
+    });
   });
 
   afterEach(function () {
@@ -42,31 +48,78 @@ describe('puffing-billy', function () {
   });
 
   it('should proxy HTTP to upstream servers', function (done) {
-    request.get({
-      url: 'http://localhost:' + this.server.address().port + '/foobarbaz',
-      proxy: 'http://localhost:' + this.proxy.port()
-    }, function (error, response, body) {
+    this.request.get(this.http_url + '/http_upstream', function (error, response, body) {
       assert.equal(error, null);
       assert.equal(response.statusCode, 200);
-      assert.equal(body, '/foobarbaz');
+      assert.equal(body, '/http_upstream');
       done();
     });
   });
 
   it('should proxy HTTPS to upstream servers', function (done) {
-    request.get({
-      url: 'https://localhost:' + this.ssl_server.address().port + '/foobarbill',
-      proxy: 'http://localhost:' + this.proxy.port()
-    }, function (error, response, body) {
+    this.request.get(this.https_url + '/https_upstream', function (error, response, body) {
       assert.equal(error, null);
       assert.equal(response.statusCode, 200);
-      assert.equal(body, '/foobarbill');
+      assert.equal(body, '/https_upstream');
       done();
     });
   });
 
-  it('should mock HTTP responses');
-  it('should mock HTTPS responses');
+  it('should stub HTTP responses', function (done) {
+    this.proxy.stub(this.http_url + '/stub_http', {data: 'stubbed_http_text'});
+    this.request.get(this.http_url + '/stub_http', function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, 'stubbed_http_text');
+      assert.equal(response.headers['content-type'], 'text/plain');
+      done();
+    });
+  });
+
+  it('should stub HTTPS responses', function (done) {
+    this.proxy.stub(this.https_url + '/stub_https', {data: 'stubbed_https_text'});
+    this.request.get(this.https_url + '/stub_https', function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, 'stubbed_https_text');
+      assert.equal(response.headers['content-type'], 'text/plain');
+      done();
+    });
+  });
+
+  it('should stub and return JSON data', function (done) {
+    this.proxy.stub(this.https_url + '/stub_json', {json: {stub: ['json', 'data'], awesome: true}});
+    this.request.get(this.https_url + '/stub_json', function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, JSON.stringify({stub: ['json', 'data'], awesome: true}));
+      assert.equal(response.headers['content-type'], 'application/json');
+      done();
+    });
+  });
+
+  it('should stub and return the contents of a file', function (done) {
+    this.proxy.stub(this.https_url + '/stub_file', {file: __dirname + '/fixtures/test.jpg'});
+    this.request.get(this.https_url + '/stub_file', function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, fs.readFileSync(__dirname + '/fixtures/test.jpg'));
+      assert.equal(response.headers['content-type'], 'image/jpeg');
+      done();
+    });
+  });
+
+  it('should customize stubbed content-types', function (done) {
+    this.proxy.stub(this.https_url + '/stub_content_type', {data: 'stubbed_content_type', type: 'text/html'});
+    this.request.get(this.https_url + '/stub_content_type', function (error, response, body) {
+      assert.equal(error, null);
+      assert.equal(response.statusCode, 200);
+      assert.equal(body, 'stubbed_content_type');
+      assert.equal(response.headers['content-type'], 'text/html');
+      done();
+    });
+  });
+
   it('should cache upstream requests that are cacheable');
   it('should not cache upstream requests that are not cacheable');
 });

@@ -6,10 +6,13 @@ var events = require('events'),
     url = require('url'),
     util = require('util'),
     request = require('request'),
-    async = require('async');
+    async = require('async'),
+    mime = require('mime');
 
 function Proxy() {
   events.EventEmitter.call(this);
+
+  this.stubs = {};
 
   this.http_proxy = http.createServer(this.bind(this.proxy_http_request));
   this.http_proxy.listen(0, '127.0.0.1');
@@ -47,16 +50,46 @@ Proxy.prototype.proxy_https_request = function (req, res) {
 };
 
 Proxy.prototype.proxy_request = function (url, req, res) {
-  var proxy_req = request({
-    url: url,
-    method: req.method,
-    headers: req.headers,
-    followRedirect: false
-  }, function (error, response, body) {
-    // TODO caching
-  });
+  var stub = this.stubs[url];
+  if (stub) {
+    if (stub['data']) {
+      res.setHeader('Content-Type', stub['type'] || 'text/plain');
+      res.end(stub['data']);
+    }
+    else if (stub['json']) {
+      res.setHeader('Content-Type', stub['type'] || 'application/json');
+      res.end(JSON.stringify(stub['json']));
+    }
+    else if (stub['file']) {
+      fs.readFile(stub['file'], function (error, data) {
+        if (error) {
+          console.log(error);
+          res.statusCode = 500;
+          res.end('Error reading file ' + stub['file']);
+        }
+        else {
+          res.setHeader('Content-Type', stub['type'] || mime.lookup(stub['file']));
+          res.end(data);
+        }
+      });
+    }
+    else {
+      res.statusCode = 500;
+      res.end('Misconfigured proxy');
+    }
+  }
+  else {
+    var proxy_req = request({
+      url: url,
+      method: req.method,
+      headers: req.headers,
+      followRedirect: false
+    }, function (error, response, body) {
+      // TODO caching
+    });
 
-  req.pipe(proxy_req).pipe(res);
+    req.pipe(proxy_req).pipe(res);
+  }
 };
 
 Proxy.prototype.proxy_connect = function (req, socket, head) {
@@ -79,5 +112,8 @@ Proxy.prototype.close = function () {
   this.https_proxy.close();
 };
 
-module.exports.Proxy = Proxy;
+Proxy.prototype.stub = function(url, options) {
+  this.stubs[url] = options;
+};
 
+module.exports.Proxy = Proxy;
