@@ -1,10 +1,29 @@
-# Puffing Billy
+# Puffing::Billy
 
-Ever wanted to stub HTTP(S) responses to requests sent *by the browser* in
-browser tests?  Billy does that for you.
+TODO: Write a gem description
 
-![Billy in the 1860s](http://upload.wikimedia.org/wikipedia/commons/0/01/Puffing_Billy_1862.jpg)
+## Installation
 
-## Quickstart
+Add this line to your application's Gemfile:
 
-*TODO*
+    gem 'puffing-billy'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install puffing-billy
+
+## Usage
+
+TODO: Write usage instructions here
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
