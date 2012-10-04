@@ -3,6 +3,7 @@ PATH
   specs:
     puffing-billy (0.0.1)
       eventmachine
+      http_parser.rb
 
 GEM
   remote: https://rubygems.org/
@@ -12,6 +13,7 @@ GEM
     eventmachine (1.0.0)
     faraday (0.8.4)
       multipart-post (~> 1.1)
+    http_parser.rb (0.5.3)
     multipart-post (1.1.5)
     rack (1.4.1)
     rspec (2.11.0)

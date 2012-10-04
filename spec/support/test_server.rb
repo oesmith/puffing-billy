@@ -41,8 +41,8 @@ module Billy
         end
       end
 
-      @http = Faraday.new "http://localhost:#{q.pop}"
-      @https = Faraday.new "https://localhost:#{q.pop}", :ssl => {:verify => false}
+      @http_url = "http://localhost:#{q.pop}"
+      @https_url = "https://localhost:#{q.pop}"
     end
   end
 end
