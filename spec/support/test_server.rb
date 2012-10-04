@@ -31,8 +31,8 @@ module Billy
           https_server = Thin::Server.new '127.0.0.1', 0, echo
           https_server.ssl = true
           https_server.ssl_options = {
-            :private_key_file => 'node/mitm.key',
-            :cert_chain_file => 'node/mitm.crt'
+            :private_key_file => File.expand_path('../../fixtures/test-server.key', __FILE__),
+            :cert_chain_file => File.expand_path('../../fixtures/test-server.crt', __FILE__)
           }
           https_server.start
 
