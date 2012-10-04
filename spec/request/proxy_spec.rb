@@ -6,8 +6,13 @@ describe Billy::Proxy do
   before do
     @proxy = Billy::Proxy.new
     @proxy.start
-    @http = Faraday.new @http_url, :proxy => { :uri => @proxy.url }, :timeout => 2
-    @https = Faraday.new @https_url, :proxy => { :uri => @proxy.url }, :ssl => { :validate => false }
+    @http = Faraday.new @http_url,
+      :proxy => { :uri => @proxy.url },
+      :timeout => 0.5
+    @https = Faraday.new @https_url,
+      :ssl => { :validate => false },
+      :proxy => { :uri => @proxy.url },
+      :timeout => 0.5
   end
 
   describe 'proxying' do

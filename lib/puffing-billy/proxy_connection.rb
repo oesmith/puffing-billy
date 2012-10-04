@@ -1,5 +1,6 @@
 require 'eventmachine'
 require 'http/parser'
+require 'uri'
 
 module Billy
   class ProxyConnection < EventMachine::Connection
@@ -43,8 +44,22 @@ module Billy
 
     def on_message_complete
       puts 'on_message_complete'
-      p [@parser.http_method, @headers, @body]
-      # TODO :)
+      top = [
+        @parser.http_method,
+        path,
+        "HTTP/#{@parser.http_version.join('.')}"
+      ].join(' ')
+      headers = [top] + @headers.map { |k,v| "#{k}: #{v}" }
+      puts headers.join("\r\n") + "\r\n\r\n"
+    end
+
+    private
+
+    def path
+      uri = URI(@parser.request_url)
+      ret = uri.path || '/'
+      ret << "?#{uri.query}" unless uri.query.nil?
+      ret
     end
   end
 end
