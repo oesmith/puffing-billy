@@ -18,10 +18,13 @@ module Billy
         @parser << data
       rescue HTTP::Parser::Error
         if @parser.http_method == 'CONNECT'
+          # work-around for CONNECT requests until https://github.com/tmm1/http_parser.rb/pull/15 gets merged
           @ssl = @header_data.split("\r\n").first.split(/\s+/)[1]
           @parser = Http::Parser.new(self)
           send_data("HTTP/1.0 200 Connection established\r\nProxy-agent: Puffing-Billy/0.0.0\r\n\r\n")
           start_tls(:private_key_file => 'node/mitm.key', :cert_chain_file => 'node/mitm.crt')
+        else
+          close_connection
         end
       end
     end
