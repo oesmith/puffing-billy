@@ -25,6 +25,8 @@ module Billy
             ]
           end
 
+          Thin::Logging.silent = true
+
           http_server = Thin::Server.new '127.0.0.1', 0, echo
           http_server.start
 
