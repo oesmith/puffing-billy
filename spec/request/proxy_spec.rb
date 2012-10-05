@@ -10,7 +10,7 @@ describe Billy::Proxy do
       :proxy => { :uri => @proxy.url },
       :timeout => 0.5
     @https = Faraday.new @https_url,
-      :ssl => { :validate => false },
+      :ssl => { :verify => false },
       :proxy => { :uri => @proxy.url },
       :timeout => 0.5
   end

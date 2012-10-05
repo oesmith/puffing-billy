@@ -9,18 +9,19 @@ module Billy
 
     def post_init
       @parser = Http::Parser.new(self)
-      @data = ""
+      @header_data = ""
     end
 
     def receive_data(data)
-      @data << data
-      unless @is_connect
-        begin
-          @parser << data
-        rescue HTTP::Parser::Error
-          if @parser.http_method == 'CONNECT'
-            @is_connect = true
-          end
+      @header_data << data if @headers.nil?
+      begin
+        @parser << data
+      rescue HTTP::Parser::Error
+        if @parser.http_method == 'CONNECT'
+          @ssl = @header_data.split("\r\n").first.split(/\s+/)[1]
+          @parser = Http::Parser.new(self)
+          send_data("HTTP/1.0 200 Connection established\r\nProxy-agent: Puffing-Billy/0.0.0\r\n\r\n")
+          start_tls(:private_key_file => 'node/mitm.key', :cert_chain_file => 'node/mitm.crt')
         end
       end
     end
@@ -40,16 +41,22 @@ module Billy
 
     def on_message_complete
       headers = Hash[@headers.map { |k,v| [k.downcase, v] }].merge('connection' => 'close')
-      req = EventMachine::HttpRequest.new(@parser.request_url)
-      req = req.send(@parser.http_method.downcase, {
+      if @ssl
+        url = "https://#{@ssl}#{@parser.request_url}"
+      else
+        url = @parser.request_url
+      end
+      req = EventMachine::HttpRequest.new(url)
+      req_opts = {
         :redirects => 0,
         :keepalive => false,
         :head => headers,
-        #:body => @body
-      })
+      }
+      req_opts[:body] = @body if @body
+      req = req.send(@parser.http_method.downcase, req_opts)
 
       req.errback do
-        puts "Request failed: #{@parser.request_url}"
+        puts "Request failed: #{url}"
         close_connection
       end
 
