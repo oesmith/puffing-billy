@@ -8,7 +8,6 @@ module Billy
           EM.error_handler do |e|
             puts e.class.name, e
             puts e.backtrace.join("\n")
-            EM.stop
           end
 
           @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|

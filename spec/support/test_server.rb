@@ -18,11 +18,11 @@ module Billy
       Thread.new do
         EM.run do
           echo = Proc.new do |env|
-            [
-              200,
-              {},
-              ["#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"]
-            ]
+            req_body = env['rack.input'].read
+            request_info = "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"
+            res_body = request_info
+            res_body += "\n#{req_body}" unless req_body.empty?
+            [200, {'HTTP-X-EchoServer'=>request_info}, [res_body]]
           end
 
           Thin::Logging.silent = true
