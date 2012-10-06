@@ -5,7 +5,7 @@ require 'evma_httpserver'
 
 module Billy
   class ProxyConnection < EventMachine::Connection
-    attr_accessor :proxy
+    attr_accessor :handler
 
     def post_init
       @parser = Http::Parser.new(self)
@@ -44,12 +44,12 @@ module Billy
         restart_with_ssl(@parser.request_url)
       else
         if @ssl
-          url = "https://#{@ssl}#{@parser.request_url}"
+          @url = "https://#{@ssl}#{@parser.request_url}"
         else
-          url = @parser.request_url
+          @url = @parser.request_url
         end
-        puts "#{@parser.http_method} #{url}"
-        handle_request(url)
+        #puts "#{@parser.http_method} #{url}"
+        handle_request
       end
     end
 
@@ -65,13 +65,24 @@ module Billy
       )
     end
 
-    def handle_request(url)
-      proxy_request(url)
+    def handle_request
+      if handler && handler.respond_to?(:call)
+        result = handler.call(@parser.http_method, @url, @headers, @body)
+      end
+      if result
+        response = EM::DelegatedHttpResponse.new(self)
+        response.status = result[0]
+        response.headers = result[1]
+        response.content = result[2]
+        response.send_response
+      else
+        proxy_request
+      end
     end
 
-    def proxy_request(url)
+    def proxy_request
       headers = Hash[@headers.map { |k,v| [k.downcase, v] }].merge('connection' => 'close')
-      req = EventMachine::HttpRequest.new(url)
+      req = EventMachine::HttpRequest.new(@url)
       req_opts = {
         :redirects => 0,
         :keepalive => false,

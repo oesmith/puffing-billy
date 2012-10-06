@@ -11,7 +11,7 @@ module Billy
           end
 
           @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
-            p.proxy = self
+            p.handler = self
           end
         end
       end
@@ -24,6 +24,10 @@ module Billy
 
     def port
       Socket.unpack_sockaddr_in(EM.get_sockname(@signature)).first
+    end
+
+    def call(method, url, headers, body)
+      nil
     end
   end
 end
