@@ -2,6 +2,10 @@ require 'eventmachine'
 
 module Billy
   class Proxy
+    def initialize
+      reset
+    end
+
     def start
       Thread.new do
         EM.run do
@@ -27,7 +31,25 @@ module Billy
     end
 
     def call(method, url, headers, body)
-      nil
+      stub = @stubs[stub_key(method, url)]
+      unless stub.nil?
+        stub.call(headers, body)
+      end
+    end
+
+    def stub(url, options = {})
+      ret = ProxyRequestStub.new(url, options)
+      @stubs[stub_key(ret.method, ret.url)] = ret
+    end
+
+    protected
+
+    def reset
+      @stubs = {}
+    end
+
+    def stub_key(method, url)
+      "#{method.to_s.upcase} #{url}"
     end
   end
 end
