@@ -42,11 +42,11 @@ module Billy
       @stubs[stub_key(ret.method, ret.url)] = ret
     end
 
-    protected
-
     def reset
       @stubs = {}
     end
+
+    protected
 
     def stub_key(method, url)
       "#{method.to_s.upcase} #{url}"

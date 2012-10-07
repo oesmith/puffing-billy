@@ -32,16 +32,25 @@ end
 
 describe Billy::Proxy do
 
-  before do
+  before :all do
     @proxy = Billy::Proxy.new
     @proxy.start
+  end
+
+  before do
     @http = Faraday.new @http_url,
       :proxy => { :uri => @proxy.url },
+      :keepalive => false,
       :timeout => 0.5
     @https = Faraday.new @https_url,
       :ssl => { :verify => false },
       :proxy => { :uri => @proxy.url },
+      :keepalive => false,
       :timeout => 0.5
+  end
+
+  after do
+    @proxy.reset
   end
 
   context 'proxying' do

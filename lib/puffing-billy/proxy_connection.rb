@@ -19,7 +19,9 @@ module Billy
       rescue HTTP::Parser::Error
         if @parser.http_method == 'CONNECT'
           # work-around for CONNECT requests until https://github.com/tmm1/http_parser.rb/pull/15 gets merged
-          restart_with_ssl(@header_data.split("\r\n").first.split(/\s+/)[1])
+          if @header_data.end_with?("\r\n\r\n")
+            restart_with_ssl(@header_data.split("\r\n").first.split(/\s+/)[1])
+          end
         else
           close_connection
         end
@@ -48,7 +50,6 @@ module Billy
         else
           @url = @parser.request_url
         end
-        #puts "#{@parser.http_method} #{url}"
         handle_request
       end
     end
@@ -72,7 +73,7 @@ module Billy
       if result
         response = EM::DelegatedHttpResponse.new(self)
         response.status = result[0]
-        response.headers = result[1]
+        response.headers = result[1].merge('Connection' => 'close')
         response.content = result[2]
         response.send_response
       else
@@ -81,14 +82,17 @@ module Billy
     end
 
     def proxy_request
-      headers = Hash[@headers.map { |k,v| [k.downcase, v] }].merge('connection' => 'close')
+      headers = Hash[@headers.map { |k,v| [k.downcase, v] }]
+
       req = EventMachine::HttpRequest.new(@url)
       req_opts = {
         :redirects => 0,
         :keepalive => false,
         :head => headers,
+        :ssl => { :verify => false }
       }
       req_opts[:body] = @body if @body
+
       req = req.send(@parser.http_method.downcase, req_opts)
 
       req.errback do
@@ -99,7 +103,7 @@ module Billy
       req.callback do
         res = EM::DelegatedHttpResponse.new(self)
         res.status = req.response_header.status
-        res.headers = req.response_header
+        res.headers = req.response_header.merge('Connection' => 'close')
         res.content = req.response
         res.send_response
       end
