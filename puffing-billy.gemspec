@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/puffing-billy/version', __FILE__)
+require File.expand_path('../lib/billy/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Olly Smith"]

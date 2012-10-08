@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'puffing-billy'
+require 'billy'
 
 shared_examples_for 'a proxy server' do
   it 'should proxy GET requests' do
