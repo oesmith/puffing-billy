@@ -1,9 +1,8 @@
 module Billy
   class ProxyRequestStub
-    attr_accessor :url, :method
     def initialize(url, options = {})
       @options = {:method => :get}.merge(options)
-      @method = @options[:method]
+      @method = @options[:method].to_s.upcase
       @url = url
       @response = [204, {}, ""]
     end
@@ -13,12 +12,22 @@ module Billy
       self
     end
 
-    def call(headers, body)
-      @response
+    def call(*args)
+      if @response.first.respond_to?(:call)
+        @response.first.call(*args)
+      else
+        @response
+      end
     end
 
-    def method
-      @options[:method]
+    def matches?(method, url)
+      if method == @method
+        if @url.is_a?(Regexp)
+          url.match(@url)
+        else
+          url == @url
+        end
+      end
     end
   end
 end

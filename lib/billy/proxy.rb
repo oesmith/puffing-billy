@@ -1,3 +1,5 @@
+require 'cgi'
+require 'uri'
 require 'eventmachine'
 
 module Billy
@@ -23,7 +25,11 @@ module Billy
     end
 
     def url
-      "http://localhost:#{port}"
+      "http://#{host}:#{port}"
+    end
+
+    def host
+      'localhost'
     end
 
     def port
@@ -31,25 +37,31 @@ module Billy
     end
 
     def call(method, url, headers, body)
-      stub = @stubs[stub_key(method, url)]
+      stub = find_stub(method, url)
       unless stub.nil?
-        stub.call(headers, body)
+        query_string = URI.parse(url).query || ""
+        params = CGI.parse(query_string)
+        stub.call(params, headers, body)
       end
     end
 
     def stub(url, options = {})
       ret = ProxyRequestStub.new(url, options)
-      @stubs[stub_key(ret.method, ret.url)] = ret
+      @stubs << ret
+      ret
     end
 
     def reset
-      @stubs = {}
+      @stubs = []
     end
 
     protected
 
-    def stub_key(method, url)
-      "#{method.to_s.upcase} #{url}"
+    def find_stub(method, url)
+      @stubs.each do |stub|
+        return stub if stub.matches?(method, url)
+      end
+      nil
     end
   end
 end
