@@ -25,31 +25,31 @@ end
 
 shared_examples_for 'a request stub' do
   it 'should stub GET requests' do
-    @proxy.stub("#{url}/foo").
+    proxy.stub("#{url}/foo").
       and_return(200, {}, 'hello, GET!')
     http.get('/foo').body.should == 'hello, GET!'
   end
 
   it 'should stub POST requests' do
-    @proxy.stub("#{url}/bar", :method => :post).
+    proxy.stub("#{url}/bar", :method => :post).
       and_return(200, {}, 'hello, POST!')
     http.post('/bar', :foo => :bar).body.should == 'hello, POST!'
   end
 
   it 'should stub PUT requests' do
-    @proxy.stub("#{url}/baz", :method => :put).
+    proxy.stub("#{url}/baz", :method => :put).
       and_return(200, {}, 'hello, PUT!')
     http.put('/baz', :foo => :bar).body.should == 'hello, PUT!'
   end
 
   it 'should stub HEAD requests' do
-    @proxy.stub("#{url}/bap", :method => :head).
+    proxy.stub("#{url}/bap", :method => :head).
       and_return(200, {'HTTP-X-Hello' => 'hello, HEAD!'}, nil)
     http.head('/bap').headers['http_x_hello'] == 'hello, HEAD!'
   end
 
   it 'should stub DELETE requests' do
-    @proxy.stub("#{url}/bam", :method => :delete).
+    proxy.stub("#{url}/bam", :method => :delete).
       and_return(200, {}, 'hello, DELETE!')
     http.delete('/bam').body.should == 'hello, DELETE!'
   end
@@ -57,25 +57,16 @@ end
 
 describe Billy::Proxy do
 
-  before :all do
-    @proxy = Billy::Proxy.new
-    @proxy.start
-  end
-
   before do
     @http = Faraday.new @http_url,
-      :proxy => { :uri => @proxy.url },
+      :proxy => { :uri => proxy.url },
       :keepalive => false,
       :timeout => 0.5
     @https = Faraday.new @https_url,
       :ssl => { :verify => false },
-      :proxy => { :uri => @proxy.url },
+      :proxy => { :uri => proxy.url },
       :keepalive => false,
       :timeout => 0.5
-  end
-
-  after do
-    @proxy.reset
   end
 
   context 'proxying' do
