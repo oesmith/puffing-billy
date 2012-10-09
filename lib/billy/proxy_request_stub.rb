@@ -7,17 +7,44 @@ module Billy
       @response = [204, {}, ""]
     end
 
-    def and_return(*response)
+    def and_return(response)
       @response = response
       self
     end
 
-    def call(*args)
-      if @response.first.respond_to?(:call)
-        @response.first.call(*args)
+    def call(params, headers, body)
+      if @response.respond_to?(:call)
+        res = @response.call(params, headers, body)
       else
-        @response
+        res = @response
       end
+
+      code = res[:code] || 200
+
+      headers = res[:headers] || {}
+      headers['Content-Type'] = res[:content_type] if res[:content_type]
+
+      if res[:json]
+        headers = {'Content-Type' => 'application/json'}.merge(headers)
+        body = Yajl::Encoder.encode(res[:json])
+      elsif res[:jsonp]
+        headers = {'Content-Type' => 'application/javascript'}.merge(headers)
+        if res[:callback]
+          callback = res[:callback]
+        elsif res[:callback_param]
+          callback = params[res[:callback_param]][0]
+        else
+          callback = params['callback'][0]
+        end
+        body = "#{callback}(#{Yajl::Encoder::encode(res[:jsonp])})"
+      elsif res[:text]
+        headers = {'Content-Type' => 'text/plain'}.merge(headers)
+        body = res[:text]
+      else
+        body = res[:body]
+      end
+
+      [code, headers, body]
     end
 
     def matches?(method, url)
