@@ -6,6 +6,7 @@ PATH
       eventmachine
       eventmachine_httpserver
       http_parser.rb
+      yajl-ruby
 
 GEM
   remote: https://rubygems.org/
@@ -41,6 +42,7 @@ GEM
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
       rack (>= 1.0.0)
+    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby

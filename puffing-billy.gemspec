@@ -22,4 +22,5 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "em-http-request"
   gem.add_runtime_dependency "eventmachine_httpserver"
   gem.add_runtime_dependency "http_parser.rb"
+  gem.add_runtime_dependency "yajl-ruby"
 end
