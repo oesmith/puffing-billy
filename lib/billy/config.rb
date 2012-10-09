@@ -8,15 +8,19 @@ module Billy
   end
 
   def self.configure
-    @config ||= Config.new
-    yield @config if block_given?
-    @config
+    yield config if block_given?
+    config
   end
 
   def self.log(*args)
-    unless @config.logger.nil?
-      @config.logger.send(*args)
+    unless config.logger.nil?
+      config.logger.send(*args)
     end
   end
-end
 
+  private
+
+  def self.config
+    @config ||= Config.new
+  end
+end

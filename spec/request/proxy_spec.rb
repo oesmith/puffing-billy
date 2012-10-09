@@ -26,31 +26,31 @@ end
 shared_examples_for 'a request stub' do
   it 'should stub GET requests' do
     proxy.stub("#{url}/foo").
-      and_return(200, {}, 'hello, GET!')
+      and_return(:text => 'hello, GET!')
     http.get('/foo').body.should == 'hello, GET!'
   end
 
   it 'should stub POST requests' do
     proxy.stub("#{url}/bar", :method => :post).
-      and_return(200, {}, 'hello, POST!')
+      and_return(:text => 'hello, POST!')
     http.post('/bar', :foo => :bar).body.should == 'hello, POST!'
   end
 
   it 'should stub PUT requests' do
     proxy.stub("#{url}/baz", :method => :put).
-      and_return(200, {}, 'hello, PUT!')
+      and_return(:text => 'hello, PUT!')
     http.put('/baz', :foo => :bar).body.should == 'hello, PUT!'
   end
 
   it 'should stub HEAD requests' do
     proxy.stub("#{url}/bap", :method => :head).
-      and_return(200, {'HTTP-X-Hello' => 'hello, HEAD!'}, nil)
+      and_return(:headers => {'HTTP-X-Hello' => 'hello, HEAD!'})
     http.head('/bap').headers['http_x_hello'] == 'hello, HEAD!'
   end
 
   it 'should stub DELETE requests' do
     proxy.stub("#{url}/bam", :method => :delete).
-      and_return(200, {}, 'hello, DELETE!')
+      and_return(:text => 'hello, DELETE!')
     http.delete('/bam').body.should == 'hello, DELETE!'
   end
 end
