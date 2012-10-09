@@ -71,12 +71,14 @@ module Billy
         result = handler.call(@parser.http_method, @url, @headers, @body)
       end
       if result
+        Billy.log(:info, "STUB #{@parser.http_method} #{@url}")
         response = EM::DelegatedHttpResponse.new(self)
         response.status = result[0]
         response.headers = result[1].merge('Connection' => 'close')
         response.content = result[2]
         response.send_response
       else
+        Billy.log(:info, "PROXY #{@parser.http_method} #{@url}")
         proxy_request
       end
     end

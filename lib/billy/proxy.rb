@@ -37,11 +37,8 @@ module Billy
     end
 
     def call(method, url, headers, body)
-      Billy.log(:info, "#{method} #{url}")
-
       stub = find_stub(method, url)
       unless stub.nil?
-        Billy.log(:info, "Stubbing #{method} #{url}")
         query_string = URI.parse(url).query || ""
         params = CGI.parse(query_string)
         stub.call(params, headers, body)
