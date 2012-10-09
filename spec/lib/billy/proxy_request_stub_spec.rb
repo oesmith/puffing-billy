@@ -5,6 +5,8 @@ describe Billy::ProxyRequestStub do
     it 'should match urls and methods' do
       Billy::ProxyRequestStub.new('http://example.com').
         matches?('GET', 'http://example.com').should be
+      Billy::ProxyRequestStub.new('http://example.com').
+        matches?('POST', 'http://example.com').should_not be
       Billy::ProxyRequestStub.new('http://example.com', :method => :get).
         matches?('GET', 'http://example.com').should be
       Billy::ProxyRequestStub.new('http://example.com', :method => :post).
