@@ -9,7 +9,7 @@ describe Billy::ProxyRequestStub do
       subject.call({}, {}, nil).should == [
         200,
         {'Content-Type' => 'text/plain'},
-        ['foo bar baz']
+        'foo bar baz'
       ]
     end
 
@@ -18,7 +18,7 @@ describe Billy::ProxyRequestStub do
       subject.call({}, {}, nil).should == [
         200,
         {'Content-Type' => 'application/json'},
-        ['{"foo":"bar"}']
+        '{"foo":"bar"}'
       ]
     end
 
@@ -28,7 +28,7 @@ describe Billy::ProxyRequestStub do
         subject.call({ 'callback' => ['baz'] }, {}, nil).should == [
           200,
           {'Content-Type' => 'application/javascript'},
-          ['baz({"foo":"bar"})']
+          'baz({"foo":"bar"})'
         ]
       end
 
@@ -37,7 +37,7 @@ describe Billy::ProxyRequestStub do
         subject.call({ 'cb' => ['bap'] }, {}, nil).should == [
           200,
           {'Content-Type' => 'application/javascript'},
-          ['bap({"foo":"bar"})']
+          'bap({"foo":"bar"})'
         ]
       end
 
@@ -46,7 +46,7 @@ describe Billy::ProxyRequestStub do
         subject.call({}, {}, nil).should == [
           200,
           {'Content-Type' => 'application/javascript'},
-          ['cb({"foo":"bar"})']
+          'cb({"foo":"bar"})'
         ]
       end
     end
@@ -65,7 +65,7 @@ describe Billy::ProxyRequestStub do
       subject.call({}, {}, nil).should == [
         200,
         {'Content-Type' => 'text/plain', 'HTTP-X-Foo' => 'bar'},
-        ['foo']
+        'foo'
       ]
     end
 
@@ -74,7 +74,7 @@ describe Billy::ProxyRequestStub do
       subject.call({}, {}, nil).should == [
         410,
         {'Content-Type' => 'text/plain'},
-        ['baz']
+        'baz'
       ]
     end
 
@@ -92,7 +92,7 @@ describe Billy::ProxyRequestStub do
       subject.call(expected_params, expected_headers, expected_body).should == [
         418,
         {'Content-Type' => 'text/plain'},
-        ['success']
+        'success'
       ]
     end
   end
