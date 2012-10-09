@@ -1,9 +1,40 @@
 require 'spec_helper'
 
 describe Billy::ProxyRequestStub do
-  let(:subject) { Billy::ProxyRequestStub.new('url') }
+  context '#matches?' do
+    it 'should match urls and methods' do
+      Billy::ProxyRequestStub.new('http://example.com').
+        matches?('GET', 'http://example.com').should be
+      Billy::ProxyRequestStub.new('http://example.com', :method => :get).
+        matches?('GET', 'http://example.com').should be
+      Billy::ProxyRequestStub.new('http://example.com', :method => :post).
+        matches?('GET', 'http://example.com').should_not be
+      Billy::ProxyRequestStub.new('http://example.com', :method => :post).
+        matches?('POST', 'http://example.com').should be
+      Billy::ProxyRequestStub.new('http://fooxample.com', :method => :post).
+        matches?('POST', 'http://example.com').should_not be
+    end
 
-  context 'responses' do
+    it 'should match regexps' do
+      Billy::ProxyRequestStub.new(/http:\/\/.+\.com/, :method => :post).
+        matches?('POST', 'http://example.com').should be
+      Billy::ProxyRequestStub.new(/http:\/\/.+\.co\.uk/, :method => :get).
+        matches?('GET', 'http://example.com').should_not be
+    end
+  end
+
+  context '#and_return + #call' do
+    let(:subject) { Billy::ProxyRequestStub.new('url') }
+
+    it 'should generate bare responses' do
+      subject.and_return :body => 'baz foo bar'
+      subject.call({}, {}, nil).should == [
+        200,
+        {},
+        'baz foo bar'
+      ]
+    end
+
     it 'should generate text responses' do
       subject.and_return :text => 'foo bar baz'
       subject.call({}, {}, nil).should == [
