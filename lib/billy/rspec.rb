@@ -1,6 +1,8 @@
 require 'rspec'
 require 'billy'
 
+require 'capybara/webkit' rescue nil
+
 $billy_proxy = Billy::Proxy.new
 $billy_proxy.start
 
@@ -38,11 +40,12 @@ if defined?(Capybara)
     end
   end
 
-  if defined?(Capybara::Webkit)
+  if defined?(Capybara::Driver::Webkit)
     Capybara.register_driver :webkit_billy do |app|
-      driver = Capybara::Webkit::Driver.new(app)
+      driver = Capybara::Driver::Webkit.new(app)
       driver.browser.set_proxy(:host => Billy.proxy.host,
                                :port => Billy.proxy.port)
+      driver.browser.ignore_ssl_errors
       driver
     end
   end
@@ -51,8 +54,9 @@ if defined?(Capybara)
     Capybara.register_driver :selenium_billy do |app|
       profile = Selenium::WebDriver::Firefox::Profile.new
       profile.proxy = Selenium::WebDriver::Proxy.new(
-        :http => "#{Billy.proxy.host}:#{Billy.proxy.port}")
-      Selenium::WebDriver.for :firefox, :profile => profile
+        :http => "#{Billy.proxy.host}:#{Billy.proxy.port}",
+        :ssl => "#{Billy.proxy.host}:#{Billy.proxy.port}")
+      Capybara::Selenium::Driver.new(app, :profile => profile)
     end
   end
 end
