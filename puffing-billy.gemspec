@@ -4,9 +4,9 @@ require File.expand_path('../lib/billy/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Olly Smith"]
   gem.email         = ["olly.smith@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{A stubbing proxy server for ruby. Connect it to your browser in integration tests to fake interactions with remote HTTP(S) servers.}
+  gem.summary       = %q{Easy request stubs for browser tests.}
+  gem.homepage      = "https://github.com/oesmith/puffing-billy"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
