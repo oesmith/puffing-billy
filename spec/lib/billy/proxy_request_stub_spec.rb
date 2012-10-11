@@ -23,6 +23,13 @@ describe Billy::ProxyRequestStub do
       Billy::ProxyRequestStub.new(/http:\/\/.+\.co\.uk/, :method => :get).
         matches?('GET', 'http://example.com').should_not be
     end
+
+    it 'should match up to but not including query strings' do
+      stub = Billy::ProxyRequestStub.new('http://example.com/foo/bar/')
+      stub.matches?('GET', 'http://example.com/foo/').should_not be
+      stub.matches?('GET', 'http://example.com/foo/bar/').should be
+      stub.matches?('GET', 'http://example.com/foo/bar/?baz=bap').should be
+    end
   end
 
   context '#and_return + #call' do

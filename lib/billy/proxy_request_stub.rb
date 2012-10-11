@@ -57,7 +57,7 @@ module Billy
         if @url.is_a?(Regexp)
           url.match(@url)
         else
-          url == @url
+          url.split('?')[0] == @url
         end
       end
     end
