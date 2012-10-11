@@ -1,9 +1,11 @@
+require 'logger'
+
 module Billy
   class Config
     attr_accessor :logger
 
     def initialize
-      @logger = nil
+      @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
     end
   end
 
