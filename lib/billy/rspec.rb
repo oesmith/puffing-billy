@@ -38,5 +38,21 @@ if defined?(Capybara)
     end
   end
 
-  # TODO selenium / webkit
+  if defined?(Capybara::Webkit)
+    Capybara.register_driver :webkit_billy do |app|
+      driver = Capybara::Webkit::Driver.new(app)
+      driver.browser.set_proxy(:host => Billy.proxy.host,
+                               :port => Billy.proxy.port)
+      driver
+    end
+  end
+
+  if defined?(Selenium::WebDriver)
+    Capybara.register_driver :selenium_billy do |app|
+      profile = Selenium::WebDriver::Firefox::Profile.new
+      profile.proxy = Selenium::WebDriver::Proxy.new(
+        :http => "#{Billy.proxy.host}:#{Billy.proxy.port}")
+      Selenium::WebDriver.for :firefox, :profile => profile
+    end
+  end
 end
