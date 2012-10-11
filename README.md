@@ -9,26 +9,11 @@ interactions with remote HTTP(S) servers.
 
 The thirty second version:
 
-```html
-<ul id='counting'></ul>
-```
-
-```javascript
-$.ajax('https://example.com/count/?callback=?', function (data) {
-  for (var name in data) {
-    $('#counting').append($('<li>' + name + '</li>'));
-  }
-});
-```
-
 ```ruby
-it 'should count to five' do
-  # this is where the magic happens!
-  proxy.stub('https://example.com/count/').and_return(:jsonp => %w[one two three four five])
-
-  within('#counting') do
-    all('li').map(&:text).should == %w[one two three four five]
-  end
+it 'should stub google' do
+  proxy.stub('http://www.google.com').and_return(:text => "I'm not Google!")
+  visit 'http://www.google.com'
+  page.should have_content("I'm not Google!")
 end
 ```
 
