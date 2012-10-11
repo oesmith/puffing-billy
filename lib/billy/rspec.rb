@@ -1,8 +1,6 @@
 require 'rspec'
 require 'billy'
 
-require 'capybara/webkit' rescue nil
-
 $billy_proxy = Billy::Proxy.new
 $billy_proxy.start
 
