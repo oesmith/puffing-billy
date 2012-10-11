@@ -24,3 +24,19 @@ RSpec.configure do |config|
   end
 end
 
+if defined?(Capybara)
+
+  if defined?(Capybara::Poltergeist)
+    Capybara.register_driver :poltergeist_billy do |app|
+      options = {
+        phantomjs_options: [
+          '--ignore-ssl-errors=yes',
+          "--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}"
+        ]
+      }
+      Capybara::Poltergeist::Driver.new(app, options)
+    end
+  end
+
+  # TODO selenium / webkit
+end
