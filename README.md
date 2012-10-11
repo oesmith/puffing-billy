@@ -1,12 +1,42 @@
-# Puffing::Billy
+# Puffing Billy
 
-TODO: Write a gem description
+A stubbing proxy server for ruby. Connect it to your browser in integration tests to fake
+interactions with remote HTTP(S) servers.
+
+![](http://upload.wikimedia.org/wikipedia/commons/0/01/Puffing_Billy_1862.jpg)
+
+## Overview
+
+The thirty second version:
+
+```html
+<ul id='counting'></ul>
+```
+
+```javascript
+$.ajax('https://example.com/count/?callback=?', function (data) {
+  for (var name in data) {
+    $('#counting').append($('<li>' + name + '</li>'));
+  }
+});
+```
+
+```ruby
+it 'should count to five' do
+  # this is where the magic happens!
+  proxy.stub('https://example.com/count/').and_return(:jsonp => %w[one two three four five])
+
+  within('#counting') do
+    all('li').map(&:text).should == %w[one two three four five]
+  end
+end
+```
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'puffing-billy'
+    gem 'puffing-billy', :require => 'billy'
 
 And then execute:
 
@@ -18,7 +48,36 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+In your `spec_helper.rb`:
+
+```ruby
+require 'billy/rspec'
+
+# select a driver for your chosen browser environment
+Capybara.javascript_driver = :selenium_billy
+# Capybara.javascript_driver = :webkit_billy
+# Capybara.javascript_driver = :poltergeist_billy
+```
+
+In your tests:
+
+```ruby
+# stub and return text, json, jsonp (or anything else)
+proxy.stub('http://example.com/text').and_return(:text => 'Foobar')
+proxy.stub('http://example.com/json').and_return(:json => { :foo => 'bar' })
+proxy.stub('http://example.com/jsonp').and_return(:jsonp => { :foo => 'bar' })
+proxy.stub('http://example.com/wtf').and_return(:body => 'WTF!?', :content_type => 'text/wtf')
+
+# stub redirections and other return codes
+proxy.stub('http://example.com/redirect').and_return(:redirect_to => 'http://example.com/other')
+proxy.stub('http://example.com/missing').and_return(:code => 404, :body => 'Not found')
+
+# even stub HTTPS!
+proxy.stub('https://example.com/secure').and_return(:text => 'secrets!!1!')
+```
+
+Stubs are reset between tests.  Any requests that are not stubbed will be
+proxied to the remote server.
 
 ## Contributing
 
@@ -27,3 +86,8 @@ TODO: Write usage instructions here
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## TODO
+
+1. Integration for test frameworks other than rspec.
+2. Caching (for super awesome improved test performance).
