@@ -85,6 +85,7 @@ module Billy
 
     def proxy_request
       headers = Hash[@headers.map { |k,v| [k.downcase, v] }]
+      headers.delete('accept-encoding')
 
       req = EventMachine::HttpRequest.new(@url)
       req_opts = {
@@ -98,7 +99,7 @@ module Billy
       req = req.send(@parser.http_method.downcase, req_opts)
 
       req.errback do
-        puts "Request failed: #{url}"
+        puts "Request failed: #{@url}"
         close_connection
       end
 
@@ -106,7 +107,7 @@ module Billy
         res = EM::DelegatedHttpResponse.new(self)
         res.status = req.response_header.status
         res.headers = req.response_header.merge('Connection' => 'close')
-        res.content = req.response
+        res.content = req.response.force_encoding('BINARY')
         res.send_response
       end
     end

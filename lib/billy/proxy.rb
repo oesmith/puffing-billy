@@ -8,20 +8,13 @@ module Billy
       reset
     end
 
-    def start
-      Thread.new do
-        EM.run do
-          EM.error_handler do |e|
-            puts e.class.name, e
-            puts e.backtrace.join("\n")
-          end
-
-          @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
-            p.handler = self
-          end
-        end
+    def start(threaded = true)
+      if threaded
+        Thread.new { main_loop }
+        sleep(0.01) while @signature.nil?
+      else
+        main_loop
       end
-      sleep(0.01) while @signature.nil?
     end
 
     def url
@@ -62,6 +55,21 @@ module Billy
         return stub if stub.matches?(method, url)
       end
       nil
+    end
+
+    def main_loop
+      EM.run do
+        EM.error_handler do |e|
+          puts e.class.name, e
+          puts e.backtrace.join("\n")
+        end
+
+        @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
+          p.handler = self
+        end
+
+        Billy.log(:info, "Proxy listening on #{url}")
+      end
     end
   end
 end
