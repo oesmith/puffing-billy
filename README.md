@@ -8,8 +8,13 @@ tests to fake interactions with remote HTTP(S) servers.
 ## Overview
 
 Billy spawns an EventMachine-based proxy server, which it uses to intercept
-requests sent by your browser. It has a simple rspec plugin for configuring
-which requests need stubbing and what they should return.
+requests sent by your browser. It has a simple API for configuring which
+requests need stubbing and what they should return.
+
+Billy lets you test against known, repeatable data.  It also allows you to
+test for failure cases.  Does your twitter (or facebook/google/etc)
+integration degrade gracefully when the API starts returning 500s?  Well now
+you can test it!
 
 ```ruby
 it 'should stub google' do
@@ -18,7 +23,6 @@ it 'should stub google' do
   page.should have_content("I'm not Google!")
 end
 ```
-
 
 ## Installation
 
