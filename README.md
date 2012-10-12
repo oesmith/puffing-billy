@@ -1,13 +1,15 @@
 # Puffing Billy
 
-A stubbing proxy server for ruby. Connect it to your browser in integration tests to fake
-interactions with remote HTTP(S) servers.
+A stubbing proxy server for ruby. Connect it to your browser in integration
+tests to fake interactions with remote HTTP(S) servers.
 
 ![](http://upload.wikimedia.org/wikipedia/commons/0/01/Puffing_Billy_1862.jpg)
 
 ## Overview
 
-The thirty second version:
+Billy spawns an EventMachine-based proxy server, which it uses to intercept
+requests sent by your browser. It has a simple rspec plugin for configuring
+which requests need stubbing and what they should return.
 
 ```ruby
 it 'should stub google' do
@@ -16,6 +18,7 @@ it 'should stub google' do
   page.should have_content("I'm not Google!")
 end
 ```
+
 
 ## Installation
 
@@ -47,22 +50,46 @@ Capybara.javascript_driver = :selenium_billy
 In your tests:
 
 ```ruby
-# stub and return text, json, jsonp (or anything else)
+# Stub and return text, json, jsonp (or anything else)
 proxy.stub('http://example.com/text').and_return(:text => 'Foobar')
 proxy.stub('http://example.com/json').and_return(:json => { :foo => 'bar' })
 proxy.stub('http://example.com/jsonp').and_return(:jsonp => { :foo => 'bar' })
 proxy.stub('http://example.com/wtf').and_return(:body => 'WTF!?', :content_type => 'text/wtf')
 
-# stub redirections and other return codes
+# Stub redirections and other return codes
 proxy.stub('http://example.com/redirect').and_return(:redirect_to => 'http://example.com/other')
 proxy.stub('http://example.com/missing').and_return(:code => 404, :body => 'Not found')
 
-# even stub HTTPS!
+# Even stub HTTPS!
 proxy.stub('https://example.com/secure').and_return(:text => 'secrets!!1!')
+
+# Pass a Proc (or Proc-style object) to create dynamic responses.
+#
+# The proc will be called with the following arguments:
+#   params:  Query string parameters hash, CGI::escape-style
+#   headers: Headers hash
+#   body:    Request body string
+#
+proxy.stub('https://example.com/proc').and_return(Proc.new { |params, headers, body|
+  { :text => "Hello, #{params['name'][0]}"}
+})
 ```
 
 Stubs are reset between tests.  Any requests that are not stubbed will be
 proxied to the remote server.
+
+## Customising the javascript driver
+
+If you use a customised Capybara driver, remember to set the proxy address
+and tell it to ignore SSL certificate warnings. See
+[lib/billy/rspec.rb](https://github.com/oesmith/puffing-billy/blob/master/lib/billy/rspec.rb)
+to see how Billy's default drivers are configured.
+
+## FAQ
+
+1. Why name it after a train?
+
+   Trains are *cool*.
 
 ## Contributing
 
@@ -76,3 +103,4 @@ proxied to the remote server.
 
 1. Integration for test frameworks other than rspec.
 2. Caching (for super awesome improved test performance).
+3. Show errors from the EventMachine reactor loop in the test output.
