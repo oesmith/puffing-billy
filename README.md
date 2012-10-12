@@ -1,7 +1,10 @@
 # Puffing Billy
 
-A stubbing proxy server for ruby. Connect it to your browser in integration
-tests to fake interactions with remote HTTP(S) servers.
+A rewriting web proxy for testing interactions between your browser and
+external sites. Works with ruby + rspec.
+
+Puffing Billy is like [webmock](https://github.com/bblimke/webmock), but for
+your browser.
 
 ![](http://upload.wikimedia.org/wikipedia/commons/0/01/Puffing_Billy_1862.jpg)
 
@@ -108,3 +111,4 @@ to see how Billy's default drivers are configured.
 1. Integration for test frameworks other than rspec.
 2. Caching (for super awesome improved test performance).
 3. Show errors from the EventMachine reactor loop in the test output.
+
