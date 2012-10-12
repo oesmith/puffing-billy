@@ -2,10 +2,12 @@ PATH
   remote: .
   specs:
     puffing-billy (0.1.1)
+      capybara
       em-http-request
       eventmachine
       eventmachine_httpserver
       http_parser.rb
+      rspec
       yajl-ruby
 
 GEM
@@ -85,7 +87,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  capybara
   capybara-webkit
   faraday
   poltergeist

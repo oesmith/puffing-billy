@@ -18,7 +18,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "thin"
   gem.add_development_dependency "faraday"
-  gem.add_development_dependency "capybara"
   gem.add_development_dependency "poltergeist"
   gem.add_development_dependency "selenium-webdriver"
   gem.add_development_dependency "capybara-webkit"
@@ -28,4 +27,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "eventmachine_httpserver"
   gem.add_runtime_dependency "http_parser.rb"
   gem.add_runtime_dependency "yajl-ruby"
+  gem.add_runtime_dependency "rspec"
+  gem.add_runtime_dependency "capybara"
 end
