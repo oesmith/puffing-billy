@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    puffing-billy (0.1.0)
+    puffing-billy (0.1.1)
       em-http-request
       eventmachine
       eventmachine_httpserver
