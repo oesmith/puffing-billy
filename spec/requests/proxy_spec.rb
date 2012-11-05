@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'billy'
+require 'resolv'
 
 shared_examples_for 'a proxy server' do
   it 'should proxy GET requests' do
@@ -15,7 +16,7 @@ shared_examples_for 'a proxy server' do
   end
 
   it 'should proxy HEAD requests' do
-    http.head('/echo').headers['http_x_echoserver'].should == 'HEAD /echo'
+    http.head('/echo').headers['HTTP-X-EchoServer'].should == 'HEAD /echo'
   end
 
   it 'should proxy DELETE requests' do
@@ -52,6 +53,39 @@ shared_examples_for 'a request stub' do
     proxy.stub("#{url}/bam", :method => :delete).
       and_return(:text => 'hello, DELETE!')
     http.delete('/bam').body.should == 'hello, DELETE!'
+  end
+end
+
+shared_examples_for 'a cache' do
+
+  context 'whitelisted GET requests' do
+    it 'should not be cached' do
+      r = http.get('/foo')
+      r.body.should == 'GET /foo'
+      expect {
+        expect {
+          r = http.get('/foo')
+        }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
+      }.to_not change { r.body }
+    end
+  end
+
+  context 'other GET requests' do
+    around do |example|
+      Billy.configure { |c| c.whitelist = [] }
+      example.run
+      Billy.configure { |c| c.whitelist = Billy::Config::DEFAULT_WHITELIST }
+    end
+
+    it 'should be cached' do
+      r = http.get('/foo')
+      r.body.should == 'GET /foo'
+      expect {
+        expect {
+          r = http.get('/foo')
+        }.to_not change { r.headers['HTTP-X-EchoCount'] }
+      }.to_not change { r.body }
+    end
   end
 end
 
@@ -95,6 +129,20 @@ describe Billy::Proxy do
       let!(:url) { @https_url }
       let!(:http) { @https }
       it_should_behave_like 'a request stub'
+    end
+
+  end
+
+  context 'caching' do
+
+    context 'HTTP' do
+      let!(:http) { @http }
+      it_should_behave_like 'a cache'
+    end
+
+    context 'HTTPS' do
+      let!(:http) { @https }
+      it_should_behave_like 'a cache'
     end
 
   end

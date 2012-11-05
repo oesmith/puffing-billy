@@ -2,10 +2,14 @@ require 'logger'
 
 module Billy
   class Config
-    attr_accessor :logger
+    DEFAULT_WHITELIST = ['127.0.0.1', 'localhost']
+
+    attr_accessor :logger, :cache, :whitelist
 
     def initialize
-      @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
+      @logger    = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
+      @cache     = true
+      @whitelist = DEFAULT_WHITELIST
     end
   end
 

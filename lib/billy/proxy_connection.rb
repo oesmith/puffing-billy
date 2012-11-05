@@ -1,3 +1,4 @@
+require 'uri'
 require 'eventmachine'
 require 'http/parser'
 require 'em-http'
@@ -6,6 +7,7 @@ require 'evma_httpserver'
 module Billy
   class ProxyConnection < EventMachine::Connection
     attr_accessor :handler
+    attr_accessor :cache
 
     def post_init
       @parser = Http::Parser.new(self)
@@ -77,6 +79,9 @@ module Billy
         response.headers = result[1].merge('Connection' => 'close')
         response.content = result[2]
         response.send_response
+      elsif @parser.http_method == 'GET' && cache.cached?(@url)
+        Billy.log(:info, "CACHE #{@parser.http_method} #{@url}")
+        respond_from_cache
       else
         Billy.log(:info, "PROXY #{@parser.http_method} #{@url}")
         proxy_request
@@ -99,18 +104,34 @@ module Billy
       req = req.send(@parser.http_method.downcase, req_opts)
 
       req.errback do
-        puts "Request failed: #{@url}"
+        Billy.log(:error, "Request failed: #{@url}")
         close_connection
       end
 
       req.callback do
+        res_status = req.response_header.status
+        res_headers = req.response_header.raw
+        res_headers = res_headers.merge('Connection' => 'close')
+        res_headers.delete('Transfer-Encoding')
+        res_content = req.response.force_encoding('BINARY')
+        if @parser.http_method == 'GET' && cache.cacheable?(@url, res_headers)
+          cache.store(@url, res_status, res_headers, res_content)
+        end
         res = EM::DelegatedHttpResponse.new(self)
-        res.status = req.response_header.status
-        res.headers = req.response_header.merge('Connection' => 'close')
-        res.content = req.response.force_encoding('BINARY')
+        res.status = res_status
+        res.headers = res_headers
+        res.content = res_content
         res.send_response
       end
     end
 
+    def respond_from_cache
+      cached_res = cache.fetch(@url)
+      res = EM::DelegatedHttpResponse.new(self)
+      res.status = cached_res[:status]
+      res.headers = cached_res[:headers]
+      res.content = cached_res[:content]
+      res.send_response
+    end
   end
 end

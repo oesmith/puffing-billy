@@ -6,6 +6,7 @@ module Billy
   class Proxy
     def initialize
       reset
+      @cache = Billy::Cache.new
     end
 
     def start(threaded = true)
@@ -48,6 +49,10 @@ module Billy
       @stubs = []
     end
 
+    def reset_cache
+      @cache.reset
+    end
+
     protected
 
     def find_stub(method, url)
@@ -66,6 +71,7 @@ module Billy
 
         @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
           p.handler = self
+          p.cache = @cache
         end
 
         Billy.log(:info, "Proxy listening on #{url}")

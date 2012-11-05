@@ -21,4 +21,8 @@ RSpec.configure do |config|
   config.before :all do
     start_test_servers
   end
+
+  config.before :each do
+    proxy.reset_cache
+  end
 end

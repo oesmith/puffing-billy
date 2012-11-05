@@ -17,12 +17,19 @@ module Billy
       q = Queue.new
       Thread.new do
         EM.run do
+          counter = 0
           echo = Proc.new do |env|
             req_body = env['rack.input'].read
             request_info = "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"
             res_body = request_info
             res_body += "\n#{req_body}" unless req_body.empty?
-            [200, {'HTTP-X-EchoServer'=>request_info}, [res_body]]
+            counter += 1
+            [
+              200,
+              { 'HTTP-X-EchoServer' => request_info,
+                'HTTP-X-EchoCount' => "#{counter}" },
+              [res_body]
+            ]
           end
 
           Thin::Logging.silent = true
