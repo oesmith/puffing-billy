@@ -21,8 +21,8 @@ you can test it!
 
 ```ruby
 it 'should stub google' do
-  proxy.stub('http://www.google.com').and_return(:text => "I'm not Google!")
-  visit 'http://www.google.com'
+  proxy.stub('http://www.google.com/').and_return(:text => "I'm not Google!")
+  visit 'http://www.google.com/'
   page.should have_content("I'm not Google!")
 end
 ```
@@ -58,17 +58,17 @@ In your tests:
 
 ```ruby
 # Stub and return text, json, jsonp (or anything else)
-proxy.stub('http://example.com/text').and_return(:text => 'Foobar')
-proxy.stub('http://example.com/json').and_return(:json => { :foo => 'bar' })
-proxy.stub('http://example.com/jsonp').and_return(:jsonp => { :foo => 'bar' })
-proxy.stub('http://example.com/wtf').and_return(:body => 'WTF!?', :content_type => 'text/wtf')
+proxy.stub('http://example.com/text/').and_return(:text => 'Foobar')
+proxy.stub('http://example.com/json/').and_return(:json => { :foo => 'bar' })
+proxy.stub('http://example.com/jsonp/').and_return(:jsonp => { :foo => 'bar' })
+proxy.stub('http://example.com/wtf/').and_return(:body => 'WTF!?', :content_type => 'text/wtf')
 
 # Stub redirections and other return codes
-proxy.stub('http://example.com/redirect').and_return(:redirect_to => 'http://example.com/other')
-proxy.stub('http://example.com/missing').and_return(:code => 404, :body => 'Not found')
+proxy.stub('http://example.com/redirect/').and_return(:redirect_to => 'http://example.com/other')
+proxy.stub('http://example.com/missing/').and_return(:code => 404, :body => 'Not found')
 
 # Even stub HTTPS!
-proxy.stub('https://example.com/secure').and_return(:text => 'secrets!!1!')
+proxy.stub('https://example.com:443/secure/').and_return(:text => 'secrets!!1!')
 
 # Pass a Proc (or Proc-style object) to create dynamic responses.
 #
@@ -77,7 +77,7 @@ proxy.stub('https://example.com/secure').and_return(:text => 'secrets!!1!')
 #   headers: Headers hash
 #   body:    Request body string
 #
-proxy.stub('https://example.com/proc').and_return(Proc.new { |params, headers, body|
+proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, body|
   { :text => "Hello, #{params['name'][0]}"}
 })
 ```
