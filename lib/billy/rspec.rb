@@ -44,9 +44,9 @@ if defined?(Capybara::Poltergeist)
   end
 end
 
-if defined?(Capybara::Driver::Webkit)
+if defined?(Capybara::Webkit::Driver)
   Capybara.register_driver :webkit_billy do |app|
-    driver = Capybara::Driver::Webkit.new(app)
+    driver = Capybara::Webkit::Driver.new(app)
     driver.browser.set_proxy(:host => Billy.proxy.host,
                              :port => Billy.proxy.port)
     driver.browser.ignore_ssl_errors
