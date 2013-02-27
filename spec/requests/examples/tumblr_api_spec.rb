@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Tumblr API example', :type => :request, :js => true do
+describe 'Tumblr API example', :type => :feature, :js => true do
   before do
     proxy.stub('http://blog.howmanyleft.co.uk/api/read/json').and_return(
       :jsonp => {
@@ -27,4 +27,3 @@ describe 'Tumblr API example', :type => :request, :js => true do
     page.should have_content('News item 2 content here')
   end
 end
-
