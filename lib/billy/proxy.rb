@@ -41,7 +41,7 @@ module Billy
 
     def stub(url, options = {})
       ret = ProxyRequestStub.new(url, options)
-      @stubs << ret
+      @stubs.unshift ret
       ret
     end
 
@@ -56,10 +56,7 @@ module Billy
     protected
 
     def find_stub(method, url)
-      @stubs.each do |stub|
-        return stub if stub.matches?(method, url)
-      end
-      nil
+      @stubs.find {|stub| stub.matches?(method, url) }
     end
 
     def main_loop
