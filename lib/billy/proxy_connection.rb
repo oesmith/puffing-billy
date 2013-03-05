@@ -69,6 +69,8 @@ module Billy
     end
 
     def handle_request
+      puts "PROXYING?"
+
       if handler && handler.respond_to?(:call)
         result = handler.call(@parser.http_method, @url, @headers, @body)
       end
@@ -92,6 +94,7 @@ module Billy
       headers = Hash[@headers.map { |k,v| [k.downcase, v] }]
       headers.delete('accept-encoding')
 
+      puts "NEW HTTP REQUEST"
       req = EventMachine::HttpRequest.new(@url)
       req_opts = {
         :redirects => 0,
@@ -115,8 +118,10 @@ module Billy
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
         if @parser.http_method == 'GET' && cache.cacheable?(@url, res_headers)
+          puts "CACHING NAO"
           cache.store(@url, res_status, res_headers, res_content)
         end
+
         res = EM::DelegatedHttpResponse.new(self)
         res.status = res_status
         res.headers = res_headers
@@ -126,6 +131,7 @@ module Billy
     end
 
     def respond_from_cache
+      puts "RESPONDING FROM CACHE"
       cached_res = cache.fetch(@url)
       res = EM::DelegatedHttpResponse.new(self)
       res.status = cached_res[:status]
