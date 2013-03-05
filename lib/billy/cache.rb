@@ -37,7 +37,9 @@ module Billy
 
       @cache[key(method, url)] = cached
 
-      File.open("spec/cache/"+key(method, url)+".yml", 'w') { |f| f.write(cached.to_yaml) }
+      File.open("spec/cache/"+key(method, url)+".yml", 'w') {
+        |f| f.write(cached.to_yaml(:Encoding => :Utf8))
+      }
     end
 
     def reset
@@ -57,6 +59,15 @@ module Billy
     end
 
     def key(method, url)
+      url = URI(url)
+      no_params = url.scheme+'://'+url.host+url.path
+
+      if Billy.config.ignore_params.include?(no_params)
+        url = no_params
+      else
+        url = url.to_s
+      end
+
       method+'_'+URI(url).host+'_'+Digest::SHA1.hexdigest(url)
     end
   end
