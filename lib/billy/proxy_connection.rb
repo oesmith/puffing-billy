@@ -69,11 +69,12 @@ module Billy
     end
 
     def handle_request
-      puts "PROXYING?"
+     # puts @parser.http_method
 
       if handler && handler.respond_to?(:call)
         result = handler.call(@parser.http_method, @url, @headers, @body)
       end
+
       if result
         Billy.log(:info, "STUB #{@parser.http_method} #{@url}")
         response = EM::DelegatedHttpResponse.new(self)
@@ -81,7 +82,7 @@ module Billy
         response.headers = result[1].merge('Connection' => 'close')
         response.content = result[2]
         response.send_response
-      elsif @parser.http_method == 'GET' && cache.cached?(@url)
+      elsif cache.cached?(@parser.http_method.downcase, @url)
         Billy.log(:info, "CACHE #{@parser.http_method} #{@url}")
         respond_from_cache
       else
@@ -94,7 +95,6 @@ module Billy
       headers = Hash[@headers.map { |k,v| [k.downcase, v] }]
       headers.delete('accept-encoding')
 
-      puts "NEW HTTP REQUEST"
       req = EventMachine::HttpRequest.new(@url)
       req_opts = {
         :redirects => 0,
@@ -117,9 +117,11 @@ module Billy
         res_headers = res_headers.merge('Connection' => 'close')
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
-        if @parser.http_method == 'GET' && cache.cacheable?(@url, res_headers)
+       # if @parser.http_method == 'GET' && cache.cacheable?(@url, res_headers)
+        if cache.cacheable?(@url, res_headers)
           puts "CACHING NAO"
-          cache.store(@url, res_status, res_headers, res_content)
+          puts @url
+          cache.store(@parser.http_method.downcase, @url, res_status, res_headers, res_content)
         end
 
         res = EM::DelegatedHttpResponse.new(self)
@@ -131,8 +133,7 @@ module Billy
     end
 
     def respond_from_cache
-      puts "RESPONDING FROM CACHE"
-      cached_res = cache.fetch(@url)
+      cached_res = cache.fetch(@parser.http_method.downcase, @url)
       res = EM::DelegatedHttpResponse.new(self)
       res.status = cached_res[:status]
       res.headers = cached_res[:headers]

@@ -18,26 +18,26 @@ module Billy
       end
     end
 
-    def cached?(url)
-      !@cache[url].nil?
+    def cached?(method, url)
+      !@cache[key(method, url)].nil?
     end
 
-    def fetch(url)
-      @cache[url]
+    def fetch(method, url)
+      @cache[key(method, url)]
     end
 
-    def store(url, status, headers, content)
+    def store(method, url, status, headers, content)
       cached = {
         :url => url,
         :status => status,
+        :method => method,
         :headers => headers,
         :content => content
       }
 
-      @cache[url] = cached
+      @cache[key(method, url)] = cached
 
-      key = URI(url).host+'_'+Digest::SHA1.hexdigest(url)
-      File.open("spec/cache/"+key+".yml", 'w') { |f| f.write(cached.to_yaml) }
+      File.open("spec/cache/"+key(method, url)+".yml", 'w') { |f| f.write(cached.to_yaml) }
     end
 
     def reset
@@ -51,8 +51,13 @@ module Billy
                rescue ArgumentError => e
                  puts "Could not parse YAML: #{e.message}"
                end
-        @cache[data["url"]] = data
+
+        @cache[key(data[:method], data[:url])] = data
       }
+    end
+
+    def key(method, url)
+      method+'_'+URI(url).host+'_'+Digest::SHA1.hexdigest(url)
     end
   end
 end
