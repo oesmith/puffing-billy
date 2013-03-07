@@ -88,7 +88,7 @@ shared_examples_for 'a cache' do
     end
   end
 
-  context 'ignore_parms GET requests' do
+  context 'ignore_params GET requests' do
     around do |example|
       Billy.configure { |c| c.ignore_params = ['/analytics'] }
       example.run
@@ -103,6 +103,44 @@ shared_examples_for 'a cache' do
           r = http.get('/analytics?some_param=20')
         }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
       }.to_not change { r.body }
+    end
+  end
+
+  context "persisting cache" do
+    around do |example|
+      Billy.configure { |c|
+        c.persist_cache = true
+        c.cache_path = '/tmp/cache'
+        c.ignore_params = []
+      }
+      example.run
+      Billy.configure { |c|
+        c.persist_cache = false
+        c.cache_path = ''
+      }
+    end
+
+    def key(method, url)
+      url = URI(url)
+      no_params = 'http://localhost'+url.path
+
+      if Billy.config.ignore_params.include?(no_params)
+        url = no_params
+      else
+        url = url.to_s
+      end
+
+      method+'_localhost_'+Digest::SHA1.hexdigest(url)
+    end
+
+    it 'should persist' do
+      r = http.get('/foo')
+      r.body.should == 'GET /foo'
+
+      puts 'KEY'
+      puts key('get', '/foo')
+
+      #puts Billy::Cache.any_instance.key('GET', '/foo')
     end
   end
 end
