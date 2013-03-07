@@ -87,6 +87,24 @@ shared_examples_for 'a cache' do
       }.to_not change { r.body }
     end
   end
+
+  context 'ignore_parms GET requests' do
+    around do |example|
+      Billy.configure { |c| c.ignore_params = ['/analytics'] }
+      example.run
+      Billy.configure { |c| c.ignore_params = [] }
+    end
+
+    it 'should be cached' do
+      r = http.get('/analytics?some_param=5')
+      r.body.should == 'GET /analytics'
+      expect {
+        expect {
+          r = http.get('/analytics?some_param=20')
+        }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
+      }.to_not change { r.body }
+    end
+  end
 end
 
 describe Billy::Proxy do
