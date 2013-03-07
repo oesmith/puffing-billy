@@ -37,9 +37,15 @@ module Billy
 
       @cache[key(method, url)] = cached
 
-      File.open("spec/cache/"+key(method, url)+".yml", 'w') {
-        |f| f.write(cached.to_yaml(:Encoding => :Utf8))
-      }
+      puts "WRITING"
+      puts key(method, url)
+
+      begin
+        File.open("spec/cache/"+key(method, url)+".yml", 'w') {
+          |f| f.write(cached.to_yaml(:Encoding => :Utf8))
+        }
+      rescue StandardError => e
+      end
     end
 
     def reset
@@ -47,6 +53,7 @@ module Billy
     end
 
     def load_dir
+      puts "LOADING DIR"
       Dir.glob("spec/cache/*.yml") { |filename|
         data = begin
                  YAML.load(File.open(filename))
@@ -54,8 +61,11 @@ module Billy
                  puts "Could not parse YAML: #{e.message}"
                end
 
+        puts key(data[:method], data[:url])
+
         @cache[key(data[:method], data[:url])] = data
       }
+      puts "DONE LOADING"
     end
 
     def key(method, url)

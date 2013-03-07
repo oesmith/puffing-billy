@@ -69,8 +69,6 @@ module Billy
     end
 
     def handle_request
-     # puts @parser.http_method
-
       if handler && handler.respond_to?(:call)
         result = handler.call(@parser.http_method, @url, @headers, @body)
       end
@@ -117,10 +115,7 @@ module Billy
         res_headers = res_headers.merge('Connection' => 'close')
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
-       # if @parser.http_method == 'GET' && cache.cacheable?(@url, res_headers)
         if cache.cacheable?(@url, res_headers)
-          puts "CACHING NAO"
-          puts @url
           cache.store(@parser.http_method.downcase, @url, res_status, res_headers, res_content)
         end
 
