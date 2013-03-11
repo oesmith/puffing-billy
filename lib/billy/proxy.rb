@@ -68,7 +68,6 @@ module Billy
     end
 
     def main_loop
-      puts "RUNNING MAIN LOOP"
       EM.run do
         EM.error_handler do |e|
           puts e.class.name, e

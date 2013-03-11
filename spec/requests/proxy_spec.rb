@@ -122,6 +122,7 @@ shared_examples_for 'a cache' do
 
     context "enabled" do
       around do |example|
+        # for some reason this isn't getting through to the functions underneath
         Billy.configure { |c|
           c.persist_cache = true
           c.cache_path = '/tmp/cache'
@@ -135,10 +136,11 @@ shared_examples_for 'a cache' do
       end
 
       it 'should persist' do
-        r = http.get('/foo')
-        r.body.should == 'GET /foo'
+        fudge = rand(100)
+        r = http.get('/foo'+fudge.to_s)
+        r.body.should == 'GET /foo'+fudge.to_s
 
-        File.exists?('/tmp/cache'+key('GET', '/foo')).should be_true
+        File.exists?('/tmp/cache'+key('GET', '/foo'+fudge.to_s)).should be_true
       end
     end
 

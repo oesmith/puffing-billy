@@ -38,7 +38,6 @@ module Billy
       @cache[key(method, url)] = cached
 
       if Billy.config.persist_cache
-        puts "PERSISTING"
         Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
         begin
@@ -56,7 +55,6 @@ module Billy
 
     def load_dir
       if Billy.config.persist_cache
-        puts "LOADING DIR"
         Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
           data = begin
                    YAML.load(File.open(filename))
@@ -68,7 +66,6 @@ module Billy
 
           @cache[key(data[:method], data[:url])] = data
         }
-        puts "DONE LOADING"
       end
     end
 
