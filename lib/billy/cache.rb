@@ -37,14 +37,16 @@ module Billy
 
       @cache[key(method, url)] = cached
 
-      puts "WRITING"
-      puts key(method, url)
+      if Billy.config.persist_cache
+        puts "PERSISTING"
+        Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
-      begin
-        File.open("spec/cache/"+key(method, url)+".yml", 'w') {
-          |f| f.write(cached.to_yaml(:Encoding => :Utf8))
-        }
-      rescue StandardError => e
+        begin
+          File.open(Billy.config.cache_path+key(method, url)+".yml", 'w') {
+            |f| f.write(cached.to_yaml(:Encoding => :Utf8))
+          }
+        rescue StandardError => e
+        end
       end
     end
 
@@ -53,19 +55,21 @@ module Billy
     end
 
     def load_dir
-      puts "LOADING DIR"
-      Dir.glob("spec/cache/*.yml") { |filename|
-        data = begin
-                 YAML.load(File.open(filename))
-               rescue ArgumentError => e
-                 puts "Could not parse YAML: #{e.message}"
-               end
+      if Billy.config.persist_cache
+        puts "LOADING DIR"
+        Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
+          data = begin
+                   YAML.load(File.open(filename))
+                 rescue ArgumentError => e
+                   puts "Could not parse YAML: #{e.message}"
+                 end
 
-        puts key(data[:method], data[:url])
+          puts key(data[:method], data[:url])
 
-        @cache[key(data[:method], data[:url])] = data
-      }
-      puts "DONE LOADING"
+          @cache[key(data[:method], data[:url])] = data
+        }
+        puts "DONE LOADING"
+      end
     end
 
     def key(method, url)
@@ -73,12 +77,10 @@ module Billy
       no_params = url.scheme+'://'+url.host+url.path
 
       if Billy.config.ignore_params.include?(no_params)
-        url = no_params
-      else
-        url = url.to_s
+        url = URI(no_params)
       end
 
-      method+'_'+URI(url).host+'_'+Digest::SHA1.hexdigest(url)
+      method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url.to_s)
     end
   end
 end

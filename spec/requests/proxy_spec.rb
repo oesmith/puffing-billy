@@ -106,41 +106,62 @@ shared_examples_for 'a cache' do
     end
   end
 
-  context "persisting cache" do
-    around do |example|
-      Billy.configure { |c|
-        c.persist_cache = true
-        c.cache_path = '/tmp/cache'
-        c.ignore_params = []
-      }
-      example.run
-      Billy.configure { |c|
-        c.persist_cache = false
-        c.cache_path = ''
-      }
-    end
-
+  context "cache persistence" do
     def key(method, url)
+      url = proxy.url+url
+
       url = URI(url)
-      no_params = 'http://localhost'+url.path
+      no_params = url.scheme+'://'+url.host+url.path
 
       if Billy.config.ignore_params.include?(no_params)
-        url = no_params
-      else
-        url = url.to_s
+        url = URI(no_params)
       end
 
-      method+'_localhost_'+Digest::SHA1.hexdigest(url)
+      method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url.to_s)
     end
 
-    it 'should persist' do
-      r = http.get('/foo')
-      r.body.should == 'GET /foo'
+    context "enabled" do
+      around do |example|
+        Billy.configure { |c|
+          c.persist_cache = true
+          c.cache_path = '/tmp/cache'
+          c.ignore_params = []
+        }
+        example.run
+        Billy.configure { |c|
+          c.persist_cache = false
+          c.cache_path = ''
+        }
+      end
 
-      puts 'KEY'
-      puts key('get', '/foo')
+      it 'should persist' do
+        r = http.get('/foo')
+        r.body.should == 'GET /foo'
 
-      #puts Billy::Cache.any_instance.key('GET', '/foo')
+        File.exists?('/tmp/cache'+key('GET', '/foo')).should be_true
+      end
+    end
+
+    context "disabled" do
+      around do |example|
+        Billy.configure { |c|
+          c.persist_cache = false
+          c.cache_path = '/tmp/cache'
+          c.ignore_params = []
+        }
+        example.run
+        Billy.configure { |c|
+          c.persist_cache = false
+          c.cache_path = ''
+        }
+      end
+
+      it 'shouldnt persist' do
+        r = http.get('/foo')
+        r.body.should == 'GET /foo'
+
+        File.exists?('/tmp/cache'+key('GET', '/foo')).should be_false
+      end
     end
   end
 end

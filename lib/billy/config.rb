@@ -12,7 +12,7 @@ module Billy
       @whitelist = DEFAULT_WHITELIST
       @ignore_params = []
       @persist_cache = false
-      @cache_path = ''
+      @cache_path = '/tmp'
     end
   end
 
