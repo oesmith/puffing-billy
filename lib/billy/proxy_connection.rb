@@ -80,7 +80,7 @@ module Billy
         response.headers = result[1].merge('Connection' => 'close')
         response.content = result[2]
         response.send_response
-      elsif cache.cached?(@parser.http_method.downcase, @url)
+      elsif cache.cached?(@parser.http_method.downcase, @url, @body)
         Billy.log(:info, "CACHE #{@parser.http_method} #{@url}")
         respond_from_cache
       else
@@ -116,7 +116,7 @@ module Billy
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
         if cache.cacheable?(@url, res_headers)
-          cache.store(@parser.http_method.downcase, @url, res_status, res_headers, res_content)
+          cache.store(@parser.http_method.downcase, @url, @body, res_status, res_headers, res_content)
         end
 
         res = EM::DelegatedHttpResponse.new(self)
@@ -128,7 +128,7 @@ module Billy
     end
 
     def respond_from_cache
-      cached_res = cache.fetch(@parser.http_method.downcase, @url)
+      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
       res = EM::DelegatedHttpResponse.new(self)
       res.status = cached_res[:status]
       res.headers = cached_res[:headers]
