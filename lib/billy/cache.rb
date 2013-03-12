@@ -62,8 +62,6 @@ module Billy
                    puts "Could not parse YAML: #{e.message}"
                  end
 
-          puts key(data[:method], data[:url])
-
           @cache[key(data[:method], data[:url])] = data
         }
       end
