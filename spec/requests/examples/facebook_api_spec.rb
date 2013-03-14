@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'base64'
 
-describe 'Facebook API example', :type => :request, :js => true do
+describe 'Facebook API example', :type => :feature, :js => true do
   before do
     proxy.stub('https://www.facebook.com:443/dialog/oauth').and_return(Proc.new { |params,_,_|
       # mock a signed request from facebook.  the JS api never verifies the
@@ -20,4 +20,3 @@ describe 'Facebook API example', :type => :request, :js => true do
     page.should have_content "Hi, Tester 1"
   end
 end
-

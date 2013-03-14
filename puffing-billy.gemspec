@@ -22,6 +22,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "selenium-webdriver"
   gem.add_development_dependency "capybara-webkit"
   gem.add_development_dependency "rack"
+  gem.add_development_dependency "guard"
+  gem.add_development_dependency "rb-inotify"
   gem.add_runtime_dependency "eventmachine"
   gem.add_runtime_dependency "em-http-request"
   gem.add_runtime_dependency "eventmachine_httpserver"

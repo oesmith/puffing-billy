@@ -85,6 +85,42 @@ proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, 
 Stubs are reset between tests.  Any requests that are not stubbed will be
 proxied to the remote server.
 
+## Caching
+
+Requests routed through the external proxy are cached.
+
+If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr) you can turn on cache persistence. 
+This way you don't have to manually mock out everything as requests are automatically recorded and played back.
+With cache persistence you can take tests completely offline.
+
+In your `spec_helper.rb`:
+
+```ruby
+Billy.configure do |c|
+  c.cache = true
+  c.ignore_params = ["http://www.google-analytics.com/__utm.gif",
+                     "https://r.twimg.com/jot",
+                     "http://p.twitter.com/t.gif",
+                     "http://p.twitter.com/f.gif",
+                     "http://www.facebook.com/plugins/like.php",
+                     "https://www.facebook.com/dialog/oauth",
+                     "http://cdn.api.twitter.com/1/urls/count.json"]
+  c.persist_cache = true
+  c.cache_path = 'spec/req_cache/'
+end
+
+# need to call this because of a race condition between persist_cache
+# being set and the proxy being loaded for the first time
+Billy.proxy.restore_cache
+```
+
+`c.ignore_params` is used to ignore parameters of certain requests when caching. You should mostly use this for analytics
+and various social buttons as they use cache avoidance techniques, but return practically the same response that most often 
+does not affect your test results.
+
+The cache works with all types of requests and will distinguish between differend POST requests to the same URL.
+
+
 ## Customising the javascript driver
 
 If you use a customised Capybara driver, remember to set the proxy address
