@@ -53,6 +53,11 @@ module Billy
       @cache.reset
     end
 
+    def restore_cache
+      @cache.reset
+      @cache.load_dir
+    end
+
     protected
 
     def find_stub(method, url)

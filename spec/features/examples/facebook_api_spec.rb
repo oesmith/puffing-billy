@@ -20,4 +20,3 @@ describe 'Facebook API example', :type => :feature, :js => true do
     page.should have_content "Hi, Tester 1"
   end
 end
-

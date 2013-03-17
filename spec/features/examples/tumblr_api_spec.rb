@@ -27,4 +27,3 @@ describe 'Tumblr API example', :type => :feature, :js => true do
     page.should have_content('News item 2 content here')
   end
 end
-
