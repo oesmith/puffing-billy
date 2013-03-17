@@ -3,8 +3,8 @@
 A rewriting web proxy for testing interactions between your browser and
 external sites. Works with ruby + rspec.
 
-Puffing Billy is like [webmock](https://github.com/bblimke/webmock), but for
-your browser.
+Puffing Billy is like [webmock](https://github.com/bblimke/webmock) or
+[VCR](https://github.com/vcr/vcr), but for your browser.
 
 ![](http://upload.wikimedia.org/wikipedia/commons/0/01/Puffing_Billy_1862.jpg)
 
@@ -26,6 +26,9 @@ it 'should stub google' do
   page.should have_content("I'm not Google!")
 end
 ```
+
+You can also record HTTP interactions and replay them later. See
+[caching](#caching) below.
 
 ## Installation
 
@@ -89,11 +92,22 @@ proxied to the remote server.
 
 Requests routed through the external proxy are cached.
 
-If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr) you can turn on cache persistence. 
-This way you don't have to manually mock out everything as requests are automatically recorded and played back.
-With cache persistence you can take tests completely offline.
+By default, all requests to localhost or 127.0.0.1 will not be cached. If
+you're running your test server with a different hostname, you'll need to
+add that host to puffing-billy's whitelist.
 
 In your `spec_helper.rb`:
+
+```ruby
+Billy.configure do |c|
+  c.whitelist = ['test.host', 'localhost', '127.0.0.1']
+end
+```
+
+If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr)
+you can turn on cache persistence. This way you don't have to manually mock out
+everything as requests are automatically recorded and played back. With cache
+persistence you can take tests completely offline.
 
 ```ruby
 Billy.configure do |c|
@@ -114,12 +128,13 @@ end
 Billy.proxy.restore_cache
 ```
 
-`c.ignore_params` is used to ignore parameters of certain requests when caching. You should mostly use this for analytics
-and various social buttons as they use cache avoidance techniques, but return practically the same response that most often 
-does not affect your test results.
+`c.ignore_params` is used to ignore parameters of certain requests when
+caching. You should mostly use this for analytics and various social buttons as
+they use cache avoidance techniques, but return practically the same response
+that most often does not affect your test results.
 
-The cache works with all types of requests and will distinguish between differend POST requests to the same URL.
-
+The cache works with all types of requests and will distinguish between
+different POST requests to the same URL.
 
 ## Customising the javascript driver
 
@@ -145,6 +160,5 @@ to see how Billy's default drivers are configured.
 ## TODO
 
 1. Integration for test frameworks other than rspec.
-2. Caching (for super awesome improved test performance).
-3. Show errors from the EventMachine reactor loop in the test output.
+2. Show errors from the EventMachine reactor loop in the test output.
 
