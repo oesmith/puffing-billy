@@ -25,4 +25,8 @@ RSpec.configure do |config|
   config.before :each do
     proxy.reset_cache
   end
+
+  config.after :each do
+    Billy.config.reset
+  end
 end

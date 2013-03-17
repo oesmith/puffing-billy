@@ -71,10 +71,8 @@ shared_examples_for 'a cache' do
   end
 
   context 'other GET requests' do
-    around do |example|
-      Billy.configure { |c| c.whitelist = [] }
-      example.run
-      Billy.configure { |c| c.whitelist = Billy::Config::DEFAULT_WHITELIST }
+    before do
+      Billy.config.whitelist = []
     end
 
     it 'should be cached' do
@@ -89,10 +87,8 @@ shared_examples_for 'a cache' do
   end
 
   context 'ignore_params GET requests' do
-    around do |example|
-      Billy.configure { |c| c.ignore_params = ['/analytics'] }
-      example.run
-      Billy.configure { |c| c.ignore_params = [] }
+    before do
+      Billy.config.ignore_params = ['/analytics']
     end
 
     it 'should be cached' do
@@ -107,62 +103,32 @@ shared_examples_for 'a cache' do
   end
 
   context "cache persistence" do
-    def key(method, url)
-      url = proxy.url+url
+    let(:cached_file) do
+      f = "GET_localhost_#{Digest::SHA1.hexdigest("#{url}/foo")}.yml"
+      File.join(Billy.config.cache_path, f)
+    end
 
-      url = URI(url)
-      no_params = url.scheme+'://'+url.host+url.path
+    before { Billy.config.whitelist = [] }
 
-      if Billy.config.ignore_params.include?(no_params)
-        url = URI(no_params)
-      end
-
-      method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url.to_s)
+    after do
+      File.delete(cached_file) if File.exists?(cached_file)
     end
 
     context "enabled" do
-      around do |example|
-        # for some reason this isn't getting through to the functions underneath
-        Billy.configure { |c|
-          c.persist_cache = true
-          c.cache_path = '/tmp/cache'
-          c.ignore_params = []
-        }
-        example.run
-        Billy.configure { |c|
-          c.persist_cache = false
-          c.cache_path = ''
-        }
-      end
+      before { Billy.config.persist_cache = true }
 
       it 'should persist' do
-        fudge = rand(100)
-        r = http.get('/foo'+fudge.to_s)
-        r.body.should == 'GET /foo'+fudge.to_s
-
-        File.exists?('/tmp/cache'+key('GET', '/foo'+fudge.to_s)).should be_true
+        r = http.get('/foo')
+        File.exists?(cached_file).should be_true
       end
     end
 
     context "disabled" do
-      around do |example|
-        Billy.configure { |c|
-          c.persist_cache = false
-          c.cache_path = '/tmp/cache'
-          c.ignore_params = []
-        }
-        example.run
-        Billy.configure { |c|
-          c.persist_cache = false
-          c.cache_path = ''
-        }
-      end
+      before { Billy.config.persist_cache = false }
 
       it 'shouldnt persist' do
         r = http.get('/foo')
-        r.body.should == 'GET /foo'
-
-        File.exists?('/tmp/cache'+key('GET', '/foo')).should be_false
+        File.exists?(cached_file).should be_false
       end
     end
   end
@@ -215,11 +181,13 @@ describe Billy::Proxy do
   context 'caching' do
 
     context 'HTTP' do
+      let!(:url) { @http_url }
       let!(:http) { @http }
       it_should_behave_like 'a cache'
     end
 
     context 'HTTPS' do
+      let!(:url) { @https_url }
       let!(:http) { @https }
       it_should_behave_like 'a cache'
     end

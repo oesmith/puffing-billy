@@ -1,4 +1,5 @@
 require 'logger'
+require 'tmpdir'
 
 module Billy
   class Config
@@ -7,12 +8,16 @@ module Billy
     attr_accessor :logger, :cache, :whitelist, :ignore_params, :persist_cache, :cache_path
 
     def initialize
-      @logger    = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
-      @cache     = true
+      @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
+      reset
+    end
+
+    def reset
+      @cache = true
       @whitelist = DEFAULT_WHITELIST
       @ignore_params = []
       @persist_cache = false
-      @cache_path = '/tmp'
+      @cache_path = Dir.tmpdir
     end
   end
 

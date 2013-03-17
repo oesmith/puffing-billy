@@ -12,7 +12,6 @@ module Billy
     def cacheable?(url, headers)
       if Billy.config.cache
         host = URI(url).host
-        Billy.log(:info, Billy.config.whitelist)
         !Billy.config.whitelist.include?(host)
         # TODO test headers for cacheability
       end
@@ -42,9 +41,11 @@ module Billy
         Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
         begin
-          File.open(Billy.config.cache_path+key(method, url, body)+".yml", 'w') {
-            |f| f.write(cached.to_yaml(:Encoding => :Utf8))
-          }
+          path = File.join(Billy.config.cache_path,
+                           "#{key(method, url, body)}.yml")
+          File.open(path, 'w') do |f|
+            f.write(cached.to_yaml(:Encoding => :Utf8))
+          end
         rescue StandardError => e
         end
       end
