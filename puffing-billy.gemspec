@@ -30,5 +30,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "http_parser.rb"
   gem.add_runtime_dependency "yajl-ruby"
   gem.add_runtime_dependency "rspec"
+  gem.add_runtime_dependency "cucumber"
   gem.add_runtime_dependency "capybara"
 end
