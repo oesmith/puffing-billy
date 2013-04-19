@@ -44,7 +44,7 @@ Or install it yourself as:
 
     $ gem install puffing-billy
 
-## Usage
+## RSpec Usage
 
 In your `spec_helper.rb`:
 
@@ -87,6 +87,48 @@ proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, 
 
 Stubs are reset between tests.  Any requests that are not stubbed will be
 proxied to the remote server.
+
+## Cucumber Usage
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/cucumber'
+
+After do
+  Capybara.use_default_driver
+end
+```
+
+An example feature:
+
+```
+Feature: Stubbing via billy
+
+  @javascript @billy
+  Scenario: Test billy
+    And a stub for google
+```
+
+And in steps:
+
+```
+Before('@billy') do
+  Capybara.current_driver = :poltergeist_billy
+  Capybara.javascript_driver = :poltergeist_billy
+end
+
+And /^a stub for google$/ do
+  proxy.stub('http://www.google.com/').and_return(:text => "I'm not Google!")
+  visit 'http://www.google.com/'
+  page.should have_content("I'm not Google!")
+end
+```
+
+It's good practice to reset the driver after each scenario, so having an 
+`@billy` tag switches the drivers on for a given scenario. Also note that 
+stubs are reset after each step, so any usage of a stub should be in the 
+same step that it was created in.
 
 ## Caching
 
