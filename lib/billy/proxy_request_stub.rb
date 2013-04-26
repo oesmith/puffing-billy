@@ -1,4 +1,4 @@
-require 'yajl'
+require 'multi_json'
 
 module Billy
   class ProxyRequestStub
@@ -28,7 +28,7 @@ module Billy
 
       if res[:json]
         headers = {'Content-Type' => 'application/json'}.merge(headers)
-        body = Yajl::Encoder.encode(res[:json])
+        body = MultiJson.dump(res[:json])
       elsif res[:jsonp]
         headers = {'Content-Type' => 'application/javascript'}.merge(headers)
         if res[:callback]
@@ -38,7 +38,7 @@ module Billy
         else
           callback = params['callback'][0]
         end
-        body = "#{callback}(#{Yajl::Encoder::encode(res[:jsonp])})"
+        body = "#{callback}(#{MultiJson.dump(res[:jsonp])})"
       elsif res[:text]
         headers = {'Content-Type' => 'text/plain'}.merge(headers)
         body = res[:text]
