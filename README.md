@@ -55,6 +55,9 @@ require 'billy/rspec'
 Capybara.javascript_driver = :selenium_billy
 # Capybara.javascript_driver = :webkit_billy
 # Capybara.javascript_driver = :poltergeist_billy
+
+# set the capybara server port
+Capybara.server_port = 7787
 ```
 
 In your tests:
