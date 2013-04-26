@@ -34,7 +34,7 @@ You can also record HTTP interactions and replay them later. See
 
 Add this line to your application's Gemfile:
 
-    gem 'puffing-billy', :require => 'billy'
+    gem 'puffing-billy'
 
 And then execute:
 
