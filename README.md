@@ -64,6 +64,10 @@ In your tests:
 proxy.stub('http://example.com/text/').and_return(:text => 'Foobar')
 proxy.stub('http://example.com/json/').and_return(:json => { :foo => 'bar' })
 proxy.stub('http://example.com/jsonp/').and_return(:jsonp => { :foo => 'bar' })
+proxy.stub('http://example.com/headers/').and_return({
+  :headers => { 'Access-Control-Allow-Origin' => '*' },
+  :json    => { :foo => 'bar' }
+})
 proxy.stub('http://example.com/wtf/').and_return(:body => 'WTF!?', :content_type => 'text/wtf')
 
 # Stub redirections and other return codes
