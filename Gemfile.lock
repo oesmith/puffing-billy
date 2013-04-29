@@ -7,7 +7,7 @@ PATH
       eventmachine
       eventmachine_httpserver
       http_parser.rb
-      yajl-ruby
+      multi_json
 
 GEM
   remote: https://rubygems.org/
@@ -104,7 +104,6 @@ GEM
     websocket (1.0.7)
     xpath (1.0.0)
       nokogiri (~> 1.3)
-    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
