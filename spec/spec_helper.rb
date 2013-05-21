@@ -5,7 +5,6 @@ require 'rack'
 require 'logger'
 
 Capybara.app = Rack::Directory.new(File.expand_path("../../examples", __FILE__))
-Capybara.javascript_driver = :poltergeist_billy
 
 Billy.configure do |config|
   config.logger = Logger.new(File.expand_path("../../log/test.log", __FILE__))

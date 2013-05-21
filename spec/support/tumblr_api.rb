@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe 'Tumblr API example', :type => :feature, :js => true do
+shared_examples 'stubbing the Tumblr API' do
   before do
     proxy.stub('http://blog.howmanyleft.co.uk/api/read/json').and_return(
       :jsonp => {

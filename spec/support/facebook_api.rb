@@ -1,7 +1,6 @@
-require 'spec_helper'
 require 'base64'
 
-describe 'Facebook API example', :type => :feature, :js => true do
+shared_examples 'stubbing the Facebook API' do
   before do
     proxy.stub('https://www.facebook.com:443/dialog/oauth').and_return(Proc.new { |params,_,_|
       # mock a signed request from facebook.  the JS api never verifies the
