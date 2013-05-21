@@ -14,6 +14,14 @@ end
 
 World(Billy::CucumberHelper)
 
+Before('@billy') do
+  if Capybara.current_driver == :webkit_billy
+    Capybara.page.driver.browser.set_proxy(
+      :host => Billy.proxy.host,
+      :port => Billy.proxy.port)
+  end
+end
+
 After('@billy') do
   proxy.reset
 end
