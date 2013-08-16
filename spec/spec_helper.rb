@@ -11,6 +11,10 @@ Billy.configure do |config|
   config.logger = Logger.new(File.expand_path("../../log/test.log", __FILE__))
 end
 
+
+$billy_proxy = Billy::Proxy.new
+$billy_proxy.start
+
 RSpec.configure do |config|
   include Billy::TestServer
   config.treat_symbols_as_metadata_keys_with_true_values = true

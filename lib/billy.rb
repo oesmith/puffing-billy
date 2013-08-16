@@ -5,9 +5,6 @@ require "billy/cache"
 require "billy/proxy"
 require "billy/proxy_connection"
 
-$billy_proxy = Billy::Proxy.new
-$billy_proxy.start
-
 module Billy
   def self.proxy
     $billy_proxy

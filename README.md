@@ -51,6 +51,9 @@ In your `spec_helper.rb`:
 ```ruby
 require 'billy/rspec'
 
+$billy_proxy = Billy::Proxy.new
+$billy_proxy.start
+
 # select a driver for your chosen browser environment
 Capybara.javascript_driver = :selenium_billy
 # Capybara.javascript_driver = :webkit_billy
@@ -148,6 +151,9 @@ In your `spec_helper.rb`:
 Billy.configure do |c|
   c.whitelist = ['test.host', 'localhost', '127.0.0.1']
 end
+
+$billy_proxy = Billy::Proxy.new
+$billy_proxy.start
 ```
 
 If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr)
@@ -169,9 +175,8 @@ Billy.configure do |c|
   c.cache_path = 'spec/req_cache/'
 end
 
-# need to call this because of a race condition between persist_cache
-# being set and the proxy being loaded for the first time
-Billy.proxy.restore_cache
+$billy_proxy = Billy::Proxy.new
+$billy_proxy.start
 ```
 
 `c.ignore_params` is used to ignore parameters of certain requests when
