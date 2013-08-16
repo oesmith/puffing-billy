@@ -17,6 +17,7 @@ describe 'Facebook API example', :type => :feature, :js => true do
 
   it 'should show me as logged-in', :js => true do
     visit '/facebook_api.html'
+    click_on "Login"
     page.should have_content "Hi, Tester 1"
   end
 end
