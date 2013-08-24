@@ -18,20 +18,22 @@ module Billy
     end
 
     def cached?(method, url, body)
-      !@cache[key(method, url, body)].nil? or persisted?(method, url, body)
+      key = key(method, url, body)
+      !@cache[key].nil? or persisted?(key)
     end
 
-    def persisted?(method, url, body)
-      Billy.config.persist_cache and File.exists?(File.join(Billy.config.cache_path, "#{key(method, url, body)}.yml"))
+    def persisted?(key)
+      Billy.config.persist_cache and File.exists?(File.join(Billy.config.cache_path, "#{key}.yml"))
     end
 
     def fetch(method, url, body)
-      @cache[key(method, url, body)] or fetch_from_persistence(method, url, body)
+      key = key(method, url, body)
+      @cache[key] or fetch_from_persistence(key)
     end
 
-    def fetch_from_persistence(method, url, body)
+    def fetch_from_persistence(key)
       if Billy.config.persist_cache and Billy.config.cache_path
-        cache_file = File.join(Billy.config.cache_path, "#{key(method, url, body)}.yml")
+        cache_file = File.join(Billy.config.cache_path, "#{key}.yml")
         YAML.load(File.open(cache_file))
       end
     end
@@ -46,14 +48,14 @@ module Billy
         :content => content
       }
 
-      @cache[key(method, url, body)] = cached
+      key = key(method, url, body)
+      @cache[key] = cached
 
       if Billy.config.persist_cache
         Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
         begin
-          path = File.join(Billy.config.cache_path,
-                           "#{key(method, url, body)}.yml")
+          path = File.join(Billy.config.cache_path, "#{key}.yml")
           File.open(path, 'w') do |f|
             f.write(cached.to_yaml(:Encoding => :Utf8))
           end
