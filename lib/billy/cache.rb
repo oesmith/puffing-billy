@@ -18,11 +18,22 @@ module Billy
     end
 
     def cached?(method, url, body)
-      !@cache[key(method, url, body)].nil?
+      !@cache[key(method, url, body)].nil? or persisted?(method, url, body)
+    end
+
+    def persisted?(method, url, body)
+      Billy.config.persist_cache and File.exists?(File.join(Billy.config.cache_path, "#{key(method, url, body)}.yml"))
     end
 
     def fetch(method, url, body)
-      @cache[key(method, url, body)]
+      @cache[key(method, url, body)] or fetch_from_persistence(method, url, body)
+    end
+
+    def fetch_from_persistence(method, url, body)
+      if Billy.config.persist_cache and Billy.config.cache_path
+        cache_file = File.join(Billy.config.cache_path, "#{key(method, url, body)}.yml")
+        YAML.load(File.open(cache_file))
+      end
     end
 
     def store(method, url, body, status, headers, content)
@@ -59,10 +70,10 @@ module Billy
       if Billy.config.persist_cache
         Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
           data = begin
-                   YAML.load(File.open(filename))
-                 rescue ArgumentError => e
-                   puts "Could not parse YAML: #{e.message}"
-                 end
+            YAML.load(File.open(filename))
+          rescue ArgumentError => e
+            puts "Could not parse YAML: #{e.message}"
+          end
 
           @cache[key(data[:method], data[:url], data[:body])] = data
         }
