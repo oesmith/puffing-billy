@@ -53,10 +53,7 @@ module Billy
       @cache.reset
     end
 
-    def restore_cache
-      @cache.reset
-      @cache.load_dir
-    end
+    alias_method :restore_cache, :reset_cache
 
     protected
 

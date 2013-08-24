@@ -6,7 +6,6 @@ module Billy
   class Cache
     def initialize
       reset
-      load_dir
     end
 
     def cacheable?(url, headers)
@@ -66,20 +65,6 @@ module Billy
 
     def reset
       @cache = {}
-    end
-
-    def load_dir
-      if Billy.config.persist_cache
-        Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
-          data = begin
-            YAML.load(File.open(filename))
-          rescue ArgumentError => e
-            puts "Could not parse YAML: #{e.message}"
-          end
-
-          @cache[key(data[:method], data[:url], data[:body])] = data
-        }
-      end
     end
 
     def key(method, url, body)
