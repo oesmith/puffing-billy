@@ -53,7 +53,10 @@ module Billy
       @cache.reset
     end
 
-    alias_method :restore_cache, :reset_cache
+    def restore_cache
+      warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamincally checked. Use `reset_cache` if you just want to clear the cache."
+      @cache.reset
+    end
 
     protected
 
