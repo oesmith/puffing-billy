@@ -22,7 +22,7 @@ module Billy
     end
 
     def persisted?(key)
-      Billy.config.persist_cache and File.exists?(File.join(Billy.config.cache_path, "#{key}.yml"))
+      Billy.config.persist_cache and File.exists?(cache_file(key))
     end
 
     def fetch(method, url, body)
@@ -31,9 +31,11 @@ module Billy
     end
 
     def fetch_from_persistence(key)
-      if Billy.config.persist_cache and Billy.config.cache_path
-        cache_file = File.join(Billy.config.cache_path, "#{key}.yml")
-        YAML.load(File.open(cache_file))
+      begin
+        @cache[key] = YAML.load(File.open(cache_file(key))) if persisted?(key)
+      rescue ArgumentError => e
+        puts "Could not parse YAML: #{e.message}"
+        nil
       end
     end
 
@@ -54,8 +56,7 @@ module Billy
         Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
         begin
-          path = File.join(Billy.config.cache_path, "#{key}.yml")
-          File.open(path, 'w') do |f|
+          File.open(cache_file(key), 'w') do |f|
             f.write(cached.to_yaml(:Encoding => :Utf8))
           end
         rescue StandardError => e
@@ -82,6 +83,10 @@ module Billy
       end
 
       key
+    end
+
+    def cache_file(key)
+      File.join(Billy.config.cache_path, "#{key}.yml")
     end
   end
 end
