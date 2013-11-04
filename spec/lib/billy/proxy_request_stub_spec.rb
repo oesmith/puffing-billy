@@ -32,6 +32,14 @@ describe Billy::ProxyRequestStub do
     end
   end
 
+  context "#call (without #and_return)" do
+    let(:subject) { Billy::ProxyRequestStub.new('url') }
+
+    it "returns a 204 empty response" do
+      subject.call({}, {}, nil).should == [204, {"Content-Type" => "text/plain"}, ""]
+    end
+  end
+
   context '#and_return + #call' do
     let(:subject) { Billy::ProxyRequestStub.new('url') }
 
