@@ -33,7 +33,11 @@ module Billy
     def call(method, url, headers, body)
       stub = find_stub(method, url)
       unless stub.nil?
-        query_string = URI.parse(url).query || ""
+        begin
+          query_string = URI.parse(url).query || ""
+        rescue URI::InvalidURIError
+          query_string = ""
+        end
         params = CGI.parse(query_string)
         stub.call(params, headers, body)
       end
