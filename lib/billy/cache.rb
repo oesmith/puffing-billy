@@ -79,7 +79,10 @@ module Billy
         url = URI(no_params)
       end
 
-      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url.to_s)
+      # Unique key based on anchor path instead of full url
+      anchor_split = URI(url).to_s.split('#')
+      anchor_path  = anchor_split.length > 1 ? anchor_split[1] : nil
+      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(anchor_path ? anchor_path : url.to_s)
 
       if method == 'post' and !Billy.config.ignore_params.include?(no_params)
         key += '_'+Digest::SHA1.hexdigest(body.to_s)
