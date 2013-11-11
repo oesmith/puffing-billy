@@ -11,8 +11,10 @@ module Billy
 
     def cacheable?(url, headers)
       if Billy.config.cache
-        host = URI(url).host
-        !Billy.config.whitelist.include?(host)
+        uri  = URI(url)
+        host = uri.host
+        port = uri.port
+        !Billy.config.whitelist.include?(host) || !Billy.config.whitelist.include?("#{host}:#{port}")
         # TODO test headers for cacheability
       end
     end
