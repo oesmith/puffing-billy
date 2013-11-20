@@ -51,6 +51,16 @@ module Billy
       @stubs = []
     end
 
+    def use_cache(name = nil)
+      cache_index = @caches.index { |cache| cache.name == name }
+      if cache_index.nil?
+        @cache = Billy::Cache.new name
+        @caches << @cache
+      else
+        @cache = @caches[cache_index]
+      end
+    end
+
     def reset_cache
       @cache.reset
     end
