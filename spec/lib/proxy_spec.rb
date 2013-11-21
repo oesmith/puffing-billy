@@ -121,6 +121,19 @@ shared_examples_for 'a cache' do
         r = http.get('/foo')
         File.exists?(cached_file).should be_true
       end
+
+      it 'should be read initially from persistent cache' do
+        File.open(cached_file, 'w') do |f|
+          cached = {
+            :headers => {},
+            :content => "GET /foo cached"
+          }
+          f.write(cached.to_yaml(:Encoding => :Utf8))
+        end
+
+        r = http.get('/foo')
+        r.body.should == 'GET /foo cached'
+      end
     end
 
     context "disabled" do
