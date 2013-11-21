@@ -243,6 +243,14 @@ describe Billy::Proxy do
       it 'requires a block to be passed to with_scope' do
         expect {proxy.cache.with_scope "some_scope"}.to raise_error ArgumentError
       end
+
+      it 'should have different keys for the same request under a different scope' do
+        args = ['get',"#{url}/foo",""]
+        key = proxy.cache.key(*args)
+        proxy.cache.with_scope "another_cache" do
+          expect(proxy.cache.key(*args)).to_not eq key
+        end
+      end
     end
   end
 end
