@@ -4,7 +4,10 @@ require 'yaml'
 
 module Billy
   class Cache
-    def initialize
+    attr_reader :name
+
+    def initialize(cache_name = nil)
+      @name = cache_name
       reset
       load_dir
     end
@@ -39,10 +42,10 @@ module Billy
       @cache[key(method, url, body)] = cached
 
       if Billy.config.persist_cache
-        Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
+        Dir.mkdir(cache_path) unless File.exists?(cache_path)
 
         begin
-          path = File.join(Billy.config.cache_path,
+          path = File.join(cache_path,
                            "#{key(method, url, body)}.yml")
           File.open(path, 'w') do |f|
             f.write(cached.to_yaml(:Encoding => :Utf8))
@@ -56,9 +59,13 @@ module Billy
       @cache = {}
     end
 
+    def cache_path
+      return name.nil? ? Billy.config.cache_path : File.join(Billy.config.cache_path, name)
+    end
+
     def load_dir
       if Billy.config.persist_cache
-        Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
+        Dir.glob(cache_path+"*.yml") { |filename|
           data = begin
                    YAML.load(File.open(filename))
                  rescue ArgumentError => e
@@ -85,7 +92,6 @@ module Billy
       else
         url_to_use = URI(with_params)
       end
-
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url_to_use.to_s)
 
       if method == 'post' and !Billy.config.ignore_params.include?(no_params)
@@ -94,5 +100,9 @@ module Billy
 
       key
     end
+
+    private
+
+    attr_writer :name
   end
 end
