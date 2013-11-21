@@ -226,6 +226,10 @@ describe Billy::Proxy do
         end
         expect(proxy.cache.scope).to eq "my_cache"
       end
+
+      it 'requires a block to be passed to with_scope' do
+        expect {proxy.cache.with_scope "some_scope"}.to raise_error ArgumentError
+      end
     end
   end
 end

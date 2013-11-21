@@ -101,6 +101,7 @@ module Billy
     end
 
     def with_scope(use_scope = nil, &block)
+      raise ArgumentError, 'Expected a block but none was received.' if block.nil?
       original_scope = scope
       scope_to use_scope
       block.call()
