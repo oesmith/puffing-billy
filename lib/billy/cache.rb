@@ -4,10 +4,9 @@ require 'yaml'
 
 module Billy
   class Cache
-    attr_reader :name
+    attr_reader :scope
 
-    def initialize(cache_name = nil)
-      @name = cache_name
+    def initialize
       reset
       load_dir
     end
@@ -42,10 +41,10 @@ module Billy
       @cache[key(method, url, body)] = cached
 
       if Billy.config.persist_cache
-        Dir.mkdir(cache_path) unless File.exists?(cache_path)
+        Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
         begin
-          path = File.join(cache_path,
+          path = File.join(Billy.config.cache_path,
                            "#{key(method, url, body)}.yml")
           File.open(path, 'w') do |f|
             f.write(cached.to_yaml(:Encoding => :Utf8))
@@ -59,19 +58,14 @@ module Billy
       @cache = {}
     end
 
-    def cache_path
-      return name.nil? ? Billy.config.cache_path : File.join(Billy.config.cache_path, name)
-    end
-
     def load_dir
       if Billy.config.persist_cache
-        Dir.glob(cache_path+"*.yml") { |filename|
+        Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
           data = begin
                    YAML.load(File.open(filename))
                  rescue ArgumentError => e
                    puts "Could not parse YAML: #{e.message}"
                  end
-
           @cache[key(data[:method], data[:url], data[:body])] = data
         }
       end
@@ -92,7 +86,7 @@ module Billy
       else
         url_to_use = URI(with_params)
       end
-      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url_to_use.to_s)
+      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url_to_use.to_s)
 
       if method == 'post' and !Billy.config.ignore_params.include?(no_params)
         key += '_'+Digest::SHA1.hexdigest(body.to_s)
@@ -101,8 +95,24 @@ module Billy
       key
     end
 
+    def scope_to(new_scope = nil)
+      self.scope = new_scope
+    end
+
+    def with_scope(use_scope = nil, &block)
+      original_scope = scope
+      scope_to use_scope
+      block.call()
+    ensure
+      scope_to original_scope
+    end
+
+    def use_default_scope
+      scope_to nil
+    end
+
     private
 
-    attr_writer :name
+    attr_writer :scope
   end
 end

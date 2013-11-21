@@ -104,8 +104,8 @@ shared_examples_for 'a cache' do
 
   context "cache persistence" do
     let(:cached_file) do
-      f = Billy.proxy.cache.key('get',"#{url}/foo","") + ".yml"
-      File.join(Billy.proxy.cache.cache_path, f)
+      f = proxy.cache.key('get',"#{url}/foo","") + ".yml"
+      File.join(Billy.config.cache_path, f)
     end
 
     before { Billy.config.whitelist = [] }
@@ -180,12 +180,8 @@ describe Billy::Proxy do
 
   context 'caching' do
 
-    it 'uses an unnamed cache by default' do
-      expect(Billy.proxy.cache.name).to be_nil
-    end
-
-    it 'matches the Billy config path by default' do
-      expect(Billy.proxy.cache.cache_path).to eq Billy.config.cache_path
+    it 'defaults to nil scope' do
+      expect(proxy.cache.scope).to be_nil
     end
 
     context 'HTTP' do
@@ -200,61 +196,36 @@ describe Billy::Proxy do
       it_should_behave_like 'a cache'
     end
 
-    context 'with a named cache' do
+    context 'with a cache scope' do
       let!(:url)  { @http_url }
       let!(:http) { @http }
 
       before do
-        Billy.proxy.use_cache_named "my_cache"
+        proxy.cache.scope_to "my_cache"
       end
 
       after do
-
-        Billy.proxy.nuke_all_caches
+        proxy.cache.use_default_scope
       end
 
       it_should_behave_like 'a cache'
 
-      it 'uses the named cache' do
-        expect(Billy.proxy.cache.name).to eq("my_cache")
+      it 'uses the cache scope' do
+        expect(proxy.cache.scope).to eq("my_cache")
       end
 
-      it 'can nuke all caches' do
-        Billy.config.whitelist = []
-        Billy.config.persist_cache = true
-        Billy.proxy.use_cache_named "another_cache"
-        Billy.proxy.use_cache_named "my_cache"
-        expect(Billy.proxy.cache.name).to eq "my_cache"
-        expect(Billy.proxy.caches.size).to eq 3
-        http.get('/foo')
-        expect(Billy.proxy.cache.cached?('get', "#{url}/foo", "")).to be_true
-        Billy.proxy.nuke_all_caches
-        expect(Billy.proxy.caches.size).to eq 1
-        expect(Billy.proxy.cache.name).to be_nil
-        expect(Billy.proxy.cache.cached?('get', "#{url}/foo", "")).to be_false
+      it 'can be reset to the default scope' do
+        proxy.cache.use_default_scope
+        expect(proxy.cache.scope).to be_nil
       end
 
-      it 'can be reset to the default cache' do
-        Billy.proxy.use_default_cache
-        expect(Billy.proxy.cache.name).to be_nil
-      end
-
-      it 'uses the existing named cache if it already exists' do
-        c = Billy.proxy.cache
-        Billy.proxy.use_cache_named "another_cache"
-        Billy.proxy.use_cache_named "my_cache"
-        expect(Billy.proxy.cache).to be_equal(c)
-      end
-
-      it 'can execute a block against a named cache' do
-        expect(Billy.proxy.cache.name).to eq "my_cache"
-        Billy.proxy.with_cache_named "another_cache" do
-          expect(Billy.proxy.cache.name).to eq "another_cache"
+      it 'can execute a block against a cache scope' do
+        expect(proxy.cache.scope).to eq "my_cache"
+        proxy.cache.with_scope "another_cache" do
+          expect(proxy.cache.scope).to eq "another_cache"
         end
-        expect(Billy.proxy.cache.name).to eq "my_cache"
+        expect(proxy.cache.scope).to eq "my_cache"
       end
     end
-
   end
-
 end
