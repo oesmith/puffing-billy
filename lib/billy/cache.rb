@@ -30,6 +30,7 @@ module Billy
 
     def store(method, url, body, status, headers, content)
       cached = {
+        :scope => scope,
         :url => url,
         :body => body,
         :status => status,
