@@ -4,6 +4,8 @@ require 'yaml'
 
 module Billy
   class Cache
+    attr_reader :scope
+
     def initialize
       reset
     end
@@ -42,6 +44,7 @@ module Billy
 
     def store(method, url, body, status, headers, content)
       cached = {
+        :scope => scope,
         :url => url,
         :body => body,
         :status => status,
@@ -84,8 +87,7 @@ module Billy
       else
         url_to_use = URI(with_params)
       end
-
-      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(url_to_use.to_s)
+      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url_to_use.to_s)
 
       if method == 'post' and !Billy.config.ignore_params.include?(no_params)
         key += '_'+Digest::SHA1.hexdigest(body.to_s)
@@ -97,5 +99,26 @@ module Billy
     def cache_file(key)
       File.join(Billy.config.cache_path, "#{key}.yml")
     end
+
+    def scope_to(new_scope = nil)
+      self.scope = new_scope
+    end
+
+    def with_scope(use_scope = nil, &block)
+      raise ArgumentError, 'Expected a block but none was received.' if block.nil?
+      original_scope = scope
+      scope_to use_scope
+      block.call()
+    ensure
+      scope_to original_scope
+    end
+
+    def use_default_scope
+      scope_to nil
+    end
+
+    private
+
+    attr_writer :scope
   end
 end

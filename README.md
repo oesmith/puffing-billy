@@ -179,6 +179,68 @@ that most often does not affect your test results.
 The cache works with all types of requests and will distinguish between
 different POST requests to the same URL.
 
+### Cache Scopes
+
+If you need to cache different responses to the same HTTP request, you can use
+cache scoping.
+
+For example, an index page may return zero or more items in a list, with or
+without pagination, depending on the number of entries in a database.
+
+There are a few different ways to use cache scopes:
+
+```ruby
+# If you do nothing, it uses the default cache scope:
+it 'defaults to nil scope' do
+  expect(proxy.cache.scope).to be_nil
+end
+
+# You can change context indefinitely to a specific cache scope:
+context 'with a cache scope' do
+  before do
+    proxy.cache.scope_to "my_cache"
+  end
+
+  # Remember to set the cache scope back to the default in an after block
+  # within the context it is used, and/or at the global spec_helper level!
+  after do
+    proxy.cache.use_default_scope
+  end
+
+  it 'uses the cache scope' do
+    expect(proxy.cache.scope).to eq("my_cache")
+  end
+
+  it 'can be reset to the default scope' do
+    proxy.cache.use_default_scope
+    expect(proxy.cache.scope).to be_nil
+  end
+
+  # Or you can run a block within the context of a cache scope:
+  # Note: When using scope blocks, be sure that both the action that triggers a 
+  #       request and the assertion that a response has been received are within the block
+  it 'can execute a block against a named cache' do
+    expect(proxy.cache.scope).to eq("my_cache")
+    proxy.cache.with_scope "another_cache" do
+      expect(proxy.cache.scope).to eq "another_cache"
+    end
+    # It
+    expect(proxy.cache.scope).to eq("my_cache")
+  end
+end
+```
+
+If you use named caches it is highly recommend that you use a global
+hook to set the cache back to the default before or after each test.
+
+In Rspec:
+
+```ruby
+RSpec.configure do |config|
+  config.before :each { proxy.cache.use_default_scope }
+end
+```
+
 ## Customising the javascript driver
 
 If you use a customised Capybara driver, remember to set the proxy address

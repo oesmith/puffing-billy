@@ -104,7 +104,7 @@ shared_examples_for 'a cache' do
 
   context "cache persistence" do
     let(:cached_file) do
-      f = "GET_localhost_#{Digest::SHA1.hexdigest("#{url}/foo")}.yml"
+      f = proxy.cache.key('get',"#{url}/foo","") + ".yml"
       File.join(Billy.config.cache_path, f)
     end
 
@@ -193,6 +193,10 @@ describe Billy::Proxy do
 
   context 'caching' do
 
+    it 'defaults to nil scope' do
+      expect(proxy.cache.scope).to be_nil
+    end
+
     context 'HTTP' do
       let!(:url) { @http_url }
       let!(:http) { @http }
@@ -205,6 +209,40 @@ describe Billy::Proxy do
       it_should_behave_like 'a cache'
     end
 
-  end
+    context 'with a cache scope' do
+      let!(:url)  { @http_url }
+      let!(:http) { @http }
 
+      before do
+        proxy.cache.scope_to "my_cache"
+      end
+
+      after do
+        proxy.cache.use_default_scope
+      end
+
+      it_should_behave_like 'a cache'
+
+      it 'uses the cache scope' do
+        expect(proxy.cache.scope).to eq("my_cache")
+      end
+
+      it 'can be reset to the default scope' do
+        proxy.cache.use_default_scope
+        expect(proxy.cache.scope).to be_nil
+      end
+
+      it 'can execute a block against a cache scope' do
+        expect(proxy.cache.scope).to eq "my_cache"
+        proxy.cache.with_scope "another_cache" do
+          expect(proxy.cache.scope).to eq "another_cache"
+        end
+        expect(proxy.cache.scope).to eq "my_cache"
+      end
+
+      it 'requires a block to be passed to with_scope' do
+        expect {proxy.cache.with_scope "some_scope"}.to raise_error ArgumentError
+      end
+    end
+  end
 end
