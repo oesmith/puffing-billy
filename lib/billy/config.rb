@@ -17,7 +17,7 @@ module Billy
       @whitelist = DEFAULT_WHITELIST
       @ignore_params = []
       @persist_cache = false
-      @cache_path = File.join(Dir.tmpdir, 'billy')
+      @cache_path = File.join(Dir.tmpdir, 'puffing-billy')
     end
   end
 
