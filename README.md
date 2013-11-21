@@ -217,6 +217,8 @@ context 'with a cache scope' do
   end
 
   # Or you can run a block within the context of a cache scope:
+  # Note: When using scope blocks, be sure that both the action that triggers a 
+  #       request and the assertion that a response has been received are within the block
   it 'can execute a block against a named cache' do
     expect(proxy.cache.scope).to eq("my_cache")
     proxy.cache.with_scope "another_cache" do
