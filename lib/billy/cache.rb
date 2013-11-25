@@ -72,27 +72,25 @@ module Billy
       @cache = {}
     end
 
-    def key(method, url, body)
+    def url_formatted(url, include_params=false)
       url          = URI(url)
       anchor_split = url.to_s.split('#')
       url_anchor   = anchor_split.length > 1 ? anchor_split[1] : nil
-      # Both of these remove the port from the url
-      no_params    = url.scheme+'://'+url.host+url.path
-      with_params  = no_params
-      with_params += '?'+url.query if url.query
-      with_params += '#'+url_anchor if url_anchor
-
-      if Billy.config.ignore_params.include?(no_params)
-        url_to_use = URI(no_params)
-      else
-        url_to_use = URI(with_params)
+      format = url.scheme+'://'+url.host+url.path
+      if include_params
+        format += '?'+url.query if url.query
+        format += '#'+url_anchor if url_anchor
       end
-      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url_to_use.to_s)
+      format
+    end
 
-      if method == 'post' and !Billy.config.ignore_params.include?(no_params)
+    def key(method, url, body)
+      ignore_params = Billy.config.ignore_params.include?(url_formatted(url))
+      url = ignore_params ? URI(url_formatted(url)) : URI(url_formatted(url, true))
+      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+      if method == 'post' and !ignore_params
         key += '_'+Digest::SHA1.hexdigest(body.to_s)
       end
-
       key
     end
 
