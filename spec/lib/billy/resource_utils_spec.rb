@@ -27,4 +27,16 @@ describe Billy::ResourceUtils do
       end
     end
   end
+
+  describe 'json?' do
+    let(:json) { {a: '1'}.to_json }
+    let(:non_json) { 'Not JSON.' }
+
+    it 'identifies JSON' do
+      expect(json?(json)).to be_true
+    end
+    it 'identifies non-JSON' do
+      expect(json?(non_json)).to be_false
+    end
+  end
 end
