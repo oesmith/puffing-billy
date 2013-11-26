@@ -21,12 +21,12 @@ module Billy
       false
     end
 
-    def sort_hash(hash, &block)
+    def sort_hash(hash)
       Hash[
           hash.each do |k,v|
-            hash[k] = sort_hash(v, &block) if v.class == Hash
-            hash[k] = v.collect {|a| sort_hash(a, &block)} if v.class == Array
-          end.sort(&block)
+            hash[k] = sort_hash(v) if v.class == Hash
+            hash[k] = v.collect {|a| sort_hash(a)} if v.class == Array
+          end.sort()
       ]
     end
 
