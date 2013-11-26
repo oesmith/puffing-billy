@@ -21,17 +21,17 @@ module Billy
       false
     end
 
-    def sorted_hash(hash, &block)
+    def sort_hash(hash, &block)
       Hash[
           hash.each do |k,v|
-            hash[k] = sorted_hash(v, &block) if v.class == Hash
-            hash[k] = v.collect {|a| sorted_hash(a, &block)} if v.class == Array
+            hash[k] = sort_hash(v, &block) if v.class == Hash
+            hash[k] = v.collect {|a| sort_hash(a, &block)} if v.class == Array
           end.sort(&block)
       ]
     end
 
     def sorted_json(json_str)
-      sorted_hash(JSON.parse(json_str, symbolize_names: true)).to_json
+      sort_hash(JSON.parse(json_str, symbolize_names: true)).to_json
     end
   end
 end

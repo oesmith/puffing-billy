@@ -9,12 +9,12 @@ describe Billy::ResourceUtils do
     let(:unsorted_hash_2_level) { helper.unsorted_hash_2_level }
     let(:unsorted_hash_3_level) { helper.unsorted_hash_3_level }
 
-    describe 'sorted_hash' do
+    describe 'sort_hash' do
       it 'sorts nested hashes 1 level deep' do
-        expect(sorted_hash(unsorted_hash_2_level)).to eq sorted_hash_2_level
+        expect(sort_hash(unsorted_hash_2_level)).to eq sorted_hash_2_level
       end
       it 'sorts nested hashes 2 levels deep' do
-        expect(sorted_hash(unsorted_hash_3_level)).to eq sorted_hash_3_level
+        expect(sort_hash(unsorted_hash_3_level)).to eq sorted_hash_3_level
       end
     end
 
