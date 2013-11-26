@@ -1,6 +1,5 @@
 require 'uri'
 require 'json'
-require 'pry'
 
 module Billy
   module ResourceUtils
