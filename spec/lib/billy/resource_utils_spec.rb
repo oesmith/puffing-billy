@@ -40,7 +40,7 @@ describe Billy::ResourceUtils do
     end
   end
 
-  describe 'url_formatter' do
+  describe 'format_url' do
     let(:params) { '?foo=bar' }
     let(:fragment) { '#baz' }
     let(:base_url) { 'http://example.com' }
@@ -50,25 +50,25 @@ describe Billy::ResourceUtils do
 
     context 'with include_params' do
       it 'is a no-op if there are no params' do
-        expect(url_formatter(base_url, true)).to eq base_url
+        expect(format_url(base_url, true)).to eq base_url
       end
       it 'appends params if there are params' do
-        expect(url_formatter(params_url, true)).to eq params_url
+        expect(format_url(params_url, true)).to eq params_url
       end
       it 'appends params and anchor if both are present' do
-        expect(url_formatter(params_fragment_url, true)).to eq params_fragment_url
+        expect(format_url(params_fragment_url, true)).to eq params_fragment_url
       end
     end
 
     context 'without include_params' do
       it 'is a no-op if there are no params' do
-        expect(url_formatter(base_url, false)).to eq base_url
+        expect(format_url(base_url, false)).to eq base_url
       end
       it 'omits params if there are params' do
-        expect(url_formatter(params_url, false)).to eq base_url
+        expect(format_url(params_url, false)).to eq base_url
       end
       it 'omits params and anchor if both are present' do
-        expect(url_formatter(params_fragment_url, false)).to eq base_url
+        expect(format_url(params_fragment_url, false)).to eq base_url
       end
     end
   end

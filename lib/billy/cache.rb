@@ -75,8 +75,8 @@ module Billy
     end
 
     def key(method, url, body)
-      ignore_params = Billy.config.ignore_params.include?(url_formatter(url))
-      url = URI(url_formatter(url, ignore_params))
+      ignore_params = Billy.config.ignore_params.include?(format_url(url))
+      url = URI(format_url(url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
       if method == 'post' and !ignore_params
         body_formatted = json?(body.to_s) ? sort_json(body.to_s) : body.to_s
