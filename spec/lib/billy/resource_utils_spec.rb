@@ -39,4 +39,16 @@ describe Billy::ResourceUtils do
       expect(json?(non_json)).to be_false
     end
   end
+
+  describe 'parse_anchor' do
+    let(:anchor_url) { 'http://example.com/#stuff' }
+    let(:non_anchor_url) { 'http://example.com' }
+
+    it 'returns the anchor value' do
+      expect(parse_anchor(anchor_url)).to eq 'stuff'
+    end
+    it 'returns nil if non-anchor URL' do
+      expect(parse_anchor(non_anchor_url)).to be_nil
+    end
+  end
 end
