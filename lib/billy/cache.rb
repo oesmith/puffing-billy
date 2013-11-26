@@ -84,12 +84,32 @@ module Billy
       format
     end
 
+    def json?(value)
+      JSON.parse(value)
+    rescue
+      false
+    end
+
+    def sorted_hash(hash, &block)
+      Hash[
+          hash.each do |k,v|
+            hash[k] = sorted_hash(v, &block) if v.class == Hash
+            hash[k] = v.collect {|a| sorted_hash(a, &block)} if v.class == Array
+          end.sort(&block)
+      ]
+    end
+
+    def sorted_json(json_str)
+      sorted_hash(JSON.parse(json_str, symbolize_names: true)).to_json
+    end
+
     def key(method, url, body)
       ignore_params = Billy.config.ignore_params.include?(url_formatted(url))
       url = ignore_params ? URI(url_formatted(url)) : URI(url_formatted(url, true))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
       if method == 'post' and !ignore_params
-        key += '_'+Digest::SHA1.hexdigest(body.to_s)
+        body_formatted = json?(body.to_s) ? sorted_json(body.to_s) : body.to_s
+        key += '_'+Digest::SHA1.hexdigest(body_formatted)
       end
       key
     end
