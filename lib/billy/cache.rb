@@ -72,10 +72,14 @@ module Billy
       @cache = {}
     end
 
+    def parse_anchor(url)
+      anchor_split = url.split('#')
+      anchor_split.length > 1 ? anchor_split[1] : nil
+    end
+
     def url_formatted(url, include_params=false)
-      url          = URI(url)
-      anchor_split = url.to_s.split('#')
-      url_anchor   = anchor_split.length > 1 ? anchor_split[1] : nil
+      url = URI(url)
+      url_anchor = parse_anchor(url.to_s)
       format = url.scheme+'://'+url.host+url.path
       if include_params
         format += '?'+url.query if url.query
