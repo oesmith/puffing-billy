@@ -30,7 +30,7 @@ module Billy
       ]
     end
 
-    def sorted_json(json_str)
+    def sort_json(json_str)
       sort_hash(JSON.parse(json_str, symbolize_names: true)).to_json
     end
   end

@@ -18,12 +18,12 @@ describe Billy::ResourceUtils do
       end
     end
 
-    describe 'sorted_json' do
+    describe 'sort_json' do
       it 'sorts nested JSON 1 level deep' do
-        expect(sorted_json(unsorted_hash_2_level.to_json)).to eq sorted_hash_2_level.to_json
+        expect(sort_json(unsorted_hash_2_level.to_json)).to eq sorted_hash_2_level.to_json
       end
       it 'sorts nested JSON 2 levels deep' do
-        expect(sorted_json(unsorted_hash_3_level.to_json)).to eq sorted_hash_3_level.to_json
+        expect(sort_json(unsorted_hash_3_level.to_json)).to eq sorted_hash_3_level.to_json
       end
     end
   end
