@@ -4,7 +4,7 @@ require 'json'
 module Billy
   module ResourceUtils
 
-    def url_formatted(url, include_params=false)
+    def url_formatter(url, include_params=false)
       url = URI(url)
       url_fragment = url.fragment
       format = url.scheme+'://'+url.host+url.path
