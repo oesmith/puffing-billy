@@ -1,5 +1,5 @@
 module ResourceUtilsSpecHelper
-  def self.sorted_hash_1_level
+  def self.sorted_hash_2_level
     {
         a: '1',
         b: '2',
@@ -11,7 +11,7 @@ module ResourceUtilsSpecHelper
     }
   end
 
-  def self.sorted_hash_2_level
+  def self.sorted_hash_3_level
     {
         a: '1',
         b: '2',
@@ -27,7 +27,7 @@ module ResourceUtilsSpecHelper
     }
   end
 
-  def self.unsorted_hash_1_level
+  def self.unsorted_hash_2_level
     {
         c: {
             c: '3',
@@ -39,7 +39,7 @@ module ResourceUtilsSpecHelper
     }
   end
 
-  def self.unsorted_hash_2_level
+  def self.unsorted_hash_3_level
     {
         c: {
             c: {
