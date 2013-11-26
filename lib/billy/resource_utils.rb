@@ -7,12 +7,12 @@ module Billy
     def url_formatter(url, include_params=false)
       url = URI(url)
       url_fragment = url.fragment
-      format = url.scheme+'://'+url.host+url.path
+      formatted_url = url.scheme+'://'+url.host+url.path
       if include_params
-        format += '?'+url.query if url.query
-        format += '#'+url_fragment if url_fragment
+        formatted_url += '?'+url.query if url.query
+        formatted_url += '#'+url_fragment if url_fragment
       end
-      format
+      formatted_url
     end
 
     def json?(value)
