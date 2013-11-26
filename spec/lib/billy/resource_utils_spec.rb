@@ -40,15 +40,36 @@ describe Billy::ResourceUtils do
     end
   end
 
-  describe 'parse_anchor' do
-    let(:anchor_url) { 'http://example.com/#stuff' }
-    let(:non_anchor_url) { 'http://example.com' }
+  describe 'url_formatted' do
+    let(:params) { '?foo=bar' }
+    let(:fragment) { '#baz' }
+    let(:base_url) { 'http://example.com' }
+    let(:fragment_url) { "#{base_url}/#{fragment}" }
+    let(:params_url) { "#{base_url}#{params}" }
+    let(:params_fragment_url) { "#{base_url}#{params}#{fragment}" }
 
-    it 'returns the anchor value' do
-      expect(parse_anchor(anchor_url)).to eq 'stuff'
+    context 'with include_params' do
+      it 'is a no-op if there are no params' do
+        expect(url_formatted(base_url, true)).to eq base_url
+      end
+      it 'appends params if there are params' do
+        expect(url_formatted(params_url, true)).to eq params_url
+      end
+      it 'appends params and anchor if both are present' do
+        expect(url_formatted(params_fragment_url, true)).to eq params_fragment_url
+      end
     end
-    it 'returns nil if non-anchor URL' do
-      expect(parse_anchor(non_anchor_url)).to be_nil
+
+    context 'without include_params' do
+      it 'is a no-op if there are no params' do
+        expect(url_formatted(base_url, false)).to eq base_url
+      end
+      it 'omits params if there are params' do
+        expect(url_formatted(params_url, false)).to eq base_url
+      end
+      it 'omits params and anchor if both are present' do
+        expect(url_formatted(params_fragment_url, false)).to eq base_url
+      end
     end
   end
 end

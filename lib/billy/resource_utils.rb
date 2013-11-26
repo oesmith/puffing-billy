@@ -1,21 +1,17 @@
 require 'uri'
 require 'json'
+require 'pry'
 
 module Billy
   module ResourceUtils
 
-    def parse_anchor(url)
-      anchor_split = url.split('#')
-      anchor_split.length > 1 ? anchor_split[1] : nil
-    end
-
     def url_formatted(url, include_params=false)
       url = URI(url)
-      url_anchor = parse_anchor(url.to_s)
+      url_fragment = url.fragment
       format = url.scheme+'://'+url.host+url.path
       if include_params
         format += '?'+url.query if url.query
-        format += '#'+url_anchor if url_anchor
+        format += '#'+url_fragment if url_fragment
       end
       format
     end
