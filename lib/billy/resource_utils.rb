@@ -1,5 +1,6 @@
 require 'uri'
 require 'json'
+require 'murmurhash3'
 
 module Billy
   module ResourceUtils
@@ -41,10 +42,10 @@ module Billy
         # Actually sort the data
         result.concat(group[1].sort do |v1,v2|
           r = v1 <=> v2
+
           # Sometimes objects cannot be compared using the default <=> operator,
-          # but we can compare the hash of the objects, as it returns consistent
-          # results: ({b:"a",a:"b"}.hash == {a:"b",b:"a"}.hash) => true
-          [-1,0,1].include?(r) ? r : (v1.hash <=> v2.hash)
+          #   so we use a hash digest of the string value of the object for comparison:
+          [-1,0,1].include?(r) ? r : (murmurhash(v1.to_s) <=> murmurhash(v2.to_s))
         end)
       end
 
@@ -53,6 +54,12 @@ module Billy
 
     def sort_json(json_str)
       ResourceUtils.sort_json_data(JSON.parse(json_str, symbolize_names: true)).to_json
+    end
+
+    private
+
+    def self.murmurhash(s)
+      MurmurHash3::Native32.murmur3_32_str_hash(s)
     end
   end
 end

@@ -3,27 +3,43 @@ include Billy::ResourceUtils
 
 describe Billy::ResourceUtils do
   describe 'sorting' do
-    let!(:helper) { ResourceUtilsSpecHelper }
-    let(:sorted_hash_2_level) { helper.sorted_hash_2_level }
-    let(:sorted_hash_3_level) { helper.sorted_hash_3_level }
-    let(:unsorted_hash_2_level) { helper.unsorted_hash_2_level }
-    let(:unsorted_hash_3_level) { helper.unsorted_hash_3_level }
-
-    describe 'sort_hash' do
-      it 'sorts nested hashes 1 level deep' do
-        expect(sort_hash(unsorted_hash_2_level)).to eq sorted_hash_2_level
+    describe '#sort_json_data' do
+      it 'sorts simple Hashes' do
+        data     = {c: "three",a: "one",b: "two"}
+        expected = {a: "one",b: "two",c: "three"}
+        expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
       end
-      it 'sorts nested hashes 2 levels deep' do
-        expect(sort_hash(unsorted_hash_3_level)).to eq sorted_hash_3_level
+
+      it 'sorts simple Arrays' do
+        data     = [3,1,2,"two","three","one"]
+        expected = [1,2,3,"one","three","two"]
+        expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
+      end
+
+      it 'sorts multi-dimensional Arrays' do
+        data     = [[3,2,1],[5,4,6],["b","c","a"]]
+        expected = [[1,2,3],["a","b","c"],[4,5,6]]
+        expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
+      end
+
+      it 'sorts multi-dimensional Hashes' do
+        data     = {c: {l: 2,m: 3,k: 1},a: {f: 3,e: 2,d: 1},b: {i: 2,h: 1,j: 3}}
+        expected = {a: {d: 1,e: 2,f: 3},b: {h: 1,i: 2,j: 3},c: {k: 1,l: 2,m: 3}}
+        expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
+      end
+
+      it 'sorts abnormal data structures' do
+        data     = {b: [['b','c','a'],{ab: 5,aa: 4, ac: 6},[3,2,1],{ba: true,bc: false, bb: nil}],a: {f: 3,e: 2,d: 1}}
+        expected = {a: {d: 1,e: 2,f: 3},b: [[1,2,3],['a','b','c'],{ba: true, bb: nil,bc: false},{aa: 4,ab: 5,ac: 6}]}
+        expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
       end
     end
 
     describe 'sort_json' do
-      it 'sorts nested JSON 1 level deep' do
-        expect(sort_json(unsorted_hash_2_level.to_json)).to eq sorted_hash_2_level.to_json
-      end
-      it 'sorts nested JSON 2 levels deep' do
-        expect(sort_json(unsorted_hash_3_level.to_json)).to eq sorted_hash_3_level.to_json
+      it 'sorts JSON' do
+        data     = '{"c":"three","a":"one","b":"two"}'
+        expected = '{"a":"one","b":"two","c":"three"}'
+        expect(sort_json(data)).to eq expected
       end
     end
   end
