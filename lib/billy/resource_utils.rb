@@ -1,6 +1,5 @@
 require 'uri'
 require 'json'
-require 'murmurhash3'
 
 module Billy
   module ResourceUtils
@@ -31,35 +30,29 @@ module Billy
       p = proc { |d|
         d.collect do |item|
           d.is_a?(Hash) ? [item[0],sort_json_data(item[1])] : sort_json_data(item)
-        end.group_by do |i|
-          # Group by class to avoid comparison errors
-          i.class
         end
       }
 
-      result = []
-      p.call(data).each do |group|
-        # Actually sort the data
-        result.concat(group[1].sort do |v1,v2|
-          r = v1 <=> v2
+      result = if data.is_a?(Hash)
+          data.collect { |k,v| [k,sort_json_data(v)] }
+        else
+          data.collect { |item| sort_json_data(item) }
+        end.group_by(&:class).values.map do |values|
+          # Actually sort the data
+          values.sort do |v1,v2|
+            r = v1 <=> v2
 
-          # Sometimes objects cannot be compared using the default <=> operator,
-          #   so we use a hash digest of the string value of the object for comparison:
-          [-1,0,1].include?(r) ? r : (murmurhash(v1.to_s) <=> murmurhash(v2.to_s))
-        end)
-      end
+            # Sometimes objects cannot be compared using the default <=> operator,
+            #   so we use a hash digest of the string value of the object for comparison:
+            [-1,0,1].include?(r) ? r : v1.to_s <=> v2.to_s
+          end
+        end.inject(:+)
 
       data.is_a?(Hash) ? Hash[result] : result
     end
 
     def sort_json(json_str)
       ResourceUtils.sort_json_data(JSON.parse(json_str, symbolize_names: true)).to_json
-    end
-
-    private
-
-    def self.murmurhash(s)
-      MurmurHash3::Native32.murmur3_32_str_hash(s)
     end
   end
 end

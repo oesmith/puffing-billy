@@ -32,5 +32,4 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "http_parser.rb"
   gem.add_runtime_dependency "multi_json"
   gem.add_runtime_dependency "capybara"
-  gem.add_runtime_dependency "murmurhash3"
 end

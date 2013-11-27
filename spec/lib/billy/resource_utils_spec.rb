@@ -5,20 +5,20 @@ describe Billy::ResourceUtils do
   describe 'sorting' do
     describe '#sort_json_data' do
       it 'sorts simple Hashes' do
-        data     = {c: "three",a: "one",b: "two"}
-        expected = {a: "one",b: "two",c: "three"}
+        data     = {c: 'three',a: 'one',b: 'two'}
+        expected = {a: 'one',b: 'two',c: 'three'}
         expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
       end
 
       it 'sorts simple Arrays' do
-        data     = [3,1,2,"two","three","one"]
-        expected = [1,2,3,"one","three","two"]
+        data     = [3,1,2,'two','three','one']
+        expected = [1,2,3,'one','three','two']
         expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
       end
 
       it 'sorts multi-dimensional Arrays' do
-        data     = [[3,2,1],[5,4,6],["b","c","a"]]
-        expected = [[1,2,3],["a","b","c"],[4,5,6]]
+        data     = [[3,2,1],[5,4,6],['b','c','a']]
+        expected = [['a','b','c'],[1,2,3],[4,5,6]]
         expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
       end
 
@@ -30,7 +30,7 @@ describe Billy::ResourceUtils do
 
       it 'sorts abnormal data structures' do
         data     = {b: [['b','c','a'],{ab: 5,aa: 4, ac: 6},[3,2,1],{ba: true,bc: false, bb: nil}],a: {f: 3,e: 2,d: 1}}
-        expected = {a: {d: 1,e: 2,f: 3},b: [[1,2,3],['a','b','c'],{ba: true, bb: nil,bc: false},{aa: 4,ab: 5,ac: 6}]}
+        expected = {a: {d: 1,e: 2,f: 3},b: [['a','b','c'],[1,2,3],{aa: 4,ab: 5,ac: 6},{ba: true, bb: nil,bc: false}]}
         expect(Billy::ResourceUtils.sort_json_data(data)).to eq expected
       end
     end
