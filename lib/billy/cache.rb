@@ -1,11 +1,11 @@
 require 'resolv'
 require 'uri'
 require 'yaml'
-require 'billy/resource_utils'
+require 'billy/json_utils'
 
 module Billy
   class Cache
-    include Billy::ResourceUtils
+    include Billy::JSONUtils
     attr_reader :scope
 
     def initialize

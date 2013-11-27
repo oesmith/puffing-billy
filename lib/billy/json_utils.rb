@@ -2,7 +2,7 @@ require 'uri'
 require 'json'
 
 module Billy
-  module ResourceUtils
+  module JSONUtils
 
     def json?(value)
       JSON.parse(value)
@@ -35,7 +35,7 @@ module Billy
     end
 
     def sort_json(json_str)
-      ResourceUtils.sort_json_data(JSON.parse(json_str, symbolize_names: true)).to_json
+      JSONUtils.sort_json_data(JSON.parse(json_str, symbolize_names: true)).to_json
     end
   end
 end
