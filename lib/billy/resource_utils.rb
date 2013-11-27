@@ -27,12 +27,6 @@ module Billy
     def self.sort_json_data(data)
       return data if !data.is_a? Enumerable
 
-      p = proc { |d|
-        d.collect do |item|
-          d.is_a?(Hash) ? [item[0],sort_json_data(item[1])] : sort_json_data(item)
-        end
-      }
-
       result = if data.is_a?(Hash)
           data.collect { |k,v| [k,sort_json_data(v)] }
         else
