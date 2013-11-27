@@ -26,7 +26,7 @@ module Billy
             r = v1 <=> v2
 
             # Sometimes objects cannot be compared using the default <=> operator,
-            #   so we use a hash digest of the string value of the object for comparison:
+            #   so we use the string value of the object for comparison:
             [-1,0,1].include?(r) ? r : v1.to_s <=> v2.to_s
           end
         end.inject(:+)
