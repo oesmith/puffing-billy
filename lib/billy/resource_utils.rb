@@ -40,10 +40,14 @@ module Billy
       p.call(data).each do |group|
         # Actually sort the data
         result.concat(group[1].sort do |v1,v2|
-          # Enumerables sometimes cannot be compared using the default <=> operator,
-          # but we can compare the hash of the objects, as it returns consistent
-          # results: ({b:"a",a:"b"}.hash == {a:"b",b:"a"}.hash) => true
-          (v1.is_a? Enumerable) ? v1.hash <=> v2.hash : v1 <=> v2
+          begin
+            v1 <=> v2
+          rescue ArgumentError
+            # Sometimes objects cannot be compared using the default <=> operator,
+            # but we can compare the hash of the objects, as it returns consistent
+            # results: ({b:"a",a:"b"}.hash == {a:"b",b:"a"}.hash) => true
+            v1.hash <=> v2.hash
+          end
         end)
       end
 
