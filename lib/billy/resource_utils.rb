@@ -25,7 +25,7 @@ module Billy
     #   consistent hashing of the JSON data string. It will recursively sort
     #   data contained in nested JSON Hash and Array data structures.
     def self.sort_json_data(data)
-      return data if !data.is_a? Enumerable
+      return data unless data.is_a? Enumerable
 
       result = if data.is_a?(Hash)
           data.collect { |k,v| [k,sort_json_data(v)] }
