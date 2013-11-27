@@ -17,7 +17,7 @@ module Billy
 
     def json?(value)
       JSON.parse(value)
-    rescue
+    rescue JSON::ParserError, TypeError
       false
     end
 
