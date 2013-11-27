@@ -4,17 +4,6 @@ require 'json'
 module Billy
   module ResourceUtils
 
-    def format_url(url, include_params=false)
-      url = URI(url)
-      url_fragment = url.fragment
-      formatted_url = url.scheme+'://'+url.host+url.path
-      if include_params
-        formatted_url += '?'+url.query if url.query
-        formatted_url += '#'+url_fragment if url_fragment
-      end
-      formatted_url
-    end
-
     def json?(value)
       JSON.parse(value)
     rescue JSON::ParserError, TypeError

@@ -55,37 +55,4 @@ describe Billy::ResourceUtils do
       expect(json?(non_json)).to be_false
     end
   end
-
-  describe 'format_url' do
-    let(:params) { '?foo=bar' }
-    let(:fragment) { '#baz' }
-    let(:base_url) { 'http://example.com' }
-    let(:fragment_url) { "#{base_url}/#{fragment}" }
-    let(:params_url) { "#{base_url}#{params}" }
-    let(:params_fragment_url) { "#{base_url}#{params}#{fragment}" }
-
-    context 'with include_params' do
-      it 'is a no-op if there are no params' do
-        expect(format_url(base_url, true)).to eq base_url
-      end
-      it 'appends params if there are params' do
-        expect(format_url(params_url, true)).to eq params_url
-      end
-      it 'appends params and anchor if both are present' do
-        expect(format_url(params_fragment_url, true)).to eq params_fragment_url
-      end
-    end
-
-    context 'without include_params' do
-      it 'is a no-op if there are no params' do
-        expect(format_url(base_url, false)).to eq base_url
-      end
-      it 'omits params if there are params' do
-        expect(format_url(params_url, false)).to eq base_url
-      end
-      it 'omits params and anchor if both are present' do
-        expect(format_url(params_fragment_url, false)).to eq base_url
-      end
-    end
-  end
 end
