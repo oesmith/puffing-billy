@@ -75,7 +75,7 @@ module Billy
     end
 
     def key(method, url, body)
-      ignore_params = Billy.config.ignore_params.include?(format_url(url))
+      ignore_params = Billy.config.ignore_params.include?(format_url(url, true))
       url = URI(format_url(url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
       if method == 'post' and !ignore_params
@@ -85,11 +85,11 @@ module Billy
       key
     end
 
-    def format_url(url, include_params=false)
+    def format_url(url, ignore_params=false)
       url = URI(url)
       url_fragment = url.fragment
       formatted_url = url.scheme+'://'+url.host+url.path
-      if include_params
+      unless ignore_params
         formatted_url += '?'+url.query if url.query
         formatted_url += '#'+url_fragment if url_fragment
       end

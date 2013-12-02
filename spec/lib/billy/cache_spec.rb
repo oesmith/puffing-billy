@@ -10,27 +10,27 @@ describe Billy::Cache do
     let(:params_url) { "#{base_url}#{params}" }
     let(:params_fragment_url) { "#{base_url}#{params}#{fragment}" }
 
-    context 'with include_params' do
+    context 'with ignore_params set to false' do
       it 'is a no-op if there are no params' do
-        expect(cache.format_url(base_url, true)).to eq base_url
+        expect(cache.format_url(base_url)).to eq base_url
       end
       it 'appends params if there are params' do
-        expect(cache.format_url(params_url, true)).to eq params_url
+        expect(cache.format_url(params_url)).to eq params_url
       end
-      it 'appends params and anchor if both are present' do
-        expect(cache.format_url(params_fragment_url, true)).to eq params_fragment_url
+      it 'appends params and fragment if both are present' do
+        expect(cache.format_url(params_fragment_url)).to eq params_fragment_url
       end
     end
 
-    context 'without include_params' do
+    context 'with ignore_params set to true' do
       it 'is a no-op if there are no params' do
-        expect(cache.format_url(base_url, false)).to eq base_url
+        expect(cache.format_url(base_url, true)).to eq base_url
       end
       it 'omits params if there are params' do
-        expect(cache.format_url(params_url, false)).to eq base_url
+        expect(cache.format_url(params_url, true)).to eq base_url
       end
-      it 'omits params and anchor if both are present' do
-        expect(cache.format_url(params_fragment_url, false)).to eq base_url
+      it 'omits params and fragment if both are present' do
+        expect(cache.format_url(params_fragment_url, true)).to eq base_url
       end
     end
   end
