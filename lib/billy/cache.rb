@@ -5,7 +5,6 @@ require 'billy/json_utils'
 
 module Billy
   class Cache
-    include Billy::JSONUtils
     attr_reader :scope
 
     def initialize
@@ -79,7 +78,7 @@ module Billy
       url = URI(format_url(url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
       if method == 'post' and !ignore_params
-        body_formatted = json?(body.to_s) ? sort_json(body.to_s) : body.to_s
+        body_formatted = JSONUtils::json?(body.to_s) ? JSONUtils::sort_json(body.to_s) : body.to_s
         key += '_'+Digest::SHA1.hexdigest(body_formatted)
       end
       key
