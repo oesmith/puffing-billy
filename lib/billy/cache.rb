@@ -87,11 +87,10 @@ module Billy
 
     def format_url(url, ignore_params=false)
       url = URI(url)
-      url_fragment = url.fragment
       formatted_url = url.scheme+'://'+url.host+url.path
       unless ignore_params
         formatted_url += '?'+url.query if url.query
-        formatted_url += '#'+url_fragment if url_fragment
+        formatted_url += '#'+url.fragment if url.fragment
       end
       formatted_url
     end
