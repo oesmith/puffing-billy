@@ -5,7 +5,7 @@ module Billy
   module JSONUtils
 
     def json?(value)
-      JSON.parse(value)
+      !!JSON.parse(value)
     rescue JSON::ParserError, TypeError
       false
     end
