@@ -1,6 +1,7 @@
 require 'resolv'
 require 'uri'
 require 'yaml'
+require 'billy/json_utils'
 
 module Billy
   class Cache
@@ -73,27 +74,24 @@ module Billy
     end
 
     def key(method, url, body)
-      url          = URI(url)
-      anchor_split = url.to_s.split('#')
-      url_anchor   = anchor_split.length > 1 ? anchor_split[1] : nil
-      # Both of these remove the port from the url
-      no_params    = url.scheme+'://'+url.host+url.path
-      with_params  = no_params
-      with_params += '?'+url.query if url.query
-      with_params += '#'+url_anchor if url_anchor
-
-      if Billy.config.ignore_params.include?(no_params)
-        url_to_use = URI(no_params)
-      else
-        url_to_use = URI(with_params)
+      ignore_params = Billy.config.ignore_params.include?(format_url(url, true))
+      url = URI(format_url(url, ignore_params))
+      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+      if method == 'post' and !ignore_params
+        body_formatted = JSONUtils::json?(body.to_s) ? JSONUtils::sort_json(body.to_s) : body.to_s
+        key += '_'+Digest::SHA1.hexdigest(body_formatted)
       end
-      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url_to_use.to_s)
-
-      if method == 'post' and !Billy.config.ignore_params.include?(no_params)
-        key += '_'+Digest::SHA1.hexdigest(body.to_s)
-      end
-
       key
+    end
+
+    def format_url(url, ignore_params=false)
+      url = URI(url)
+      formatted_url = url.scheme+'://'+url.host+url.path
+      unless ignore_params
+        formatted_url += '?'+url.query if url.query
+        formatted_url += '#'+url.fragment if url.fragment
+      end
+      formatted_url
     end
 
     def cache_file(key)
