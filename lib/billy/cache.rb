@@ -14,8 +14,8 @@ module Billy
     def cacheable?(url, headers)
       if Billy.config.cache
         url = URI(url)
-        # Cache the responses if they aren't whitelisted host[:port]s but always cache /api on any hosts
-        !Billy.config.whitelist.include?(url.host) && !Billy.config.whitelist.include?("#{url.host}:#{url.port}") || url.path.include?('/api')
+        # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
+        !Billy.config.whitelist.include?(url.host) && !Billy.config.whitelist.include?("#{url.host}:#{url.port}") || Billy.config.path_blacklist.index{|bl| url.path.include?(bl)}
         # TODO test headers for cacheability
       end
     end

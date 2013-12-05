@@ -60,29 +60,39 @@ shared_examples_for 'a cache' do
 
   context 'whitelisted GET requests' do
     it 'should not be cached' do
-      r = http.get('/foo')
-      r.body.should == 'GET /foo'
-      expect {
-        expect {
-          r = http.get('/foo')
-        }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
-      }.to_not change { r.body }
+      assert_noncached_url
+    end
+
+    context 'with ports' do
+      before do
+        rack_app_url = URI(http.url_prefix)
+        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port}"]
+      end
+
+      it 'should not be cached ' do
+        assert_noncached_url
+      end
     end
   end
 
-  context 'other GET requests' do
+  context 'non-whitelisted GET requests' do
     before do
       Billy.config.whitelist = []
     end
 
     it 'should be cached' do
-      r = http.get('/foo')
-      r.body.should == 'GET /foo'
-      expect {
-        expect {
-          r = http.get('/foo')
-        }.to_not change { r.headers['HTTP-X-EchoCount'] }
-      }.to_not change { r.body }
+      assert_cached_url
+    end
+
+    context 'with ports' do
+      before do
+        rack_app_url = URI(http.url_prefix)
+        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port+1}"]
+      end
+
+      it 'should be cached' do
+        assert_cached_url
+      end
     end
   end
 
@@ -99,6 +109,16 @@ shared_examples_for 'a cache' do
           r = http.get('/analytics?some_param=20')
         }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
       }.to_not change { r.body }
+    end
+  end
+
+  context 'path_blacklist GET requests' do
+    before do
+      Billy.config.path_blacklist = ['/api']
+    end
+
+    it 'should be cached' do
+      assert_cached_url('/api')
     end
   end
 
@@ -144,6 +164,26 @@ shared_examples_for 'a cache' do
         File.exists?(cached_file).should be_false
       end
     end
+  end
+
+  def assert_noncached_url(url = '/foo')
+    r = http.get(url)
+    r.body.should == "GET #{url}"
+    expect {
+      expect {
+        r = http.get(url)
+      }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
+    }.to_not change { r.body }
+  end
+
+  def assert_cached_url(url = '/foo')
+    r = http.get(url)
+    r.body.should == "GET #{url}"
+    expect {
+      expect {
+        r = http.get(url)
+      }.to_not change { r.headers['HTTP-X-EchoCount'] }
+    }.to_not change { r.body }
   end
 end
 
