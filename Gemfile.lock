@@ -114,6 +114,7 @@ DEPENDENCIES
   faraday
   guard
   poltergeist
+  pry
   puffing-billy!
   rack
   rb-inotify
