@@ -123,8 +123,9 @@ shared_examples_for 'a cache' do
   end
 
   context "cache persistence" do
+    let(:cached_key) { proxy.cache.key('get',"#{url}/foo","") }
     let(:cached_file) do
-      f = proxy.cache.key('get',"#{url}/foo","") + ".yml"
+      f = cached_key + ".yml"
       File.join(Billy.config.cache_path, f)
     end
 
@@ -154,6 +155,18 @@ shared_examples_for 'a cache' do
         r = http.get('/foo')
         r.body.should == 'GET /foo cached'
       end
+
+      context 'ignore_port requests' do
+        it 'should be cached without port' do
+          r   = http.get('/foo')
+          url = URI(r.env[:url])
+          saved_cache = Billy.proxy.cache.fetch_from_persistence(cached_key)
+
+          expect(saved_cache[:url]).to_not eql(url.to_s)
+          expect(saved_cache[:url]).to eql(url.to_s.gsub(":#{url.port}", ''))
+        end
+      end
+
     end
 
     context "disabled" do
