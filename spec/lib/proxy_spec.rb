@@ -156,7 +156,7 @@ shared_examples_for 'a cache' do
         r.body.should == 'GET /foo cached'
       end
 
-      context 'ignore_port requests' do
+      context 'ignore_cache_port requests' do
         it 'should be cached without port' do
           r   = http.get('/foo')
           url = URI(r.env[:url])

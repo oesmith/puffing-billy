@@ -57,6 +57,10 @@ Capybara.javascript_driver = :selenium_billy
 # Capybara.javascript_driver = :poltergeist_billy
 ```
 
+Note: :poltergeist_billy doesn't support proxying any localhosts, so you must use
+:webkit_billy for headless specs when using puffing-billy for other local rack apps.
+See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
+
 In your tests:
 
 ```ruby
@@ -150,6 +154,16 @@ Billy.configure do |c|
 end
 ```
 
+If you would like to cache other local rack apps, you must whitelist only the
+specific port for the application that is executing tests.  If you are using
+[Capybara](https://github.com/jnicklas/capybara), this can be accomplished by
+adding this in your `spec_helper.rb`:
+
+```ruby
+server = Capybara.current_session.server
+Billy.config.whitelist = ["#{server.host}:#{server.port}"]
+```
+
 If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr)
 you can turn on cache persistence. This way you don't have to manually mock out
 everything as requests are automatically recorded and played back. With cache
@@ -165,19 +179,29 @@ Billy.configure do |c|
                      "http://www.facebook.com/plugins/like.php",
                      "https://www.facebook.com/dialog/oauth",
                      "http://cdn.api.twitter.com/1/urls/count.json"]
+  c.path_blacklist = []
   c.persist_cache = true
+  c.ignore_cache_port = true        # defaults to true
   c.cache_path = 'spec/req_cache/'
 end
-
 ```
+
+The cache works with all types of requests and will distinguish between
+different POST requests to the same URL.
 
 `c.ignore_params` is used to ignore parameters of certain requests when
 caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
-The cache works with all types of requests and will distinguish between
-different POST requests to the same URL.
+`c.path_blacklist = []` is used to always cache specific paths on any hostnames,
+including whitelisted ones.  This is useful if your AUT has routes that get data
+from external services, such as `/api` where the ajax request is a local URL but
+the actual data is coming from a different application that you want to cache.
+
+`c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
+is useful when caching local paths (via `path_blacklist`) or other local rack apps
+that are running on random ports.
 
 ### Cache Scopes
 

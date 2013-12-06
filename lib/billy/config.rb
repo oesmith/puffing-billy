@@ -5,7 +5,7 @@ module Billy
   class Config
     DEFAULT_WHITELIST = ['127.0.0.1', 'localhost']
 
-    attr_accessor :logger, :cache, :whitelist, :path_blacklist, :ignore_params, :ignore_port, :persist_cache, :cache_path
+    attr_accessor :logger, :cache, :whitelist, :path_blacklist, :ignore_params, :persist_cache, :ignore_cache_port, :cache_path
 
     def initialize
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
@@ -17,8 +17,8 @@ module Billy
       @whitelist = DEFAULT_WHITELIST
       @path_blacklist = []
       @ignore_params = []
-      @ignore_port = true
       @persist_cache = false
+      @ignore_cache_port = true
       @cache_path = File.join(Dir.tmpdir, 'puffing-billy')
     end
   end

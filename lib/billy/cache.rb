@@ -15,9 +15,17 @@ module Billy
       if Billy.config.cache
         url = URI(url)
         # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-        !Billy.config.whitelist.include?(url.host) && !Billy.config.whitelist.include?("#{url.host}:#{url.port}") || Billy.config.path_blacklist.index{|bl| url.path.include?(bl)}
+        !whitelisted_host?(url.host) && !whitelisted_host?("#{url.host}:#{url.port}") || blacklisted_path?(url.path)
         # TODO test headers for cacheability
       end
+    end
+
+    def whitelisted_host?(host)
+      Billy.config.whitelist.include?(host)
+    end
+
+    def blacklisted_path?(path)
+      Billy.config.path_blacklist.index{|bl| path.include?(bl)}
     end
 
     def cached?(method, url, body)
@@ -88,7 +96,7 @@ module Billy
 
     def format_url(url, ignore_params=false)
       url = URI(url)
-      port_to_include = Billy.config.ignore_port ? '' : ":#{url.port}"
+      port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
       formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
       unless ignore_params
         formatted_url += '?'+url.query if url.query
