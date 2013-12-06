@@ -60,29 +60,39 @@ shared_examples_for 'a cache' do
 
   context 'whitelisted GET requests' do
     it 'should not be cached' do
-      r = http.get('/foo')
-      r.body.should == 'GET /foo'
-      expect {
-        expect {
-          r = http.get('/foo')
-        }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
-      }.to_not change { r.body }
+      assert_noncached_url
+    end
+
+    context 'with ports' do
+      before do
+        rack_app_url = URI(http.url_prefix)
+        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port}"]
+      end
+
+      it 'should not be cached ' do
+        assert_noncached_url
+      end
     end
   end
 
-  context 'other GET requests' do
+  context 'non-whitelisted GET requests' do
     before do
       Billy.config.whitelist = []
     end
 
     it 'should be cached' do
-      r = http.get('/foo')
-      r.body.should == 'GET /foo'
-      expect {
-        expect {
-          r = http.get('/foo')
-        }.to_not change { r.headers['HTTP-X-EchoCount'] }
-      }.to_not change { r.body }
+      assert_cached_url
+    end
+
+    context 'with ports' do
+      before do
+        rack_app_url = URI(http.url_prefix)
+        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port+1}"]
+      end
+
+      it 'should be cached' do
+        assert_cached_url
+      end
     end
   end
 
@@ -102,9 +112,20 @@ shared_examples_for 'a cache' do
     end
   end
 
+  context 'path_blacklist GET requests' do
+    before do
+      Billy.config.path_blacklist = ['/api']
+    end
+
+    it 'should be cached' do
+      assert_cached_url('/api')
+    end
+  end
+
   context "cache persistence" do
+    let(:cached_key) { proxy.cache.key('get',"#{url}/foo","") }
     let(:cached_file) do
-      f = proxy.cache.key('get',"#{url}/foo","") + ".yml"
+      f = cached_key + ".yml"
       File.join(Billy.config.cache_path, f)
     end
 
@@ -134,6 +155,18 @@ shared_examples_for 'a cache' do
         r = http.get('/foo')
         r.body.should == 'GET /foo cached'
       end
+
+      context 'ignore_cache_port requests' do
+        it 'should be cached without port' do
+          r   = http.get('/foo')
+          url = URI(r.env[:url])
+          saved_cache = Billy.proxy.cache.fetch_from_persistence(cached_key)
+
+          expect(saved_cache[:url]).to_not eql(url.to_s)
+          expect(saved_cache[:url]).to eql(url.to_s.gsub(":#{url.port}", ''))
+        end
+      end
+
     end
 
     context "disabled" do
@@ -144,6 +177,26 @@ shared_examples_for 'a cache' do
         File.exists?(cached_file).should be_false
       end
     end
+  end
+
+  def assert_noncached_url(url = '/foo')
+    r = http.get(url)
+    r.body.should == "GET #{url}"
+    expect {
+      expect {
+        r = http.get(url)
+      }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
+    }.to_not change { r.body }
+  end
+
+  def assert_cached_url(url = '/foo')
+    r = http.get(url)
+    r.body.should == "GET #{url}"
+    expect {
+      expect {
+        r = http.get(url)
+      }.to_not change { r.headers['HTTP-X-EchoCount'] }
+    }.to_not change { r.body }
   end
 end
 
