@@ -57,6 +57,10 @@ Capybara.javascript_driver = :selenium_billy
 # Capybara.javascript_driver = :poltergeist_billy
 ```
 
+Note: :poltergeist_billy doesn't support proxying any localhosts, so you must use
+:webkit_billy for headless specs when using puffing-billy for other local rack apps.
+See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
+
 In your tests:
 
 ```ruby
@@ -150,6 +154,16 @@ Billy.configure do |c|
 end
 ```
 
+If you would like to cache other local rack apps, you must whitelist only the
+specific port for the application that is executing tests.  If you are using
+[Capybara](https://github.com/jnicklas/capybara), this can be accomplished by
+adding this in your `spec_helper.rb`:
+
+```ruby
+server = Capybara.current_session.server
+Billy.config.whitelist = ["#{server.host}:#{server.port}"]
+```
+
 If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr)
 you can turn on cache persistence. This way you don't have to manually mock out
 everything as requests are automatically recorded and played back. With cache
@@ -165,22 +179,91 @@ Billy.configure do |c|
                      "http://www.facebook.com/plugins/like.php",
                      "https://www.facebook.com/dialog/oauth",
                      "http://cdn.api.twitter.com/1/urls/count.json"]
+  c.path_blacklist = []
   c.persist_cache = true
+  c.ignore_cache_port = true        # defaults to true
   c.cache_path = 'spec/req_cache/'
 end
-
-# need to call this because of a race condition between persist_cache
-# being set and the proxy being loaded for the first time
-Billy.proxy.restore_cache
 ```
+
+The cache works with all types of requests and will distinguish between
+different POST requests to the same URL.
 
 `c.ignore_params` is used to ignore parameters of certain requests when
 caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
-The cache works with all types of requests and will distinguish between
-different POST requests to the same URL.
+`c.path_blacklist = []` is used to always cache specific paths on any hostnames,
+including whitelisted ones.  This is useful if your AUT has routes that get data
+from external services, such as `/api` where the ajax request is a local URL but
+the actual data is coming from a different application that you want to cache.
+
+`c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
+is useful when caching local paths (via `path_blacklist`) or other local rack apps
+that are running on random ports.
+
+### Cache Scopes
+
+If you need to cache different responses to the same HTTP request, you can use
+cache scoping.
+
+For example, an index page may return zero or more items in a list, with or
+without pagination, depending on the number of entries in a database.
+
+There are a few different ways to use cache scopes:
+
+```ruby
+# If you do nothing, it uses the default cache scope:
+it 'defaults to nil scope' do
+  expect(proxy.cache.scope).to be_nil
+end
+
+# You can change context indefinitely to a specific cache scope:
+context 'with a cache scope' do
+  before do
+    proxy.cache.scope_to "my_cache"
+  end
+
+  # Remember to set the cache scope back to the default in an after block
+  # within the context it is used, and/or at the global spec_helper level!
+  after do
+    proxy.cache.use_default_scope
+  end
+
+  it 'uses the cache scope' do
+    expect(proxy.cache.scope).to eq("my_cache")
+  end
+
+  it 'can be reset to the default scope' do
+    proxy.cache.use_default_scope
+    expect(proxy.cache.scope).to be_nil
+  end
+
+  # Or you can run a block within the context of a cache scope:
+  # Note: When using scope blocks, be sure that both the action that triggers a 
+  #       request and the assertion that a response has been received are within the block
+  it 'can execute a block against a named cache' do
+    expect(proxy.cache.scope).to eq("my_cache")
+    proxy.cache.with_scope "another_cache" do
+      expect(proxy.cache.scope).to eq "another_cache"
+    end
+    # It
+    expect(proxy.cache.scope).to eq("my_cache")
+  end
+end
+```
+
+If you use named caches it is highly recommend that you use a global
+hook to set the cache back to the default before or after each test.
+
+In Rspec:
+
+```ruby
+RSpec.configure do |config|
+  config.before :each { proxy.cache.use_default_scope }
+end
+```
 
 ## Customising the javascript driver
 

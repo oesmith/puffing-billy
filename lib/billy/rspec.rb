@@ -1,4 +1,3 @@
-require 'rspec'
 require 'capybara/rspec'
 require 'billy'
 
