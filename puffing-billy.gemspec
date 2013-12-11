@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "faraday"
   gem.add_development_dependency "poltergeist"
   gem.add_development_dependency "selenium-webdriver"
-  gem.add_development_dependency "capybara-webkit"
+  gem.add_development_dependency "capybara-webkit", "~> 1.0"
   gem.add_development_dependency "rack"
   gem.add_development_dependency "guard"
   gem.add_development_dependency "rb-inotify"
