@@ -11,11 +11,23 @@ module Billy
       reset
     end
 
-    def cacheable?(url, headers)
+    def cacheable?(url, headers, status)
       if Billy.config.cache
         url = URI(url)
+
+        if !successful_status?(status)
+          error_level = Billy.config.non_successful_error_level
+          error_message = "Received response status code #{status} for #{format_url(url)}"
+          case Billy.config.non_successful_error_level
+          when :error
+            raise error_message
+          else
+            Billy.log(error_level, error_message)
+          end
+        end
+
         # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-        !whitelisted_host?(url.host) && !whitelisted_host?("#{url.host}:#{url.port}") || blacklisted_path?(url.path)
+        cacheable_status?(status) && (!whitelisted_host?(url.host) && !whitelisted_host?("#{url.host}:#{url.port}") || blacklisted_path?(url.path))
         # TODO test headers for cacheability
       end
     end
@@ -26,6 +38,14 @@ module Billy
 
     def blacklisted_path?(path)
       Billy.config.path_blacklist.index{|bl| path.include?(bl)}
+    end
+
+    def successful_status?(status)
+      (200..299).include?(status)
+    end
+
+    def cacheable_status?(status)
+      Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
     end
 
     def cached?(method, url, body)

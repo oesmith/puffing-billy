@@ -85,6 +85,7 @@ module Billy
         respond_from_cache
       else
         Billy.log(:info, "PROXY #{@parser.http_method} #{@url}")
+        raise "Connection to #{@url}#{@parser.http_method == 'post' ? " with body '#{@body}'" : ''} not proxied and new http connections are disabled" unless Billy.config.allow_http_connections_when_no_cache
         proxy_request
       end
     end
@@ -115,7 +116,7 @@ module Billy
         res_headers = res_headers.merge('Connection' => 'close')
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
-        if cache.cacheable?(@url, res_headers)
+        if cache.cacheable?(@url, res_headers, res_status)
           cache.store(@parser.http_method.downcase, @url, @body, res_status, res_headers, res_content)
         end
 

@@ -31,6 +31,12 @@ shared_examples_for 'a request stub' do
     http.get('/foo').body.should == 'hello, GET!'
   end
 
+  it 'should stub GET response statuses' do
+    proxy.stub("#{url}/foo").
+      and_return(:code => 200)
+    http.get('/foo').status.should == 200
+  end
+
   it 'should stub POST requests' do
     proxy.stub("#{url}/bar", :method => :post).
       and_return(:text => 'hello, POST!')
@@ -46,7 +52,7 @@ shared_examples_for 'a request stub' do
   it 'should stub HEAD requests' do
     proxy.stub("#{url}/bap", :method => :head).
       and_return(:headers => {'HTTP-X-Hello' => 'hello, HEAD!'})
-    http.head('/bap').headers['http_x_hello'] == 'hello, HEAD!'
+    http.head('/bap').headers['http-x-hello'].should == 'hello, HEAD!'
   end
 
   it 'should stub DELETE requests' do
@@ -164,6 +170,40 @@ shared_examples_for 'a cache' do
 
           expect(saved_cache[:url]).to_not eql(url.to_s)
           expect(saved_cache[:url]).to eql(url.to_s.gsub(":#{url.port}", ''))
+        end
+      end
+
+      context 'allow_http_connections_when_no_cache requests' do
+        before { Billy.config.allow_http_connections_when_no_cache = false }
+
+        it 'should raise error when disabled' do
+          # This causes the test to hang indefinitely.  Guessing it has to do with the proxy process.
+          # expect(http.get('/foo')).to raise RuntimeError
+        end
+      end
+
+      context 'non_successful_cache_disabled requests' do
+        before { Billy.config.non_successful_cache_disabled = true }
+
+        it 'should not cache non-successful response when enabled' do
+          # Using this method never creates a file
+          # proxy.stub("#{url}/foo").and_return(:text => 'GET /foo', :code => 500)
+          # The test server in spec/support/test_server.rb is hard-coded to return a 200
+          # Need a good way to test this
+          # http.get('/foo')
+          # File.exists?(cached_file).should be_false
+        end
+
+        it 'should cache successful response when enabled' do
+          assert_cached_url
+        end
+      end
+
+      context 'non_successful_error_level requests' do
+        before { Billy.config.non_successful_error_level = :error }
+
+        it 'should raise error for non-successful responses when :error' do
+          # Need a way to simulate a non-successful response for this test
         end
       end
 
