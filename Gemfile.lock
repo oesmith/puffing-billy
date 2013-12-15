@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    puffing-billy (0.2.1)
+    puffing-billy (0.2.2)
       capybara
       em-http-request
       eventmachine
@@ -12,7 +12,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.3.3)
+    addressable (2.3.5)
     builder (3.2.0)
     capybara (2.0.2)
       mime-types (>= 1.16)
@@ -114,6 +114,7 @@ DEPENDENCIES
   faraday
   guard
   poltergeist
+  pry
   puffing-billy!
   rack
   rb-inotify

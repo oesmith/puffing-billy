@@ -4,6 +4,8 @@ require 'eventmachine'
 
 module Billy
   class Proxy
+    attr_reader :cache
+
     def initialize
       reset
       @cache = Billy::Cache.new
