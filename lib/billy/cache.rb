@@ -6,7 +6,6 @@ module Billy
   class Cache
     def initialize
       reset
-      load_dir
     end
 
     def cacheable?(url, headers)
@@ -18,11 +17,26 @@ module Billy
     end
 
     def cached?(method, url, body)
-      !@cache[key(method, url, body)].nil?
+      key = key(method, url, body)
+      !@cache[key].nil? or persisted?(key)
+    end
+
+    def persisted?(key)
+      Billy.config.persist_cache and File.exists?(cache_file(key))
     end
 
     def fetch(method, url, body)
-      @cache[key(method, url, body)]
+      key = key(method, url, body)
+      @cache[key] or fetch_from_persistence(key)
+    end
+
+    def fetch_from_persistence(key)
+      begin
+        @cache[key] = YAML.load(File.open(cache_file(key))) if persisted?(key)
+      rescue ArgumentError => e
+        puts "Could not parse YAML: #{e.message}"
+        nil
+      end
     end
 
     def store(method, url, body, status, headers, content)
@@ -35,15 +49,14 @@ module Billy
         :content => content
       }
 
-      @cache[key(method, url, body)] = cached
+      key = key(method, url, body)
+      @cache[key] = cached
 
       if Billy.config.persist_cache
         Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
 
         begin
-          path = File.join(Billy.config.cache_path,
-                           "#{key(method, url, body)}.yml")
-          File.open(path, 'w') do |f|
+          File.open(cache_file(key), 'w') do |f|
             f.write(cached.to_yaml(:Encoding => :Utf8))
           end
         rescue StandardError => e
@@ -53,20 +66,6 @@ module Billy
 
     def reset
       @cache = {}
-    end
-
-    def load_dir
-      if Billy.config.persist_cache
-        Dir.glob(Billy.config.cache_path+"*.yml") { |filename|
-          data = begin
-                   YAML.load(File.open(filename))
-                 rescue ArgumentError => e
-                   puts "Could not parse YAML: #{e.message}"
-                 end
-
-          @cache[key(data[:method], data[:url], data[:body])] = data
-        }
-      end
     end
 
     def key(method, url, body)
@@ -84,6 +83,10 @@ module Billy
       end
 
       key
+    end
+
+    def cache_file(key)
+      File.join(Billy.config.cache_path, "#{key}.yml")
     end
   end
 end

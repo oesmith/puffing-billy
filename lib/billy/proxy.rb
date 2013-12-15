@@ -54,8 +54,8 @@ module Billy
     end
 
     def restore_cache
+      warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamincally checked. Use `reset_cache` if you just want to clear the cache."
       @cache.reset
-      @cache.load_dir
     end
 
     protected
