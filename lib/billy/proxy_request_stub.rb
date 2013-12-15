@@ -6,7 +6,7 @@ module Billy
       @options = {:method => :get}.merge(options)
       @method = @options[:method].to_s.upcase
       @url = url
-      @response = [204, {}, ""]
+      @response = {code: 204, headers: {}, text: ""}
     end
 
     def and_return(response)
