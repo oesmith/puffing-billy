@@ -75,18 +75,51 @@ module Billy
 
       if result
         Billy.log(:info, "STUB #{@parser.http_method} #{@url}")
-        response = EM::DelegatedHttpResponse.new(self)
-        response.status = result[0]
-        response.headers = result[1].merge('Connection' => 'close')
-        response.content = result[2]
-        response.send_response
+        stub_request(result)
       elsif cache.cached?(@parser.http_method.downcase, @url, @body)
         Billy.log(:info, "CACHE #{@parser.http_method} #{@url}")
         respond_from_cache
-      else
+      elsif allowed_request?
         Billy.log(:info, "PROXY #{@parser.http_method} #{@url}")
-        raise "Connection to #{@url}#{@parser.http_method == 'post' ? " with body '#{@body}'" : ''} not proxied and new http connections are disabled" unless Billy.config.allow_http_connections_when_no_cache
         proxy_request
+      else
+        Billy.log(:error, "Connection to #{@url}#{@parser.http_method == 'post' ? " with body '#{@body}'" : ''} not cached and new http connections are disabled")
+        #FIXME: Raising an error from here causes EventMachine to hang.  Closing the connection (below) throws a Faraday error
+        #       Need to see if we can capture that and raise a meaningful error: https://gist.github.com/sethvargo/7702061
+        close_connection
+      end
+    end
+
+    def stub_request(result)
+      response = EM::DelegatedHttpResponse.new(self)
+      response.status = result[0]
+      response.headers = result[1].merge('Connection' => 'close')
+      response.content = result[2]
+      response.send_response
+    end
+
+    def disabled_request?(url)
+      # In isolated environments, you may want to stop the request from happening
+      # or else you get "getaddrinfo: Name or service not known" errors
+      if Billy.config.disable_nonwhitelisted_requests
+        Helpers.blacklisted_path?(url.path) || !Helpers.whitelisted_url?(url)
+      end
+    end
+
+    def allowed_request?
+      url = URI(@url)
+      # Disabled check must be first to check blacklisted paths on whitelisted URLs
+      !disabled_request?(url) || Helpers.whitelisted_url?(url)
+    end
+
+    def handle_unsuccessful_response(url, status)
+      error_level = Billy.config.non_successful_error_level
+      error_message = "Received response status code #{status} for #{Helpers.format_url(url)}"
+      case Billy.config.non_successful_error_level
+      when :error
+        raise error_message
+      else
+        Billy.log(error_level, error_message)
       end
     end
 
@@ -116,6 +149,9 @@ module Billy
         res_headers = res_headers.merge('Connection' => 'close')
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
+
+        handle_unsuccessful_response(@url, res_status) if !Helpers.successful_status?(res_status)
+
         if cache.cacheable?(@url, res_headers, res_status)
           cache.store(@parser.http_method.downcase, @url, @body, res_status, res_headers, res_content)
         end

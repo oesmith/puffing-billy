@@ -14,38 +14,14 @@ module Billy
     def cacheable?(url, headers, status)
       if Billy.config.cache
         url = URI(url)
-
-        if !successful_status?(status)
-          error_level = Billy.config.non_successful_error_level
-          error_message = "Received response status code #{status} for #{format_url(url)}"
-          case Billy.config.non_successful_error_level
-          when :error
-            raise error_message
-          else
-            Billy.log(error_level, error_message)
-          end
-        end
-
         # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-        cacheable_status?(status) && (!whitelisted_host?(url.host) && !whitelisted_host?("#{url.host}:#{url.port}") || blacklisted_path?(url.path))
+        cacheable_status?(status) && (!Helpers.whitelisted_url?(url) || Helpers.blacklisted_path?(url.path))
         # TODO test headers for cacheability
       end
     end
 
-    def whitelisted_host?(host)
-      Billy.config.whitelist.include?(host)
-    end
-
-    def blacklisted_path?(path)
-      Billy.config.path_blacklist.index{|bl| path.include?(bl)}
-    end
-
-    def successful_status?(status)
-      (200..299).include?(status)
-    end
-
     def cacheable_status?(status)
-      Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
+      Billy.config.non_successful_cache_disabled ? Helpers.successful_status?(status) : true
     end
 
     def cached?(method, url, body)
@@ -74,7 +50,7 @@ module Billy
     def store(method, url, body, status, headers, content)
       cached = {
         :scope => scope,
-        :url => format_url(url),
+        :url => Helpers.format_url(url),
         :body => body,
         :status => status,
         :method => method,
@@ -102,8 +78,8 @@ module Billy
     end
 
     def key(method, url, body)
-      ignore_params = Billy.config.ignore_params.include?(format_url(url, true))
-      url = URI(format_url(url, ignore_params))
+      ignore_params = Billy.config.ignore_params.include?(Helpers.format_url(url, true))
+      url = URI(Helpers.format_url(url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
 
       if method == 'post' and !ignore_params
@@ -112,17 +88,6 @@ module Billy
       end
 
       key
-    end
-
-    def format_url(url, ignore_params=false)
-      url = URI(url)
-      port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
-      formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
-      unless ignore_params
-        formatted_url += '?'+url.query if url.query
-        formatted_url += '#'+url.fragment if url.fragment
-      end
-      formatted_url
     end
 
     def cache_file(key)

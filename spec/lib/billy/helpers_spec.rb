@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Billy::Cache do
+describe Billy::Helpers do
   describe 'format_url' do
-    let(:cache) { Billy::Cache.new }
+    let(:helper) { Billy::Helpers }
     let(:params) { '?foo=bar' }
     let(:fragment) { '#baz' }
     let(:base_url) { 'http://example.com' }
@@ -12,25 +12,25 @@ describe Billy::Cache do
 
     context 'with ignore_params set to false' do
       it 'is a no-op if there are no params' do
-        expect(cache.format_url(base_url)).to eq base_url
+        expect(helper.format_url(base_url)).to eq base_url
       end
       it 'appends params if there are params' do
-        expect(cache.format_url(params_url)).to eq params_url
+        expect(helper.format_url(params_url)).to eq params_url
       end
       it 'appends params and fragment if both are present' do
-        expect(cache.format_url(params_fragment_url)).to eq params_fragment_url
+        expect(helper.format_url(params_fragment_url)).to eq params_fragment_url
       end
     end
 
     context 'with ignore_params set to true' do
       it 'is a no-op if there are no params' do
-        expect(cache.format_url(base_url, true)).to eq base_url
+        expect(helper.format_url(base_url, true)).to eq base_url
       end
       it 'omits params if there are params' do
-        expect(cache.format_url(params_url, true)).to eq base_url
+        expect(helper.format_url(params_url, true)).to eq base_url
       end
       it 'omits params and fragment if both are present' do
-        expect(cache.format_url(params_fragment_url, true)).to eq base_url
+        expect(helper.format_url(params_fragment_url, true)).to eq base_url
       end
     end
   end

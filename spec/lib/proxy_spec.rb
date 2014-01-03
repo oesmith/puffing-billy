@@ -173,12 +173,12 @@ shared_examples_for 'a cache' do
         end
       end
 
-      context 'allow_http_connections_when_no_cache requests' do
-        before { Billy.config.allow_http_connections_when_no_cache = false }
+      context 'disable_nonwhitelisted_requests requests' do
+        before { Billy.config.disable_nonwhitelisted_requests = true }
 
         it 'should raise error when disabled' do
           # This causes the test to hang indefinitely.  Guessing it has to do with the proxy process.
-          # expect(http.get('/foo')).to raise RuntimeError
+          # expect(http.get('/foo')).to raise Faraday::Error #::ConnectionFailed
         end
       end
 
