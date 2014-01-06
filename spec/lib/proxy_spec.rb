@@ -177,8 +177,8 @@ shared_examples_for 'a cache' do
         before { Billy.config.disable_nonwhitelisted_requests = true }
 
         it 'should raise error when disabled' do
-          # This causes the test to hang indefinitely.  Guessing it has to do with the proxy process.
-          # expect(http.get('/foo')).to raise Faraday::Error #::ConnectionFailed
+          #TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
+          expect{http.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
         end
       end
 
@@ -186,11 +186,13 @@ shared_examples_for 'a cache' do
         before { Billy.config.non_successful_cache_disabled = true }
 
         it 'should not cache non-successful response when enabled' do
+          # The test server in spec/support/test_server.rb is hard-coded to return a 200
+          # Need a way to simulate a non-successful response for this testyy
+
           # Using this method never creates a file
           # proxy.stub("#{url}/foo").and_return(:text => 'GET /foo', :code => 500)
-          # The test server in spec/support/test_server.rb is hard-coded to return a 200
-          # Need a good way to test this
           # http.get('/foo')
+
           # File.exists?(cached_file).should be_false
         end
 
@@ -203,7 +205,8 @@ shared_examples_for 'a cache' do
         before { Billy.config.non_successful_error_level = :error }
 
         it 'should raise error for non-successful responses when :error' do
-          # Need a way to simulate a non-successful response for this test
+          # Need a way to simulate a non-successful response for this testyy
+          # expect{http.get('/foo')}.to raise_error(PutErrorHere)
         end
       end
 

@@ -74,19 +74,17 @@ module Billy
       end
 
       if result
-        Billy.log(:info, "STUB #{@parser.http_method} #{@url}")
+        Billy.log(:info, "puffing-billy: STUB #{@parser.http_method} #{@url}")
         stub_request(result)
       elsif cache.cached?(@parser.http_method.downcase, @url, @body)
-        Billy.log(:info, "CACHE #{@parser.http_method} #{@url}")
+        Billy.log(:info, "puffing-billy: CACHE #{@parser.http_method} #{@url}")
         respond_from_cache
-      elsif allowed_request?
-        Billy.log(:info, "PROXY #{@parser.http_method} #{@url}")
+      elsif !disabled_request?
+        Billy.log(:info, "puffing-billy: PROXY #{@parser.http_method} #{@url}")
         proxy_request
       else
-        Billy.log(:error, "Connection to #{@url}#{@parser.http_method == 'post' ? " with body '#{@body}'" : ''} not cached and new http connections are disabled")
-        #FIXME: Raising an error from here causes EventMachine to hang.  Closing the connection (below) throws a Faraday error
-        #       Need to see if we can capture that and raise a meaningful error: https://gist.github.com/sethvargo/7702061
         close_connection
+        raise "puffing-billy: Connection to #{@url}#{@parser.http_method == 'post' ? " with body '#{@body}'" : ''} not cached and new http connections are disabled"
       end
     end
 
@@ -98,7 +96,8 @@ module Billy
       response.send_response
     end
 
-    def disabled_request?(url)
+    def disabled_request?
+      url = URI(@url)
       # In isolated environments, you may want to stop the request from happening
       # or else you get "getaddrinfo: Name or service not known" errors
       if Billy.config.disable_nonwhitelisted_requests
@@ -106,17 +105,12 @@ module Billy
       end
     end
 
-    def allowed_request?
-      url = URI(@url)
-      # Disabled check must be first to check blacklisted paths on whitelisted URLs
-      !disabled_request?(url) || Helpers.whitelisted_url?(url)
-    end
-
     def handle_unsuccessful_response(url, status)
       error_level = Billy.config.non_successful_error_level
-      error_message = "Received response status code #{status} for #{Helpers.format_url(url)}"
+      error_message = "puffing-billy: Received response status code #{status} for #{Helpers.format_url(url)}"
       case Billy.config.non_successful_error_level
       when :error
+        close_connection
         raise error_message
       else
         Billy.log(error_level, error_message)
@@ -139,7 +133,7 @@ module Billy
       req = req.send(@parser.http_method.downcase, req_opts)
 
       req.errback do
-        Billy.log(:error, "Request failed: #{@url}")
+        Billy.log(:error, "puffing-billy: Request failed: #{@url}")
         close_connection
       end
 
