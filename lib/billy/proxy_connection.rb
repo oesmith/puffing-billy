@@ -100,7 +100,7 @@ module Billy
       url = URI(@url)
       # In isolated environments, you may want to stop the request from happening
       # or else you get "getaddrinfo: Name or service not known" errors
-      if Billy.config.disable_nonwhitelisted_requests
+      if Billy.config.non_whitelisted_requests_disabled
         Helpers.blacklisted_path?(url.path) || !Helpers.whitelisted_url?(url)
       end
     end

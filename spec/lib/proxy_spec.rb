@@ -173,8 +173,8 @@ shared_examples_for 'a cache' do
         end
       end
 
-      context 'disable_nonwhitelisted_requests requests' do
-        before { Billy.config.disable_nonwhitelisted_requests = true }
+      context 'non_whitelisted_requests_disabled requests' do
+        before { Billy.config.non_whitelisted_requests_disabled = true }
 
         it 'should raise error when disabled' do
           #TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
