@@ -28,11 +28,16 @@ module Billy
 
           https_server = start_server(echo, true)
           q.push https_server.backend.get_port
+
+          echo_error = echo_app_setup(500)
+          error_server = start_server(echo_error)
+          q.push error_server.backend.get_port
         end
       end
 
       @http_url  = "http://localhost:#{q.pop}"
       @https_url = "https://localhost:#{q.pop}"
+      @error_url = "http://localhost:#{q.pop}"
     end
 
     def echo_app_setup(response_code = 200)

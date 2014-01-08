@@ -183,17 +183,15 @@ shared_examples_for 'a cache' do
       end
 
       context 'non_successful_cache_disabled requests' do
-        before { Billy.config.non_successful_cache_disabled = true }
+        before do
+          rack_app_url = URI(http_error.url_prefix)
+          Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port}"]
+          Billy.config.non_successful_cache_disabled = true
+        end
 
         it 'should not cache non-successful response when enabled' do
-          # The test server in spec/support/test_server.rb is hard-coded to return a 200
-          # Need a way to simulate a non-successful response for this testyy
-
-          # Using this method never creates a file
-          # proxy.stub("#{url}/foo").and_return(:text => 'GET /foo', :code => 500)
-          # http.get('/foo')
-
-          # File.exists?(cached_file).should be_false
+          http_error.get('/foo')
+          File.exists?(cached_file).should be_false
         end
 
         it 'should cache successful response when enabled' do
@@ -202,11 +200,14 @@ shared_examples_for 'a cache' do
       end
 
       context 'non_successful_error_level requests' do
-        before { Billy.config.non_successful_error_level = :error }
+        before do
+          rack_app_url = URI(http_error.url_prefix)
+          Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port}"]
+          Billy.config.non_successful_error_level = :error
+        end
 
         it 'should raise error for non-successful responses when :error' do
-          # Need a way to simulate a non-successful response for this testyy
-          # expect{http.get('/foo')}.to raise_error(PutErrorHere)
+          expect{http_error.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
         end
       end
 
@@ -255,6 +256,10 @@ describe Billy::Proxy do
       :proxy => { :uri => proxy.url },
       :keepalive => false,
       :timeout => 0.5
+    @http_error = Faraday.new @error_url,
+      :proxy => { :uri => proxy.url },
+      :keepalive => false,
+      :timeout => 0.5
   end
 
   context 'proxying' do
@@ -274,13 +279,13 @@ describe Billy::Proxy do
   context 'stubbing' do
 
     context 'HTTP' do
-      let!(:url) { @http_url }
+      let!(:url)  { @http_url }
       let!(:http) { @http }
       it_should_behave_like 'a request stub'
     end
 
     context 'HTTPS' do
-      let!(:url) { @https_url }
+      let!(:url)  { @https_url }
       let!(:http) { @https }
       it_should_behave_like 'a request stub'
     end
@@ -294,20 +299,23 @@ describe Billy::Proxy do
     end
 
     context 'HTTP' do
-      let!(:url) { @http_url }
-      let!(:http) { @http }
+      let!(:url)        { @http_url }
+      let!(:http)       { @http }
+      let!(:http_error) { @http_error }
       it_should_behave_like 'a cache'
     end
 
     context 'HTTPS' do
-      let!(:url) { @https_url }
-      let!(:http) { @https }
+      let!(:url)        { @https_url }
+      let!(:http)       { @https }
+      let!(:http_error) { @http_error }
       it_should_behave_like 'a cache'
     end
 
     context 'with a cache scope' do
-      let!(:url)  { @http_url }
-      let!(:http) { @http }
+      let!(:url)        { @http_url }
+      let!(:http)       { @http }
+      let!(:http_error) { @http_error }
 
       before do
         proxy.cache.scope_to "my_cache"
