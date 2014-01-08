@@ -84,13 +84,14 @@ module Billy
         proxy_request
       else
         close_connection
-        raise "puffing-billy: Connection to #{@url}#{@parser.http_method == 'post' ? " with body '#{@body}'" : ''} not cached and new http connections are disabled"
+        body_msg = @parser.http_method == 'post' ? " with body '#{@body}'" : ''
+        raise "puffing-billy: Connection to #{@url}#{body_msg} not cached and new http connections are disabled"
       end
     end
 
     def stub_request(result)
       response = EM::DelegatedHttpResponse.new(self)
-      response.status = result[0]
+      response.status  = result[0]
       response.headers = result[1].merge('Connection' => 'close')
       response.content = result[2]
       response.send_response
@@ -106,9 +107,9 @@ module Billy
     end
 
     def handle_unsuccessful_response(url, status)
-      error_level = Billy.config.non_successful_error_level
+      error_level   = Billy.config.non_successful_error_level
       error_message = "puffing-billy: Received response status code #{status} for #{Helpers.format_url(url)}"
-      case Billy.config.non_successful_error_level
+      case error_level
       when :error
         close_connection
         raise error_message
