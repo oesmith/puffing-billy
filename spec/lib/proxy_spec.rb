@@ -4,23 +4,23 @@ require 'resolv'
 
 shared_examples_for 'a proxy server' do
   it 'should proxy GET requests' do
-    http.get('/echo').body.should == 'GET /echo'
+    expect(http.get('/echo').body).to eql 'GET /echo'
   end
 
   it 'should proxy POST requests' do
-    http.post('/echo', :foo => 'bar').body.should == "POST /echo\nfoo=bar"
+    expect(http.post('/echo', :foo => 'bar').body).to eql "POST /echo\nfoo=bar"
   end
 
   it 'should proxy PUT requests' do
-    http.post('/echo', :foo => 'bar').body.should == "POST /echo\nfoo=bar"
+    expect(http.post('/echo', :foo => 'bar').body).to eql "POST /echo\nfoo=bar"
   end
 
   it 'should proxy HEAD requests' do
-    http.head('/echo').headers['HTTP-X-EchoServer'].should == 'HEAD /echo'
+    expect(http.head('/echo').headers['HTTP-X-EchoServer']).to eql 'HEAD /echo'
   end
 
   it 'should proxy DELETE requests' do
-    http.delete('/echo').body.should == 'DELETE /echo'
+    expect(http.delete('/echo').body).to eql 'DELETE /echo'
   end
 end
 
@@ -28,37 +28,37 @@ shared_examples_for 'a request stub' do
   it 'should stub GET requests' do
     proxy.stub("#{url}/foo").
       and_return(:text => 'hello, GET!')
-    http.get('/foo').body.should == 'hello, GET!'
+    expect(http.get('/foo').body).to eql 'hello, GET!'
   end
 
   it 'should stub GET response statuses' do
     proxy.stub("#{url}/foo").
       and_return(:code => 200)
-    http.get('/foo').status.should == 200
+    expect(http.get('/foo').status).to eql 200
   end
 
   it 'should stub POST requests' do
     proxy.stub("#{url}/bar", :method => :post).
       and_return(:text => 'hello, POST!')
-    http.post('/bar', :foo => :bar).body.should == 'hello, POST!'
+    expect(http.post('/bar', :foo => :bar).body).to eql 'hello, POST!'
   end
 
   it 'should stub PUT requests' do
     proxy.stub("#{url}/baz", :method => :put).
       and_return(:text => 'hello, PUT!')
-    http.put('/baz', :foo => :bar).body.should == 'hello, PUT!'
+    expect(http.put('/baz', :foo => :bar).body).to eql 'hello, PUT!'
   end
 
   it 'should stub HEAD requests' do
     proxy.stub("#{url}/bap", :method => :head).
       and_return(:headers => {'HTTP-X-Hello' => 'hello, HEAD!'})
-    http.head('/bap').headers['http-x-hello'].should == 'hello, HEAD!'
+    expect(http.head('/bap').headers['http-x-hello']).to eql 'hello, HEAD!'
   end
 
   it 'should stub DELETE requests' do
     proxy.stub("#{url}/bam", :method => :delete).
       and_return(:text => 'hello, DELETE!')
-    http.delete('/bam').body.should == 'hello, DELETE!'
+    expect(http.delete('/bam').body).to eql 'hello, DELETE!'
   end
 end
 
@@ -109,7 +109,7 @@ shared_examples_for 'a cache' do
 
     it 'should be cached' do
       r = http.get('/analytics?some_param=5')
-      r.body.should == 'GET /analytics'
+      expect(r.body).to eql 'GET /analytics'
       expect {
         expect {
           r = http.get('/analytics?some_param=20')
@@ -146,7 +146,7 @@ shared_examples_for 'a cache' do
 
       it 'should persist' do
         r = http.get('/foo')
-        File.exists?(cached_file).should be_true
+        expect(File.exists?(cached_file)).to be_true
       end
 
       it 'should be read initially from persistent cache' do
@@ -159,7 +159,7 @@ shared_examples_for 'a cache' do
         end
 
         r = http.get('/foo')
-        r.body.should == 'GET /foo cached'
+        expect(r.body).to eql 'GET /foo cached'
       end
 
       context 'ignore_cache_port requests' do
@@ -191,7 +191,7 @@ shared_examples_for 'a cache' do
 
         it 'should not cache non-successful response when enabled' do
           http_error.get('/foo')
-          File.exists?(cached_file).should be_false
+          expect(File.exists?(cached_file)).to be_false
         end
 
         it 'should cache successful response when enabled' do
@@ -218,14 +218,14 @@ shared_examples_for 'a cache' do
 
       it 'shouldnt persist' do
         r = http.get('/foo')
-        File.exists?(cached_file).should be_false
+        expect(File.exists?(cached_file)).to be_false
       end
     end
   end
 
   def assert_noncached_url(url = '/foo')
     r = http.get(url)
-    r.body.should == "GET #{url}"
+    expect(r.body).to eql "GET #{url}"
     expect {
       expect {
         r = http.get(url)
@@ -235,7 +235,7 @@ shared_examples_for 'a cache' do
 
   def assert_cached_url(url = '/foo')
     r = http.get(url)
-    r.body.should == "GET #{url}"
+    expect(r.body).to eql "GET #{url}"
     expect {
       expect {
         r = http.get(url)
