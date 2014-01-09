@@ -213,7 +213,7 @@ shared_examples_for 'a cache' do
           # 1) Remove the `raise error_message` conditionally for this test
           # 2) Restart the test servers if they aren't running
           # 3) Change the test servers to start/stop for each test instead of before all
-          # 3) Remove the test server completely and rely on the server instantiated by the app
+          # 4) Remove the test server completely and rely on the server instantiated by the app
           pending "Unable to test this without affecting the running test servers"
           expect{http_error.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
         end
