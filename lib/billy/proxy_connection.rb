@@ -109,8 +109,12 @@ module Billy
     def handle_unsuccessful_response(url, status)
       error_level   = Billy.config.non_successful_error_level
       error_message = "puffing-billy: Received response status code #{status} for #{Helpers.format_url(url)}"
-      Billy.log(error_level, error_message)
-      close_connection if error_level == :error
+      if error_level == :error
+        close_connection
+        raise error_message
+      else
+        Billy.log(error_level, error_message)
+      end
     end
 
     def proxy_request
