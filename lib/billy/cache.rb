@@ -11,19 +11,6 @@ module Billy
       reset
     end
 
-    def cacheable?(url, headers, status)
-      if Billy.config.cache
-        url = URI(url)
-        # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-        cacheable_status?(status) && (!Helpers.whitelisted_url?(url) || Helpers.blacklisted_path?(url.path))
-        # TODO test headers for cacheability
-      end
-    end
-
-    def cacheable_status?(status)
-      Billy.config.non_successful_cache_disabled ? Helpers.successful_status?(status) : true
-    end
-
     def cached?(method, url, body)
       key = key(method, url, body)
       !@cache[key].nil? or persisted?(key)
