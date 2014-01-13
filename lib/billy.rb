@@ -4,7 +4,6 @@ require "billy/proxy_request_stub"
 require "billy/cache"
 require "billy/proxy"
 require "billy/proxy_connection"
-require "billy/helpers"
 
 module Billy
   def self.proxy

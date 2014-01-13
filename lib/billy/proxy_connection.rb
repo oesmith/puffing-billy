@@ -158,7 +158,7 @@ module Billy
 
     def handle_response_code(status)
       log_level = successful_status?(status) ? :info : Billy.config.non_successful_error_level
-      log_message = "puffing-billy: Received response status code #{status} for #{Helpers.format_url(@url)}"
+      log_message = "puffing-billy: Received response status code #{status} for #{@url}"
       Billy.log(log_level, log_message)
       if log_level == :error
         close_connection

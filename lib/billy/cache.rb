@@ -37,7 +37,7 @@ module Billy
     def store(method, url, body, status, headers, content)
       cached = {
         :scope => scope,
-        :url => Helpers.format_url(url),
+        :url => format_url(url),
         :body => body,
         :status => status,
         :method => method,
@@ -65,8 +65,8 @@ module Billy
     end
 
     def key(method, url, body)
-      ignore_params = Billy.config.ignore_params.include?(Helpers.format_url(url, true))
-      url = URI(Helpers.format_url(url, ignore_params))
+      ignore_params = Billy.config.ignore_params.include?(format_url(url, true))
+      url = URI(format_url(url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
 
       if method == 'post' and !ignore_params
@@ -75,6 +75,17 @@ module Billy
       end
 
       key
+    end
+
+    def format_url(url, ignore_params=false)
+      url = URI(url)
+      port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
+      formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
+      unless ignore_params
+        formatted_url += '?'+url.query if url.query
+        formatted_url += '#'+url.fragment if url.fragment
+      end
+      formatted_url
     end
 
     def cache_file(key)
