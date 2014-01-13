@@ -189,7 +189,7 @@ module Billy
     end
 
     def successful_status?(status)
-      (200..299).include?(status)
+      (200..299).include?(status) || status == 304
     end
 
     def cacheable_headers?(headers)
