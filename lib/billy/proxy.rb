@@ -78,7 +78,7 @@ module Billy
           p.cache = @cache
         end
 
-        Billy.log(:info, "Proxy listening on #{url}")
+        Billy.log(:info, "puffing-billy: Proxy listening on #{url}")
       end
     end
   end

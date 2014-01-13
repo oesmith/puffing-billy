@@ -4,23 +4,23 @@ require 'resolv'
 
 shared_examples_for 'a proxy server' do
   it 'should proxy GET requests' do
-    http.get('/echo').body.should == 'GET /echo'
+    expect(http.get('/echo').body).to eql 'GET /echo'
   end
 
   it 'should proxy POST requests' do
-    http.post('/echo', :foo => 'bar').body.should == "POST /echo\nfoo=bar"
+    expect(http.post('/echo', :foo => 'bar').body).to eql "POST /echo\nfoo=bar"
   end
 
   it 'should proxy PUT requests' do
-    http.post('/echo', :foo => 'bar').body.should == "POST /echo\nfoo=bar"
+    expect(http.post('/echo', :foo => 'bar').body).to eql "POST /echo\nfoo=bar"
   end
 
   it 'should proxy HEAD requests' do
-    http.head('/echo').headers['HTTP-X-EchoServer'].should == 'HEAD /echo'
+    expect(http.head('/echo').headers['HTTP-X-EchoServer']).to eql 'HEAD /echo'
   end
 
   it 'should proxy DELETE requests' do
-    http.delete('/echo').body.should == 'DELETE /echo'
+    expect(http.delete('/echo').body).to eql 'DELETE /echo'
   end
 end
 
@@ -28,31 +28,37 @@ shared_examples_for 'a request stub' do
   it 'should stub GET requests' do
     proxy.stub("#{url}/foo").
       and_return(:text => 'hello, GET!')
-    http.get('/foo').body.should == 'hello, GET!'
+    expect(http.get('/foo').body).to eql 'hello, GET!'
+  end
+
+  it 'should stub GET response statuses' do
+    proxy.stub("#{url}/foo").
+      and_return(:code => 200)
+    expect(http.get('/foo').status).to eql 200
   end
 
   it 'should stub POST requests' do
     proxy.stub("#{url}/bar", :method => :post).
       and_return(:text => 'hello, POST!')
-    http.post('/bar', :foo => :bar).body.should == 'hello, POST!'
+    expect(http.post('/bar', :foo => :bar).body).to eql 'hello, POST!'
   end
 
   it 'should stub PUT requests' do
     proxy.stub("#{url}/baz", :method => :put).
       and_return(:text => 'hello, PUT!')
-    http.put('/baz', :foo => :bar).body.should == 'hello, PUT!'
+    expect(http.put('/baz', :foo => :bar).body).to eql 'hello, PUT!'
   end
 
   it 'should stub HEAD requests' do
     proxy.stub("#{url}/bap", :method => :head).
       and_return(:headers => {'HTTP-X-Hello' => 'hello, HEAD!'})
-    http.head('/bap').headers['http_x_hello'] == 'hello, HEAD!'
+    expect(http.head('/bap').headers['http-x-hello']).to eql 'hello, HEAD!'
   end
 
   it 'should stub DELETE requests' do
     proxy.stub("#{url}/bam", :method => :delete).
       and_return(:text => 'hello, DELETE!')
-    http.delete('/bam').body.should == 'hello, DELETE!'
+    expect(http.delete('/bam').body).to eql 'hello, DELETE!'
   end
 end
 
@@ -103,7 +109,7 @@ shared_examples_for 'a cache' do
 
     it 'should be cached' do
       r = http.get('/analytics?some_param=5')
-      r.body.should == 'GET /analytics'
+      expect(r.body).to eql 'GET /analytics'
       expect {
         expect {
           r = http.get('/analytics?some_param=20')
@@ -140,7 +146,7 @@ shared_examples_for 'a cache' do
 
       it 'should persist' do
         r = http.get('/foo')
-        File.exists?(cached_file).should be_true
+        expect(File.exists?(cached_file)).to be_true
       end
 
       it 'should be read initially from persistent cache' do
@@ -153,7 +159,7 @@ shared_examples_for 'a cache' do
         end
 
         r = http.get('/foo')
-        r.body.should == 'GET /foo cached'
+        expect(r.body).to eql 'GET /foo cached'
       end
 
       context 'ignore_cache_port requests' do
@@ -167,6 +173,52 @@ shared_examples_for 'a cache' do
         end
       end
 
+      context 'non_whitelisted_requests_disabled requests' do
+        before { Billy.config.non_whitelisted_requests_disabled = true }
+
+        it 'should raise error when disabled' do
+          #TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
+          expect{http.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed, "end of file reached")
+        end
+      end
+
+      context 'non_successful_cache_disabled requests' do
+        before do
+          rack_app_url = URI(http_error.url_prefix)
+          Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port}"]
+          Billy.config.non_successful_cache_disabled = true
+        end
+
+        it 'should not cache non-successful response when enabled' do
+          http_error.get('/foo')
+          expect(File.exists?(cached_file)).to be_false
+        end
+
+        it 'should cache successful response when enabled' do
+          assert_cached_url
+        end
+      end
+
+      context 'non_successful_error_level requests' do
+        before do
+          rack_app_url = URI(http_error.url_prefix)
+          Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port}"]
+          Billy.config.non_successful_error_level = :error
+        end
+
+        it 'should raise error for non-successful responses when :error' do
+          # When this config setting is set, the EventMachine running the test servers is killed upon error raising
+          # The `raise` is required to bubble up the error to the test running it
+          # The Faraday error is raised upon `close_connection` so this can be non-pending if we can do one of the following:
+          # 1) Remove the `raise error_message` conditionally for this test
+          # 2) Restart the test servers if they aren't running
+          # 3) Change the test servers to start/stop for each test instead of before all
+          # 4) Remove the test server completely and rely on the server instantiated by the app
+          pending "Unable to test this without affecting the running test servers"
+          expect{http_error.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
+        end
+      end
+
     end
 
     context "disabled" do
@@ -174,14 +226,14 @@ shared_examples_for 'a cache' do
 
       it 'shouldnt persist' do
         r = http.get('/foo')
-        File.exists?(cached_file).should be_false
+        expect(File.exists?(cached_file)).to be_false
       end
     end
   end
 
   def assert_noncached_url(url = '/foo')
     r = http.get(url)
-    r.body.should == "GET #{url}"
+    expect(r.body).to eql "GET #{url}"
     expect {
       expect {
         r = http.get(url)
@@ -191,7 +243,7 @@ shared_examples_for 'a cache' do
 
   def assert_cached_url(url = '/foo')
     r = http.get(url)
-    r.body.should == "GET #{url}"
+    expect(r.body).to eql "GET #{url}"
     expect {
       expect {
         r = http.get(url)
@@ -209,6 +261,10 @@ describe Billy::Proxy do
       :timeout => 0.5
     @https = Faraday.new @https_url,
       :ssl => { :verify => false },
+      :proxy => { :uri => proxy.url },
+      :keepalive => false,
+      :timeout => 0.5
+    @http_error = Faraday.new @error_url,
       :proxy => { :uri => proxy.url },
       :keepalive => false,
       :timeout => 0.5
@@ -231,13 +287,13 @@ describe Billy::Proxy do
   context 'stubbing' do
 
     context 'HTTP' do
-      let!(:url) { @http_url }
+      let!(:url)  { @http_url }
       let!(:http) { @http }
       it_should_behave_like 'a request stub'
     end
 
     context 'HTTPS' do
-      let!(:url) { @https_url }
+      let!(:url)  { @https_url }
       let!(:http) { @https }
       it_should_behave_like 'a request stub'
     end
@@ -251,20 +307,23 @@ describe Billy::Proxy do
     end
 
     context 'HTTP' do
-      let!(:url) { @http_url }
-      let!(:http) { @http }
+      let!(:url)        { @http_url }
+      let!(:http)       { @http }
+      let!(:http_error) { @http_error }
       it_should_behave_like 'a cache'
     end
 
     context 'HTTPS' do
-      let!(:url) { @https_url }
-      let!(:http) { @https }
+      let!(:url)        { @https_url }
+      let!(:http)       { @https }
+      let!(:http_error) { @http_error }
       it_should_behave_like 'a cache'
     end
 
     context 'with a cache scope' do
-      let!(:url)  { @http_url }
-      let!(:http) { @http }
+      let!(:url)        { @http_url }
+      let!(:http)       { @http }
+      let!(:http_error) { @http_error }
 
       before do
         proxy.cache.scope_to "my_cache"
