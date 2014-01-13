@@ -97,24 +97,13 @@ module Billy
       response.send_response
     end
 
-    def disabled_request?
-      url = URI(@url)
-      # In isolated environments, you may want to stop the request from happening
-      # or else you get "getaddrinfo: Name or service not known" errors
-      if Billy.config.non_whitelisted_requests_disabled
-        Helpers.blacklisted_path?(url.path) || !Helpers.whitelisted_url?(url)
-      end
-    end
-
-    def handle_unsuccessful_response(url, status)
-      error_level   = Billy.config.non_successful_error_level
-      error_message = "puffing-billy: Received response status code #{status} for #{Helpers.format_url(url)}"
-      if error_level == :error
-        close_connection
-        raise error_message
-      else
-        Billy.log(error_level, error_message)
-      end
+    def respond_from_cache
+      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
+      res = EM::DelegatedHttpResponse.new(self)
+      res.status = cached_res[:status]
+      res.headers = cached_res[:headers]
+      res.content = cached_res[:content]
+      res.send_response
     end
 
     def proxy_request
@@ -144,9 +133,9 @@ module Billy
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
 
-        handle_unsuccessful_response(@url, res_status) if !Helpers.successful_status?(res_status)
+        handle_response_code(res_status)
 
-        if cache.cacheable?(@url, res_headers, res_status)
+        if cacheable?(res_headers, res_status)
           cache.store(@parser.http_method.downcase, @url, @body, res_status, res_headers, res_content)
         end
 
@@ -158,13 +147,59 @@ module Billy
       end
     end
 
-    def respond_from_cache
-      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
-      res = EM::DelegatedHttpResponse.new(self)
-      res.status = cached_res[:status]
-      res.headers = cached_res[:headers]
-      res.content = cached_res[:content]
-      res.send_response
+    def disabled_request?
+      url = URI(@url)
+      # In isolated environments, you may want to stop the request from happening
+      # or else you get "getaddrinfo: Name or service not known" errors
+      if Billy.config.non_whitelisted_requests_disabled
+        blacklisted_path?(url.path) || !whitelisted_url?(url)
+      end
     end
+
+    def handle_response_code(status)
+      log_level = successful_status?(status) ? :info : Billy.config.non_successful_error_level
+      log_message = "puffing-billy: Received response status code #{status} for #{Helpers.format_url(@url)}"
+      Billy.log(log_level, log_message)
+      if log_level == :error
+        close_connection
+        raise log_message
+      end
+    end
+
+    def cacheable?(headers, status)
+      if Billy.config.cache
+        url = URI(@url)
+        # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
+        cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
+      end
+    end
+
+ private
+
+    def whitelisted_host?(host)
+      Billy.config.whitelist.include?(host)
+    end
+
+    def whitelisted_url?(url)
+      whitelisted_host?(url.host) || whitelisted_host?("#{url.host}:#{url.port}")
+    end
+
+    def blacklisted_path?(path)
+      Billy.config.path_blacklist.index{|bl| path.include?(bl)}
+    end
+
+    def successful_status?(status)
+      (200..299).include?(status)
+    end
+
+    def cacheable_headers?(headers)
+      #TODO: test headers for cacheability (ie. Cache-Control: no-cache)
+      true
+    end
+
+    def cacheable_status?(status)
+      Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
+    end
+
   end
 end
