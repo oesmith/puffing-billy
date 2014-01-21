@@ -255,19 +255,16 @@ end
 describe Billy::Proxy do
 
   before do
-    @http = Faraday.new @http_url,
-      :proxy => { :uri => proxy.url },
-      :keepalive => false,
-      :timeout => 0.5
-    @https = Faraday.new @https_url,
-      :ssl => { :verify => false },
-      :proxy => { :uri => proxy.url },
-      :keepalive => false,
-      :timeout => 0.5
-    @http_error = Faraday.new @error_url,
-      :proxy => { :uri => proxy.url },
-      :keepalive => false,
-      :timeout => 0.5
+    # Adding non-valid Faraday options throw an error: https://github.com/arsduo/koala/pull/311
+    # Valid options: :request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class
+    faraday_options = {
+      :proxy   => { :uri => proxy.url },
+      :request => { :timeout => 0.5 }
+    }
+
+    @http       = Faraday.new @http_url,  faraday_options
+    @https      = Faraday.new @https_url, faraday_options.merge(:ssl => { :verify => false })
+    @http_error = Faraday.new @error_url, faraday_options
   end
 
   context 'proxying' do
