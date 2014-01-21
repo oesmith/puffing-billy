@@ -74,13 +74,13 @@ module Billy
       end
 
       if result
-        Billy.log(:info, "puffing-billy: STUB #{@parser.http_method} #{@url}")
+        Billy.log(:info, "puffing-billy: STUB #{@parser.http_method} for '#{@url}'")
         stub_request(result)
       elsif cache.cached?(@parser.http_method.downcase, @url, @body)
-        Billy.log(:info, "puffing-billy: CACHE #{@parser.http_method} #{@url}")
+        Billy.log(:info, "puffing-billy: CACHE #{@parser.http_method} for '#{@url}'")
         respond_from_cache
       elsif !disabled_request?
-        Billy.log(:info, "puffing-billy: PROXY #{@parser.http_method} #{@url}")
+        Billy.log(:info, "puffing-billy: PROXY #{@parser.http_method} for '#{@url}'")
         proxy_request
       else
         close_connection
@@ -136,7 +136,7 @@ module Billy
         handle_response_code(res_status)
 
         if cacheable?(res_headers, res_status)
-          cache.store(@parser.http_method.downcase, @url, @body, res_status, res_headers, res_content)
+          cache.store(@parser.http_method.downcase, @url, headers, @body, res_headers, res_status, res_content)
         end
 
         res = EM::DelegatedHttpResponse.new(self)
