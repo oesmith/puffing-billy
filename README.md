@@ -172,6 +172,7 @@ persistence you can take tests completely offline.
 ```ruby
 Billy.configure do |c|
   c.cache = true
+  c.cache_request_headers = false
   c.ignore_params = ["http://www.google-analytics.com/__utm.gif",
                      "https://r.twimg.com/jot",
                      "http://p.twitter.com/t.gif",
@@ -181,13 +182,20 @@ Billy.configure do |c|
                      "http://cdn.api.twitter.com/1/urls/count.json"]
   c.path_blacklist = []
   c.persist_cache = true
-  c.ignore_cache_port = true        # defaults to true
+  c.ignore_cache_port = true # defaults to true
+  c.non_successful_cache_disabled = false
+  c.non_successful_error_level = :warn
+  c.non_whitelisted_requests_disabled = false
   c.cache_path = 'spec/req_cache/'
 end
 ```
 
 The cache works with all types of requests and will distinguish between
 different POST requests to the same URL.
+
+`c.cache_request_headers` is used to store the outgoing request headers in the cache.
+It is also saved to yml if `persist_cache` is enabled.  This additional information
+is useful for debugging (for example: viewing the referer of the request).
 
 `c.ignore_params` is used to ignore parameters of certain requests when
 caching. You should mostly use this for analytics and various social buttons as
@@ -202,6 +210,20 @@ the actual data is coming from a different application that you want to cache.
 `c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
 is useful when caching local paths (via `path_blacklist`) or other local rack apps
 that are running on random ports.
+
+`c.non_successful_cache_disabled` is used to not cache responses without 200-series
+or 304 status codes.  This prevents unauthorized or internal server errors from
+being cached and used for future test runs.
+
+`c.non_successful_error_level` is used to log when non-successful resposnes are
+received.  By default, it just writes to the log file, but when set to `:error`
+it throws an error with the URL and status code received for easier debugging.
+
+`c.non_whitelisted_requests_disabled` is used to disable hitting new URLs when
+no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
+allowed, all others will throw an error with the URL attempted to be accessed.
+This is useful for debugging issues in isolated environments (ie.
+continuous integration).
 
 ### Cache Scopes
 
