@@ -12,7 +12,8 @@ module Billy
     end
 
     def cached?(method, url, body)
-      key = key(method, url, body)
+      # Only log the key the first time it's looked up (in this method)
+      key = key(method, url, body, true)
       !@cache[key].nil? or persisted?(key)
     end
 
@@ -34,16 +35,18 @@ module Billy
       end
     end
 
-    def store(method, url, body, status, headers, content)
+    def store(method, url, request_headers, body, response_headers, status, content)
       cached = {
         :scope => scope,
         :url => format_url(url),
         :body => body,
         :status => status,
         :method => method,
-        :headers => headers,
+        :headers => response_headers,
         :content => content
       }
+
+      cached.merge!({:request_headers => request_headers}) if Billy.config.cache_request_headers
 
       key = key(method, url, body)
       @cache[key] = cached
@@ -64,16 +67,19 @@ module Billy
       @cache = {}
     end
 
-    def key(method, url, body)
-      ignore_params = Billy.config.ignore_params.include?(format_url(url, true))
-      url = URI(format_url(url, ignore_params))
+    def key(method, orig_url, body, log_key = false)
+      ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
+      url = URI(format_url(orig_url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+      body_msg = ''
 
       if method == 'post' and !ignore_params
         body_formatted = JSONUtils::json?(body.to_s) ? JSONUtils::sort_json(body.to_s) : body.to_s
+        body_msg = " with body '#{body_formatted}'"
         key += '_'+Digest::SHA1.hexdigest(body_formatted)
       end
 
+      Billy.log(:info, "puffing-billy: CACHE KEY for '#{orig_url}#{body_msg}' is '#{key}'") if log_key
       key
     end
 

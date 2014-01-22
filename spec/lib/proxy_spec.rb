@@ -162,6 +162,26 @@ shared_examples_for 'a cache' do
         expect(r.body).to eql 'GET /foo cached'
       end
 
+      context 'cache_request_headers requests' do
+        it 'should not be cached by default' do
+          r = http.get('/foo')
+          saved_cache = Billy.proxy.cache.fetch_from_persistence(cached_key)
+          expect(saved_cache.keys).not_to include :request_headers
+        end
+
+        context 'when enabled' do
+          before do
+            Billy.config.cache_request_headers = true
+          end
+
+          it 'should be cached' do
+            r = http.get('/foo')
+            saved_cache = Billy.proxy.cache.fetch_from_persistence(cached_key)
+            expect(saved_cache.keys).to include :request_headers
+          end
+        end
+      end
+
       context 'ignore_cache_port requests' do
         it 'should be cached without port' do
           r   = http.get('/foo')
