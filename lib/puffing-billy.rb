@@ -1,0 +1,2 @@
+require 'billy'
+PuffingBilly ||= Billy
