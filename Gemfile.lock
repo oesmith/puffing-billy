@@ -6,7 +6,7 @@ PATH
       em-http-request
       eventmachine
       eventmachine_httpserver
-      http_parser.rb
+      http_parser.rb (~> 0.6.0)
       multi_json
 
 GEM

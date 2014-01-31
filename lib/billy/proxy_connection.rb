@@ -11,23 +11,10 @@ module Billy
 
     def post_init
       @parser = Http::Parser.new(self)
-      @header_data = ""
     end
 
     def receive_data(data)
-      @header_data << data if @headers.nil?
-      begin
-        @parser << data
-      rescue HTTP::Parser::Error
-        if @parser.http_method == 'CONNECT'
-          # work-around for CONNECT requests until https://github.com/tmm1/http_parser.rb/pull/15 gets merged
-          if @header_data.end_with?("\r\n\r\n")
-            restart_with_ssl(@header_data.split("\r\n").first.split(/\s+/)[1])
-          end
-        else
-          close_connection
-        end
-      end
+      @parser << data
     end
 
     def on_message_begin
