@@ -70,12 +70,12 @@ module Billy
 
     def handle_request
       if handler && handler.respond_to?(:call)
-        result = handler.call(@parser.http_method, @url, @headers, @body)
+        stubbed_response = handler.call(@parser.http_method, @url, @headers, @body)
       end
 
-      if result
+      if stubbed_response
         Billy.log(:info, "puffing-billy: STUB #{@parser.http_method} for '#{@url}'")
-        stub_request(result)
+        respond_from_stub(stubbed_response)
       elsif cache.cached?(@parser.http_method.downcase, @url, @body)
         Billy.log(:info, "puffing-billy: CACHE #{@parser.http_method} for '#{@url}'")
         respond_from_cache
@@ -87,23 +87,6 @@ module Billy
         body_msg = @parser.http_method == 'post' ? " with body '#{@body}'" : ''
         raise "puffing-billy: Connection to #{@url}#{body_msg} not cached and new http connections are disabled"
       end
-    end
-
-    def stub_request(result)
-      response = EM::DelegatedHttpResponse.new(self)
-      response.status  = result[0]
-      response.headers = result[1].merge('Connection' => 'close')
-      response.content = result[2]
-      response.send_response
-    end
-
-    def respond_from_cache
-      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
-      res = EM::DelegatedHttpResponse.new(self)
-      res.status = cached_res[:status]
-      res.headers = cached_res[:headers]
-      res.content = cached_res[:content]
-      res.send_response
     end
 
     def proxy_request
@@ -139,11 +122,9 @@ module Billy
           cache.store(@parser.http_method.downcase, @url, headers, @body, res_headers, res_status, res_content)
         end
 
-        res = EM::DelegatedHttpResponse.new(self)
-        res.status = res_status
-        res.headers = res_headers
-        res.content = res_content
-        res.send_response
+        send_response(res_status,
+                      res_headers,
+                      res_content)
       end
     end
 
@@ -175,6 +156,27 @@ module Billy
     end
 
  private
+
+    def respond_from_stub(stubbed_response)
+      send_response(stubbed_response[0],
+                    stubbed_response[1].merge('Connection' => 'close'),
+                    stubbed_response[2])
+    end
+
+    def respond_from_cache
+      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
+      send_response(cached_res[:status],
+                    cached_res[:headers],
+                    cached_res[:content])
+    end
+
+    def send_response(status, headers, content)
+      res = EM::DelegatedHttpResponse.new(self)
+      res.status = status
+      res.headers = headers
+      res.content = content
+      res.send_response
+    end
 
     def whitelisted_host?(host)
       Billy.config.whitelist.include?(host)
