@@ -73,7 +73,7 @@ module Billy
           puts e.backtrace.join("\n")
         end
 
-        @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
+        @signature = EM.start_server('127.0.0.1', Billy.config.proxy_port, ProxyConnection) do |p|
           p.handler = self
           p.cache = @cache
         end
