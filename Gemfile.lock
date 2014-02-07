@@ -68,7 +68,7 @@ GEM
       rb-inotify (>= 0.9)
     lumberjack (1.0.4)
     method_source (0.8.2)
-    mime-types (2.0)
+    mime-types (2.1)
     mini_portile (0.5.2)
     multi_json (1.8.4)
     multi_test (0.0.3)
@@ -120,7 +120,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  capybara-webkit
+  capybara-webkit (~> 1.0)
   cucumber
   faraday
   guard
