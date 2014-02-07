@@ -13,45 +13,61 @@ end
 
 module Billy
   module TestServer
+    def initialize
+      Thin::Logging.silent = true
+    end
+
     def start_test_servers
       q = Queue.new
       Thread.new do
         EM.run do
-          counter = 0
-          echo = Proc.new do |env|
-            req_body = env['rack.input'].read
-            request_info = "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"
-            res_body = request_info
-            res_body += "\n#{req_body}" unless req_body.empty?
-            counter += 1
-            [
-              200,
-              { 'HTTP-X-EchoServer' => request_info,
-                'HTTP-X-EchoCount' => "#{counter}" },
-              [res_body]
-            ]
-          end
+          echo = echo_app_setup
 
-          Thin::Logging.silent = true
-
-          http_server = Thin::Server.new '127.0.0.1', 0, echo
-          http_server.start
-
-          https_server = Thin::Server.new '127.0.0.1', 0, echo
-          https_server.ssl = true
-          https_server.ssl_options = {
-            :private_key_file => File.expand_path('../../fixtures/test-server.key', __FILE__),
-            :cert_chain_file => File.expand_path('../../fixtures/test-server.crt', __FILE__)
-          }
-          https_server.start
-
+          http_server = start_server(echo)
           q.push http_server.backend.get_port
+
+          https_server = start_server(echo, true)
           q.push https_server.backend.get_port
+
+          echo_error = echo_app_setup(500)
+          error_server = start_server(echo_error)
+          q.push error_server.backend.get_port
         end
       end
 
-      @http_url = "http://localhost:#{q.pop}"
+      @http_url  = "http://localhost:#{q.pop}"
       @https_url = "https://localhost:#{q.pop}"
+      @error_url = "http://localhost:#{q.pop}"
+    end
+
+    def echo_app_setup(response_code = 200)
+      counter = 0
+      Proc.new do |env|
+        req_body = env['rack.input'].read
+        request_info = "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"
+        res_body = request_info
+        res_body += "\n#{req_body}" unless req_body.empty?
+        counter += 1
+        [
+          response_code,
+          { 'HTTP-X-EchoServer' => request_info,
+            'HTTP-X-EchoCount' => "#{counter}" },
+          [res_body]
+        ]
+      end
+    end
+
+    def start_server(echo, ssl = false)
+      http_server = Thin::Server.new '127.0.0.1', 0, echo
+      if ssl
+        http_server.ssl = true
+        http_server.ssl_options = {
+          :private_key_file => File.expand_path('../../fixtures/test-server.key', __FILE__),
+          :cert_chain_file => File.expand_path('../../fixtures/test-server.crt', __FILE__)
+        }
+      end
+      http_server.start
+      http_server
     end
   end
 end

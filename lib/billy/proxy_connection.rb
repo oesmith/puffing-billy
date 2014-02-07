@@ -74,19 +74,36 @@ module Billy
       end
 
       if result
-        Billy.log(:info, "STUB #{@parser.http_method} #{@url}")
-        response = EM::DelegatedHttpResponse.new(self)
-        response.status = result[0]
-        response.headers = result[1].merge('Connection' => 'close')
-        response.content = result[2]
-        response.send_response
+        Billy.log(:info, "puffing-billy: STUB #{@parser.http_method} for '#{@url}'")
+        stub_request(result)
       elsif cache.cached?(@parser.http_method.downcase, @url, @body)
-        Billy.log(:info, "CACHE #{@parser.http_method} #{@url}")
+        Billy.log(:info, "puffing-billy: CACHE #{@parser.http_method} for '#{@url}'")
         respond_from_cache
-      else
-        Billy.log(:info, "PROXY #{@parser.http_method} #{@url}")
+      elsif !disabled_request?
+        Billy.log(:info, "puffing-billy: PROXY #{@parser.http_method} for '#{@url}'")
         proxy_request
+      else
+        close_connection
+        body_msg = @parser.http_method == 'post' ? " with body '#{@body}'" : ''
+        raise "puffing-billy: Connection to #{@url}#{body_msg} not cached and new http connections are disabled"
       end
+    end
+
+    def stub_request(result)
+      response = EM::DelegatedHttpResponse.new(self)
+      response.status  = result[0]
+      response.headers = result[1].merge('Connection' => 'close')
+      response.content = result[2]
+      response.send_response
+    end
+
+    def respond_from_cache
+      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
+      res = EM::DelegatedHttpResponse.new(self)
+      res.status = cached_res[:status]
+      res.headers = cached_res[:headers]
+      res.content = cached_res[:content]
+      res.send_response
     end
 
     def proxy_request
@@ -105,7 +122,7 @@ module Billy
       req = req.send(@parser.http_method.downcase, req_opts)
 
       req.errback do
-        Billy.log(:error, "Request failed: #{@url}")
+        Billy.log(:error, "puffing-billy: Request failed: #{@url}")
         close_connection
       end
 
@@ -115,8 +132,11 @@ module Billy
         res_headers = res_headers.merge('Connection' => 'close')
         res_headers.delete('Transfer-Encoding')
         res_content = req.response.force_encoding('BINARY')
-        if cache.cacheable?(@url, res_headers)
-          cache.store(@parser.http_method.downcase, @url, @body, res_status, res_headers, res_content)
+
+        handle_response_code(res_status)
+
+        if cacheable?(res_headers, res_status)
+          cache.store(@parser.http_method.downcase, @url, headers, @body, res_headers, res_status, res_content)
         end
 
         res = EM::DelegatedHttpResponse.new(self)
@@ -127,13 +147,59 @@ module Billy
       end
     end
 
-    def respond_from_cache
-      cached_res = cache.fetch(@parser.http_method.downcase, @url, @body)
-      res = EM::DelegatedHttpResponse.new(self)
-      res.status = cached_res[:status]
-      res.headers = cached_res[:headers]
-      res.content = cached_res[:content]
-      res.send_response
+    def disabled_request?
+      url = URI(@url)
+      # In isolated environments, you may want to stop the request from happening
+      # or else you get "getaddrinfo: Name or service not known" errors
+      if Billy.config.non_whitelisted_requests_disabled
+        blacklisted_path?(url.path) || !whitelisted_url?(url)
+      end
     end
+
+    def handle_response_code(status)
+      log_level = successful_status?(status) ? :info : Billy.config.non_successful_error_level
+      log_message = "puffing-billy: Received response status code #{status} for #{@url}"
+      Billy.log(log_level, log_message)
+      if log_level == :error
+        close_connection
+        raise log_message
+      end
+    end
+
+    def cacheable?(headers, status)
+      if Billy.config.cache
+        url = URI(@url)
+        # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
+        cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
+      end
+    end
+
+ private
+
+    def whitelisted_host?(host)
+      Billy.config.whitelist.include?(host)
+    end
+
+    def whitelisted_url?(url)
+      whitelisted_host?(url.host) || whitelisted_host?("#{url.host}:#{url.port}")
+    end
+
+    def blacklisted_path?(path)
+      Billy.config.path_blacklist.index{|bl| path.include?(bl)}
+    end
+
+    def successful_status?(status)
+      (200..299).include?(status) || status == 304
+    end
+
+    def cacheable_headers?(headers)
+      #TODO: test headers for cacheability (ie. Cache-Control: no-cache)
+      true
+    end
+
+    def cacheable_status?(status)
+      Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
+    end
+
   end
 end
