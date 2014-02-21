@@ -1,14 +1,18 @@
 require 'cgi'
 require 'uri'
 require 'eventmachine'
+require 'billy/request_handler'
 
 module Billy
   class Proxy
-    attr_reader :cache
+    extend Forwardable
+    attr_reader :request_handler
+
+    def_delegators :request_handler, :stub, :reset, :reset_cache, :restore_cache
 
     def initialize
+      @request_handler = Billy::RequestHandler.new
       reset
-      @cache = Billy::Cache.new
     end
 
     def start(threaded = true)
@@ -32,39 +36,43 @@ module Billy
       Socket.unpack_sockaddr_in(EM.get_sockname(@signature)).first
     end
 
-    def call(method, url, headers, body)
-      stub = find_stub(method, url)
-      unless stub.nil?
-        query_string = URI.parse(url).query || ""
-        params = CGI.parse(query_string)
-        stub.call(params, headers, body)
-      end
+    def cache
+      CacheHandler.cache
     end
 
-    def stub(url, options = {})
-      ret = ProxyRequestStub.new(url, options)
-      @stubs.unshift ret
-      ret
-    end
+    #def call(method, url, headers, body)
+    #  stub = find_stub(method, url)
+    #  unless stub.nil?
+    #    query_string = URI.parse(url).query || ""
+    #    params = CGI.parse(query_string)
+    #    stub.call(params, headers, body)
+    #  end
+    #end
 
-    def reset
-      @stubs = []
-    end
+    #def stub(url, options = {})
+    #  ret = ProxyRequestStub.new(url, options)
+    #  @stubs.unshift ret
+    #  ret
+    #end
 
-    def reset_cache
-      @cache.reset
-    end
+    #def reset
+    #  @stubs = []
+    #end
 
-    def restore_cache
-      warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache."
-      @cache.reset
-    end
+    #def reset_cache
+    #  @cache.reset
+    #end
+
+    #def restore_cache
+    #  warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache."
+    #  @cache.reset
+    #end
 
     protected
 
-    def find_stub(method, url)
-      @stubs.find {|stub| stub.matches?(method, url) }
-    end
+    #def find_stub(method, url)
+    #  @stubs.find {|stub| stub.matches?(method, url) }
+    #end
 
     def main_loop
       EM.run do
@@ -74,8 +82,7 @@ module Billy
         end
 
         @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
-          p.handler = self
-          p.cache = @cache
+          p.handler = request_handler
         end
 
         Billy.log(:info, "puffing-billy: Proxy listening on #{url}")
