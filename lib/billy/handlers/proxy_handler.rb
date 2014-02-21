@@ -10,7 +10,7 @@ module Billy
     end
 
     def handle_request(method, url, headers, body)
-      unless handles_request?(method, url, headers, body)
+      if handles_request?(method, url, headers, body)
         req = EventMachine::HttpRequest.new(url)
         build_request_options(headers, body).tap do |opts|
           req = req.send(method.downcase, build_request_options(headers, body))

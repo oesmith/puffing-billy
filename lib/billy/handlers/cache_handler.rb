@@ -12,7 +12,7 @@ module Billy
 
     def handle_request(method, url, headers, body)
       method = method.downcase
-      unless handles_request?(method, url, headers, body)
+      if handles_request?(method, url, headers, body)
         if (response = cache.fetch(method, url, body))
           Billy.log(:info, "puffing-billy: CACHE #{method} for '#{url}'")
           return response

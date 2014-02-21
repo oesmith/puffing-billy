@@ -5,7 +5,7 @@ module Billy
     include Handler
 
     def handle_request(method, url, headers, body)
-      unless handles_request?(method, url, headers, body)
+      if handles_request?(method, url, headers, body)
         if (stub = find_stub(method, url))
           query_string = URI.parse(url).query || ""
           params = CGI.parse(query_string)
