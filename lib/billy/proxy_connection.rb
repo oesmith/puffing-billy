@@ -35,7 +35,8 @@ module Billy
         restart_with_ssl(@parser.request_url)
       else
         if @ssl
-          @url = "https://#{@ssl}#{@parser.request_url}"
+          uri = URI.parse(@parser.request_url)
+          @url = "https://#{@ssl}#{[uri.path,uri.query].compact.join('?')}"
         else
           @url = @parser.request_url
         end
