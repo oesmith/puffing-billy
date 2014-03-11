@@ -1,5 +1,6 @@
 require 'billy/handlers/handler'
 require 'eventmachine'
+require 'em-synchrony/em-http'
 
 module Billy
   class ProxyHandler
@@ -12,15 +13,13 @@ module Billy
     def handle_request(method, url, headers, body)
       if handles_request?(method, url, headers, body)
         req = EventMachine::HttpRequest.new(url)
-        build_request_options(headers, body).tap do |opts|
-          req = req.send(method.downcase, build_request_options(headers, body))
+        req = req.send(method.downcase, build_request_options(headers, body))
+
+        if req.error
+          return { :error => "Request to #{url} failed with error: #{req.error}" }
         end
 
-        req.errback do
-          return { :error => "Request failed: #{url}" }
-        end
-
-        req.callback do
+        if req.response
           response = process_response(req)
 
           unless allowed_response_code?(response[:status])
@@ -31,15 +30,14 @@ module Billy
             end
           end
 
-          if cacheable?(response[:headers], response[:status])
-            CacheHandler.store(method.downcase, url, headers, body, response[:headers], response[:status], response[:content])
+          if cacheable?(url, response[:headers], response[:status])
+            Billy::Cache.instance.store(method.downcase, url, headers, body, response[:headers], response[:status], response[:content])
           end
 
           Billy.log(:info, "puffing-billy: PROXY #{method} succeeded for '#{url}'")
           return response
         end
       end
-
       nil
     end
 
@@ -79,19 +77,12 @@ module Billy
     end
 
     def allowed_response_code?(status)
-      log_level = successful_status?(status) ? :info : Billy.config.non_successful_error_level
-      log_message = "puffing-billy: Received response status code #{status} for #{@url}"
-      Billy.log(log_level, log_message)
-      # FIXME: We can't close the connection here:
-      if log_level == :error
-        #close_connection
-        raise log_message
-      end
+      successful_status?(status)
     end
 
-    def cacheable?(headers, status)
+    def cacheable?(url, headers, status)
       if Billy.config.cache
-        url = URI(@url)
+        url = URI(url)
         # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
         cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
       end

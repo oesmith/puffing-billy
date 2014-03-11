@@ -2,9 +2,12 @@ require 'resolv'
 require 'uri'
 require 'yaml'
 require 'billy/json_utils'
+require 'singleton'
 
 module Billy
   class Cache
+    include Singleton
+
     attr_reader :scope
 
     def initialize

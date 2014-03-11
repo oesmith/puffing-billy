@@ -37,7 +37,7 @@ module Billy
     end
 
     def cache
-      CacheHandler.cache
+      Billy::Cache.instance
     end
 
     #def call(method, url, headers, body)

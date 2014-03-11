@@ -5,9 +5,10 @@ module Billy
     extend Forwardable
     include Handler
 
-    # TODO: Does this really need to be static?
-    def self.cache
-      @@cache ||= Billy::Cache.new
+    def_delegators :cache, :reset, :cached?
+
+    def initialize
+      @cache = Billy::Cache.instance
     end
 
     def handle_request(method, url, headers, body)
@@ -22,26 +23,13 @@ module Billy
     end
 
     def handles_request?(method, url, headers, body)
-      CacheHandler.cache.cached?(method, url, body)
-    end
-
-    # Reset the cache to the default state
-    def reset
-      CacheHandler.cache.reset
+      cached?(method, url, body)
     end
 
     private
 
-    def self.cache=(v)
-      @@cache = v
-    end
-
     def cache
-      CacheHandler.cache
-    end
-
-    def cache=(v)
-      CacheHandler.cache = v
+      @cache
     end
   end
 end

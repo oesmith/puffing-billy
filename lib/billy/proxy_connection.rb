@@ -3,6 +3,7 @@ require 'eventmachine'
 require 'http/parser'
 require 'em-http'
 require 'evma_httpserver'
+require 'em-synchrony'
 
 module Billy
   class ProxyConnection < EventMachine::Connection
@@ -69,12 +70,14 @@ module Billy
     end
 
     def handle_request
-      handler.handle_request(@parser.http_method, @url, @headers, @body).tap do |response|
-        if response.has_key?(:error)
-          close_connection
-          raise response[:error]
-        else
-          send_response(response)
+      EM.synchrony do
+        handler.handle_request(@parser.http_method, @url, @headers, @body).tap do |response|
+          if response.has_key?(:error)
+            close_connection
+            raise response[:error]
+          else
+            send_response(response)
+          end
         end
       end
     end
