@@ -40,39 +40,7 @@ module Billy
       Billy::Cache.instance
     end
 
-    #def call(method, url, headers, body)
-    #  stub = find_stub(method, url)
-    #  unless stub.nil?
-    #    query_string = URI.parse(url).query || ""
-    #    params = CGI.parse(query_string)
-    #    stub.call(params, headers, body)
-    #  end
-    #end
-
-    #def stub(url, options = {})
-    #  ret = ProxyRequestStub.new(url, options)
-    #  @stubs.unshift ret
-    #  ret
-    #end
-
-    #def reset
-    #  @stubs = []
-    #end
-
-    #def reset_cache
-    #  @cache.reset
-    #end
-
-    #def restore_cache
-    #  warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache."
-    #  @cache.reset
-    #end
-
     protected
-
-    #def find_stub(method, url)
-    #  @stubs.find {|stub| stub.matches?(method, url) }
-    #end
 
     def main_loop
       EM.run do
