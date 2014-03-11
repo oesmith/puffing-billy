@@ -20,7 +20,7 @@ module Billy
     end
 
     def handles_request?(method, url, headers, body)
-      find_stub(method, url).nil? ? false : true
+      !find_stub(method, url).nil?
     end
 
     def reset
@@ -28,9 +28,9 @@ module Billy
     end
 
     def stub(url, options = {})
-      ret = ProxyRequestStub.new(url, options)
-      @stubs.unshift ret
-      ret
+      new_stub = ProxyRequestStub.new(url, options)
+      @stubs.unshift new_stub
+      new_stub
     end
 
     private
