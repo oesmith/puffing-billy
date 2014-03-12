@@ -74,7 +74,7 @@ module Billy
         handler.handle_request(@parser.http_method, @url, @headers, @body).tap do |response|
           if response.has_key?(:error)
             close_connection
-            raise response[:error]
+            raise "puffing-billy: #{response[:error]}"
           else
             send_response(response)
           end

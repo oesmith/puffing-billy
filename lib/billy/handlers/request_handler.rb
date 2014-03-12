@@ -20,7 +20,7 @@ module Billy
       end
 
       body_msg = method == 'post' ? " with body '#{body}'" : ''
-      { :error => "puffing-billy: Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
+      { :error => "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
     end
 
     def handles_request?(method, url, headers, body)
@@ -43,6 +43,11 @@ module Billy
 
     def reset_cache
       handlers[:cache].reset
+    end
+
+    def restore_cache
+      warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache."
+      reset_cache
     end
 
     private
