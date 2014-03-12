@@ -38,7 +38,7 @@ module Billy
     end
 
     def reset_stubs
-      handlers[:stub].reset
+      handlers[:stubs].reset
     end
 
     def reset_cache
