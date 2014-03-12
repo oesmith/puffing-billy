@@ -68,12 +68,12 @@ module Billy
     end
 
     def disabled_request?(url)
+      return false unless Billy.config.non_whitelisted_requests_disabled
+
       uri = URI(url)
       # In isolated environments, you may want to stop the request from happening
       # or else you get "getaddrinfo: Name or service not known" errors
-      if Billy.config.non_whitelisted_requests_disabled
-        blacklisted_path?(uri.path) || !whitelisted_url?(uri)
-      end
+      blacklisted_path?(uri.path) || !whitelisted_url?(uri)
     end
 
     def allowed_response_code?(status)
@@ -81,11 +81,11 @@ module Billy
     end
 
     def cacheable?(url, headers, status)
-      if Billy.config.cache
-        url = URI(url)
-        # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-        cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
-      end
+      return false unless Billy.config.cache
+
+      url = URI(url)
+      # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
+      cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
     end
 
     def whitelisted_host?(host)
@@ -97,7 +97,7 @@ module Billy
     end
 
     def blacklisted_path?(path)
-      Billy.config.path_blacklist.index{|bl| path.include?(bl)}
+      !Billy.config.path_blacklist.index{|bl| path.include?(bl)}.nil?
     end
 
     def successful_status?(status)
