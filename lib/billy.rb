@@ -1,5 +1,4 @@
 require "billy/version"
-require "billy/exceptions"
 require "billy/config"
 require "billy/handlers/handler"
 require "billy/handlers/request_handler"
