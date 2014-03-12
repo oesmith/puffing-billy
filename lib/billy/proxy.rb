@@ -1,7 +1,6 @@
 require 'cgi'
 require 'uri'
 require 'eventmachine'
-require 'billy/request_handler'
 
 module Billy
   class Proxy
