@@ -88,12 +88,10 @@ module Billy
       cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
     end
 
-    def whitelisted_host?(host)
-      Billy.config.whitelist.include?(host)
-    end
-
     def whitelisted_url?(url)
-      whitelisted_host?(url.host) || whitelisted_host?("#{url.host}:#{url.port}")
+      !Billy.config.whitelist.index do |v|
+        v =~ /^#{url.host}(?::#{url.port})?$/
+      end.nil?
     end
 
     def blacklisted_path?(path)
