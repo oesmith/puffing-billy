@@ -29,7 +29,7 @@ module Billy
 
     def stub(url, options = {})
       new_stub = ProxyRequestStub.new(url, options)
-      @stubs.unshift new_stub
+      stubs.unshift new_stub
       new_stub
     end
 

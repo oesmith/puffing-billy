@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Billy::CacheHandler do
-  let!(:handler) { Billy::CacheHandler.new }
+  let(:handler) { Billy::CacheHandler.new }
   let(:request) { {
       method:   'post',
       url:      'http://example.test:8080/index?some=param',
@@ -22,11 +22,11 @@ describe Billy::CacheHandler do
   describe '#handles_request?' do
     it 'handles the request if it is cached' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
-      expect(handler.cached?(nil,nil,nil)).to be_true
+      expect(handler.handles_request?(nil,nil,nil,nil)).to be_true
     end
     it 'does not handle the request if it is not cached' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(false)
-      expect(handler.cached?(nil,nil,nil)).to be_false
+      expect(handler.handles_request?(nil,nil,nil,nil)).to be_false
     end
   end
 
