@@ -85,7 +85,7 @@ module Billy
 
       url = URI(url)
       # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-      cacheable_headers?(headers) && cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
+      cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
     end
 
     def whitelisted_url?(url)
@@ -100,11 +100,6 @@ module Billy
 
     def successful_status?(status)
       (200..299).include?(status) || status == 304
-    end
-
-    def cacheable_headers?(headers)
-      #TODO: test headers for cacheability (ie. Cache-Control: no-cache)
-      true
     end
 
     def cacheable_status?(status)
