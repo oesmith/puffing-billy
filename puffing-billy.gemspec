@@ -27,6 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "pry"
   gem.add_development_dependency "cucumber"
   gem.add_runtime_dependency "eventmachine"
+  gem.add_runtime_dependency "em-synchrony"
   gem.add_runtime_dependency "em-http-request"
   gem.add_runtime_dependency "eventmachine_httpserver"
   gem.add_runtime_dependency "http_parser.rb", "~> 0.6.0"
