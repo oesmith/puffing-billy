@@ -133,6 +133,14 @@ describe Billy::ProxyHandler do
                                       request[:headers],
                                       request[:body])).to be_nil
       end
+      it 'caches the response if cacheable' do
+        expect(subject).to receive(:allowed_response_code?).and_return(true)
+        expect(Billy::Cache.instance).to receive(:store)
+        subject.handle_request(request[:method],
+                               request[:url],
+                               request[:headers],
+                               request[:body])
+      end
     end
   end
 end
