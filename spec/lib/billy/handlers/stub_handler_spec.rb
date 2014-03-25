@@ -15,6 +15,7 @@ describe Billy::StubHandler do
       expect(handler).to receive(:find_stub).and_return("a stub")
       expect(handler.handles_request?(nil,nil,nil,nil)).to be_true
     end
+
     it 'does not handle the request if it is not stubbed' do
       expect(handler).to receive(:find_stub).and_return(nil)
       expect(handler.handles_request?(nil,nil,nil,nil)).to be_false
@@ -26,6 +27,7 @@ describe Billy::StubHandler do
       expect(handler).to receive(:handles_request?).and_return(false)
       expect(handler.handle_request(nil,nil,nil,nil)).to be_nil
     end
+
     it 'returns a response hash if the request is stubbed' do
       stub = double("stub", :call => [200, {'Content-Type' => 'application/json'}, "Some content"])
       expect(handler).to receive(:handles_request?).and_return(true)

@@ -14,6 +14,7 @@ describe Billy::CacheHandler do
     expect(Billy::Cache.instance).to receive(:reset).at_least(:once)
     handler.reset
   end
+
   it 'delegates #cached? to the cache' do
     expect(Billy::Cache.instance).to receive :cached?
     handler.cached?
@@ -24,6 +25,7 @@ describe Billy::CacheHandler do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
       expect(handler.handles_request?(nil,nil,nil,nil)).to be_true
     end
+
     it 'does not handle the request if it is not cached' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(false)
       expect(handler.handles_request?(nil,nil,nil,nil)).to be_false
@@ -38,6 +40,7 @@ describe Billy::CacheHandler do
                                     request[:headers],
                                     request[:body])).to be_nil
     end
+
     it 'returns a cached response if the request can be handled' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
       expect(Billy::Cache.instance).to receive(:fetch).and_return({:status=>200, :headers=>{"Connection"=>"close"}, :content=>"The response body"})
@@ -46,6 +49,7 @@ describe Billy::CacheHandler do
                                     request[:headers],
                                     request[:body])).to eql({:status=>200, :headers=>{"Connection"=>"close"}, :content=>"The response body"})
     end
+
     it 'returns nil if the Cache fails to handle the response for some reason' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
       expect(Billy::Cache.instance).to receive(:fetch).and_return(nil)
