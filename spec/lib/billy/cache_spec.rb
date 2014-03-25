@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Billy::Cache do
   describe 'format_url' do
-    let(:cache) { Billy::Cache.new }
+    let(:cache) { Billy::Cache.instance }
     let(:params) { '?foo=bar' }
     let(:fragment) { '#baz' }
     let(:base_url) { 'http://example.com' }

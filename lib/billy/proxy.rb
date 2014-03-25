@@ -4,11 +4,14 @@ require 'eventmachine'
 
 module Billy
   class Proxy
-    attr_reader :cache
+    extend Forwardable
+    attr_reader :request_handler
+
+    def_delegators :request_handler, :stub, :reset, :reset_cache, :restore_cache, :handle_request
 
     def initialize
+      @request_handler = Billy::RequestHandler.new
       reset
-      @cache = Billy::Cache.new
     end
 
     def start(threaded = true)
@@ -32,39 +35,11 @@ module Billy
       Socket.unpack_sockaddr_in(EM.get_sockname(@signature)).first
     end
 
-    def call(method, url, headers, body)
-      stub = find_stub(method, url)
-      unless stub.nil?
-        query_string = URI.parse(url).query || ""
-        params = CGI.parse(query_string)
-        stub.call(params, headers, body)
-      end
-    end
-
-    def stub(url, options = {})
-      ret = ProxyRequestStub.new(url, options)
-      @stubs.unshift ret
-      ret
-    end
-
-    def reset
-      @stubs = []
-    end
-
-    def reset_cache
-      @cache.reset
-    end
-
-    def restore_cache
-      warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache."
-      @cache.reset
+    def cache
+      Billy::Cache.instance
     end
 
     protected
-
-    def find_stub(method, url)
-      @stubs.find {|stub| stub.matches?(method, url) }
-    end
 
     def main_loop
       EM.run do
@@ -74,7 +49,7 @@ module Billy
         end
 
         @signature = EM.start_server('127.0.0.1', Billy.config.proxy_port, ProxyConnection) do |p|
-          p.handler = self
+          p.handler = request_handler
           p.cache = @cache
         end
 
