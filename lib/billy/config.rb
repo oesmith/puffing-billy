@@ -26,6 +26,7 @@ module Billy
       @non_successful_cache_disabled = false
       @non_successful_error_level = :warn
       @non_whitelisted_requests_disabled = false
+      @non_whitelisted_error_level = :warn
       @cache_path = File.join(Dir.tmpdir, 'puffing-billy')
       @proxy_port = RANDOM_AVAILABLE_PORT
     end

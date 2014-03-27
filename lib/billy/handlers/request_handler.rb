@@ -20,7 +20,14 @@ module Billy
       end
 
       body_msg = method == 'post' ? " with body '#{body}'" : ''
-      { :error => "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
+
+      if Billy.config.non_whitelisted_error_level == :error
+        return { :error => "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
+      else
+        Billy.log(:warn, "Connection to #{url}#{body_msg} not cached and new http connections are disabled")
+      end
+    end
+
     end
 
     def handles_request?(method, url, headers, body)
