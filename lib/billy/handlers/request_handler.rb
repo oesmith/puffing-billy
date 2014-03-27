@@ -26,7 +26,6 @@ module Billy
       else
         Billy.log(:warn, "Connection to #{url}#{body_msg} not cached and new http connections are disabled")
       end
-    end
 
     end
 
