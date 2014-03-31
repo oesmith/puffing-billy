@@ -186,6 +186,7 @@ Billy.configure do |c|
   c.non_successful_cache_disabled = false
   c.non_successful_error_level = :warn
   c.non_whitelisted_requests_disabled = false
+  c.non_whitelisted_error_level = :error
   c.cache_path = 'spec/req_cache/'
 end
 ```
@@ -215,7 +216,7 @@ that are running on random ports.
 or 304 status codes.  This prevents unauthorized or internal server errors from
 being cached and used for future test runs.
 
-`c.non_successful_error_level` is used to log when non-successful resposnes are
+`c.non_successful_error_level` is used to log when non-successful responses are
 received.  By default, it just writes to the log file, but when set to `:error`
 it throws an error with the URL and status code received for easier debugging.
 
@@ -224,6 +225,10 @@ no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
 allowed, all others will throw an error with the URL attempted to be accessed.
 This is useful for debugging issues in isolated environments (ie.
 continuous integration).
+
+`c.non_whitelisted_error_level` is used to log when external requests are made,
+and to which urls the requests are made. The options are :error and :warn,
+the :error shows up in your console, and the :warn will show up in the Billy.log
 
 ### Cache Scopes
 
