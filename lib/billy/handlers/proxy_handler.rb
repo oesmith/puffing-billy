@@ -91,7 +91,7 @@ module Billy
     def whitelisted_url?(url)
       Billy.config.whitelist.any? do |v|
         if v.is_a?(Regex)
-          "#{url}:#{port}" =~ v
+          "#{url.host}:#{url.port}" =~ v
         else
           v =~ /^#{url.host}(?::#{url.port})?$/
         end
