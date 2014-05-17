@@ -120,7 +120,7 @@ Feature: Stubbing via billy
 
 And in steps:
 
-```
+```ruby
 Before('@billy') do
   Capybara.current_driver = :poltergeist_billy
   Capybara.javascript_driver = :poltergeist_billy
