@@ -7,7 +7,7 @@ module Billy
     RANDOM_AVAILABLE_PORT = 0 # https://github.com/eventmachine/eventmachine/wiki/FAQ#wiki-can-i-start-a-server-on-a-random-available-port
 
     attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :path_blacklist, :ignore_params,
-                  :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
+                  :persist_cache, :dynamic_jsonp, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
                   :non_whitelisted_requests_disabled, :cache_path, :proxy_port
 
     def initialize
@@ -22,6 +22,7 @@ module Billy
       @path_blacklist = []
       @ignore_params = []
       @persist_cache = false
+      @dynamic_jsonp = false
       @ignore_cache_port = true
       @non_successful_cache_disabled = false
       @non_successful_error_level = :warn
