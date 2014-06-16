@@ -1,4 +1,5 @@
 require 'billy/handlers/handler'
+require 'cgi'
 
 module Billy
   class CacheHandler
@@ -16,6 +17,11 @@ module Billy
       if handles_request?(method, url, headers, body)
         if (response = cache.fetch(method, url, body))
           Billy.log(:info, "puffing-billy: CACHE #{method} for '#{url}'")
+
+          if Billy.config.dynamic_jsonp
+            replace_response_callback(response, url)
+          end
+
           return response
         end
       end
@@ -27,6 +33,16 @@ module Billy
     end
 
     private
+
+    def replace_response_callback(response, url)
+      request_uri = URI::parse(url)
+      if request_uri.query
+        params = CGI::parse(request_uri.query)
+        if params['callback'] and response[:content].match(/^\w+\({/)
+          response[:content].sub!(/^\w+\({/, params['callback'].first + '({')
+        end
+      end
+    end
 
     def cache
       @cache

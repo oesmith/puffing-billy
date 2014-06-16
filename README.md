@@ -202,6 +202,9 @@ caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
+`c.dynamic_jsonp` is used for updating the name of the jsonp callback in the response based on the request.
+ This is useful if the name of your callback is based off of a timestamp or another dynamic configuration.
+
 `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
 including whitelisted ones.  This is useful if your AUT has routes that get data
 from external services, such as `/api` where the ajax request is a local URL but
