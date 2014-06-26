@@ -151,6 +151,21 @@ describe Billy::ProxyHandler do
                                request[:headers],
                                request[:body])
       end
+
+      it 'uses the timeouts defined in configuration' do
+        allow(Billy.config).to receive(:proxied_request_inactivity_timeout).and_return(42)
+        allow(Billy.config).to receive(:proxied_request_connect_timeout).and_return(24)
+
+        expect(EventMachine::HttpRequest).to receive(:new).with(request[:url], {
+            inactivity_timeout: 42,
+            connect_timeout: 24
+        })
+
+        subject.handle_request(request[:method],
+                               request[:url],
+                               request[:headers],
+                               request[:body])
+      end
     end
   end
 end
