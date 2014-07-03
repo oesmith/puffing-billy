@@ -287,6 +287,20 @@ RSpec.configure do |config|
 end
 ```
 
+## Proxy timeouts
+
+By default, the Puffing Billy proxy will use the EventMachine:HttpRequest timeouts of 5 seconds
+for connect and 10 seconds for inactivity when talking to downstream servers.
+
+These can be configured as follows:
+
+```ruby
+Billy.configure do |c|
+  c.proxied_request_connect_timeout = 20
+  c.proxied_request_inactivity_timeout = 20
+end
+```
+
 ## Customising the javascript driver
 
 If you use a customised Capybara driver, remember to set the proxy address

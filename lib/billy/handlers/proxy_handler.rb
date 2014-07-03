@@ -12,7 +12,10 @@ module Billy
 
     def handle_request(method, url, headers, body)
       if handles_request?(method, url, headers, body)
-        req = EventMachine::HttpRequest.new(url)
+        req = EventMachine::HttpRequest.new(url, {
+            :inactivity_timeout => Billy.config.proxied_request_inactivity_timeout,
+            :connect_timeout => Billy.config.proxied_request_connect_timeout})
+
         req = req.send(method.downcase, build_request_options(headers, body))
 
         if req.error
