@@ -202,8 +202,17 @@ caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
-`c.dynamic_jsonp` is used for updating the name of the jsonp callback in the response based on the request.
- This is useful if the name of your callback is based off of a timestamp or another dynamic configuration.
+`c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
+callback parameter. For example, if a request to `http://example.com/foo?callback=bar` 
+returns `bar({"some": "json"});` and is recorded, then a later request to
+`http://example.com/foo?callback=baz` will be a cache hit and respond with
+`baz({"some": "json"});` This is useful because most JSONP implementations 
+base the callback name off of a timestamp or something else dynamic.
+
+`c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
+using `c.dynamic_jsonp`. This is helpful when JSONP APIs use cache-busting
+parameters. For example, if you want `http://example.com/foo?callback=bar&id=1&cache_bust=12345` and `http://example.com/foo?callback=baz&id=1&cache_bust=98765` to be cache hits for each other, you would set `c.dynamic_jsonp_keys = ['callback', 'cache_bust']` to ignore both params. Note
+that in this example the `id` param would still be considered important.
 
 `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
 including whitelisted ones.  This is useful if your AUT has routes that get data
