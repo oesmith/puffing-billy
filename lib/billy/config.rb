@@ -9,7 +9,7 @@ module Billy
     attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :path_blacklist, :ignore_params,
                   :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
                   :non_whitelisted_requests_disabled, :cache_path, :proxy_port, :proxied_request_inactivity_timeout,
-                  :proxied_request_connect_timeout
+                  :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys
 
     def initialize
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
@@ -23,6 +23,8 @@ module Billy
       @path_blacklist = []
       @ignore_params = []
       @persist_cache = false
+      @dynamic_jsonp = false
+      @dynamic_jsonp_keys = ["callback"]
       @ignore_cache_port = true
       @non_successful_cache_disabled = false
       @non_successful_error_level = :warn

@@ -86,14 +86,27 @@ module Billy
       key
     end
 
-    def format_url(url, ignore_params=false)
+    def format_url(url, ignore_params=false, dynamic_jsonp=Billy.config.dynamic_jsonp)
       url = URI(url)
       port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
       formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
-      unless ignore_params
-        formatted_url += '?'+url.query if url.query
-        formatted_url += '#'+url.fragment if url.fragment
+
+      return formatted_url if ignore_params
+
+      if url.query
+        query_string = if dynamic_jsonp
+                         query_hash = Rack::Utils.parse_query(url.query)
+                         Billy.config.dynamic_jsonp_keys.each{|k| query_hash.delete(k) }
+                         Rack::Utils.build_query(query_hash)
+                       else
+                         url.query
+                       end
+
+        formatted_url += "?#{query_string}"
       end
+
+      formatted_url += '#'+url.fragment if url.fragment
+
       formatted_url
     end
 
