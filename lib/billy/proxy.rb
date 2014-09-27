@@ -69,8 +69,8 @@ module Billy
     def main_loop
       EM.run do
         EM.error_handler do |e|
-          puts e.class.name, e
-          puts e.backtrace.join("\n")
+          Billy.config.logger.error e.class.name, e
+          Billy.config.logger.error e.backtrace.join("\n")
         end
 
         @signature = EM.start_server('127.0.0.1', 0, ProxyConnection) do |p|
