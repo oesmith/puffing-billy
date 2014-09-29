@@ -30,7 +30,7 @@ module Billy
       begin
         @cache[key] = YAML.load(File.open(cache_file(key))) if persisted?(key)
       rescue ArgumentError => e
-        Billy.config.logger.error "Could not parse YAML: #{e.message}"
+        Billy.log :error, "Could not parse YAML: #{e.message}"
         nil
       end
     end
