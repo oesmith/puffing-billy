@@ -319,6 +319,21 @@ and tell it to ignore SSL certificate warnings. See
 [lib/billy.rb](https://github.com/oesmith/puffing-billy/blob/master/lib/billy.rb)
 to see how Billy's default drivers are configured.
 
+## Working with VCR and Webmock
+If you use VCR and Webmock elsewhere in your specs, you will need to disable them
+for your specs utilizing Puffing Billy. To do so, you can configure your `spec_helper.rb`
+as shown below:
+
+```ruby
+RSpec.configure do |config|
+  config.around(:each, type: :feature) do |example|
+    WebMock.allow_net_connect!
+    VCR.turned_off { example.run }
+    WebMock.disable_net_connect!
+  end
+end
+```
+
 ## FAQ
 
 1. Why name it after a train?
