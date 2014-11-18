@@ -316,7 +316,7 @@ end
 
 If you use a customised Capybara driver, remember to set the proxy address
 and tell it to ignore SSL certificate warnings. See
-[lib/billy/rspec.rb](https://github.com/oesmith/puffing-billy/blob/master/lib/billy/rspec.rb)
+[lib/billy.rb](https://github.com/oesmith/puffing-billy/blob/master/lib/billy.rb)
 to see how Billy's default drivers are configured.
 
 ## FAQ
