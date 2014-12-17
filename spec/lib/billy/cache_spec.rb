@@ -71,10 +71,15 @@ describe Billy::Cache do
       it "has one cache key for the two analytics urls that match, and a separate one for the other that doesn't" do
         expect(cache.key("post", analytics_url1, "body")).to eq cache.key("post", analytics_url2, "body")
         expect(cache.key("post", analytics_url1, "body")).not_to eq cache.key("post", regular_url, "body")
-        # More specifically:
-        expect(cache.key("post", analytics_url1, "body")).to eq "post_5fcb7a450e4cd54dcffcb526212757ee0ca9dc17"
-        expect(cache.key("post", regular_url, "body")).to eq "post_www.example-analytics.com_81f097654a523bd7ddb10fd4aee781723e076a1a_02083f4579e08a612425c0c1a17ee47add783b94"
-        expect(cache.key("post", analytics_url2, "body")).to eq "post_5fcb7a450e4cd54dcffcb526212757ee0ca9dc17"
+      end
+
+      it "More specifically, the cache keys should be identical for the 2 analytics urls" do
+        identical_cache_key = "post_5fcb7a450e4cd54dcffcb526212757ee0ca9dc17"
+        distinct_cache_key = "post_www.example-analytics.com_81f097654a523bd7ddb10fd4aee781723e076a1a_02083f4579e08a612425c0c1a17ee47add783b94"
+
+        expect(cache.key("post", analytics_url1, "body")).to eq identical_cache_key
+        expect(cache.key("post", regular_url, "body")).to eq distinct_cache_key
+        expect(cache.key("post", analytics_url2, "body")).to eq identical_cache_key
       end
 
     end
