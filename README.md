@@ -222,7 +222,8 @@ the actual data is coming from a different application that you want to cache.
 `c.merge_cached_responses_whitelist = []` is used to group together the cached
 responses for specific uri regexes that match any part of the url. This is useful
 for ensuring that any kind of analytics and various social buttons that have
-slightly different urls each time can be recorded once and reused nicely.
+slightly different urls each time can be recorded once and reused nicely. Note
+that the request body is ignored for requests that contain a body.
 
 `c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
 is useful when caching local paths (via `path_blacklist`) or other local rack apps
