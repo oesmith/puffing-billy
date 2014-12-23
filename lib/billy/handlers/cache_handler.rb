@@ -38,8 +38,8 @@ module Billy
       request_uri = URI::parse(url)
       if request_uri.query
         params = CGI::parse(request_uri.query)
-        if params['callback'] and response[:content].match(/^\w+\({/)
-          response[:content].sub!(/^\w+\({/, params['callback'].first + '({')
+        if params['callback'].any? and response[:content].match(/\w+\(/)
+          response[:content].sub!(/\w+\(/, params['callback'].first + '(')
         end
       end
     end
