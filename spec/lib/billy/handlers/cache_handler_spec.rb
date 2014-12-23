@@ -63,6 +63,15 @@ describe Billy::CacheHandler do
                                       request[:headers],
                                       request[:body])).to eql({:status=>200, :headers=>{"Connection"=>"close"}, :content=>'dynamicCallback5678({"yolo":"kitten"})'})
       end
+
+      it 'is flexible about the format of the response body' do
+        expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
+        expect(Billy::Cache.instance).to receive(:fetch).and_return({:status=>200, :headers=>{"Connection"=>"close"}, :content=> "/**/ dynamicCallback1234(\n{\"yolo\":\"kitten\"})"})
+        expect(handler.handle_request(request[:method],
+                                      request[:url],
+                                      request[:headers],
+                                      request[:body])).to eql({:status=>200, :headers=>{"Connection"=>"close"}, :content=>"/**/ dynamicCallback5678(\n{\"yolo\":\"kitten\"})"})
+      end
     end
 
     context 'updating jsonp callback names disabled' do
