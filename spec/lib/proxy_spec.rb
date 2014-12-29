@@ -238,6 +238,9 @@ shared_examples_for 'a cache' do
           # 2) Restart the test servers if they aren't running
           # 3) Change the test servers to start/stop for each test instead of before all
           # 4) Remove the test server completely and rely on the server instantiated by the app
+          pending "Unable to test this without affecting the running test servers"
+          # If the 'pending' continues to execute the spec, 'skip' it to avoid EM errors.
+          # If 'pending' stops the test, 'skip' isn't defined but it won't hit this line.
           skip "Unable to test this without affecting the running test servers"
           expect{http_error.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
         end
