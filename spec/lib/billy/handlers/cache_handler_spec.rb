@@ -23,12 +23,12 @@ describe Billy::CacheHandler do
   describe '#handles_request?' do
     it 'handles the request if it is cached' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
-      expect(handler.handles_request?(nil,nil,nil,nil)).to be_true
+      expect(handler.handles_request?(nil,nil,nil,nil)).to be true
     end
 
     it 'does not handle the request if it is not cached' do
       expect(Billy::Cache.instance).to receive(:cached?).and_return(false)
-      expect(handler.handles_request?(nil,nil,nil,nil)).to be_false
+      expect(handler.handles_request?(nil,nil,nil,nil)).to be false
     end
   end
 
@@ -38,7 +38,7 @@ describe Billy::CacheHandler do
       expect(handler.handle_request(request[:method],
                                     request[:url],
                                     request[:headers],
-                                    request[:body])).to be_nil
+                                    request[:body])).to be nil
     end
 
     it 'returns a cached response if the request can be handled' do
@@ -118,7 +118,7 @@ describe Billy::CacheHandler do
       expect(handler.handle_request(request[:method],
                                     request[:url],
                                     request[:headers],
-                                    request[:body])).to be_nil
+                                    request[:body])).to be nil
     end
   end
 end

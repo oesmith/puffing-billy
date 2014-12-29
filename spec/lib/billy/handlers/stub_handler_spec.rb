@@ -13,19 +13,19 @@ describe Billy::StubHandler do
   describe '#handles_request?' do
     it 'handles the request if it is stubbed' do
       expect(handler).to receive(:find_stub).and_return("a stub")
-      expect(handler.handles_request?(nil,nil,nil,nil)).to be_true
+      expect(handler.handles_request?(nil,nil,nil,nil)).to be true
     end
 
     it 'does not handle the request if it is not stubbed' do
       expect(handler).to receive(:find_stub).and_return(nil)
-      expect(handler.handles_request?(nil,nil,nil,nil)).to be_false
+      expect(handler.handles_request?(nil,nil,nil,nil)).to be false
     end
   end
 
   describe '#handle_request' do
     it 'returns nil if the request is not stubbed' do
       expect(handler).to receive(:handles_request?).and_return(false)
-      expect(handler.handle_request(nil,nil,nil,nil)).to be_nil
+      expect(handler.handle_request(nil,nil,nil,nil)).to be nil
     end
 
     it 'returns a response hash if the request is stubbed' do
@@ -52,12 +52,12 @@ describe Billy::StubHandler do
       expect(handler.handles_request?('GET',
                                       request[:url],
                                       request[:headers],
-                                      request[:body])).to be_true
+                                      request[:body])).to be true
       handler.reset
       expect(handler.handles_request?('GET',
                                       request[:url],
                                       request[:headers],
-                                      request[:body])).to be_false
+                                      request[:body])).to be false
     end
   end
 
@@ -66,6 +66,6 @@ describe Billy::StubHandler do
     expect(handler.handles_request?('GET',
                                     request[:url],
                                     request[:headers],
-                                    request[:body])).to be_true
+                                    request[:body])).to be true
   end
 end

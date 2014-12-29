@@ -19,7 +19,7 @@ describe 'Tumblr API example', :type => :feature, :js => true do
     })
   end
 
-  it 'should show news stories', :js => true do
+  it 'should show news stories' do
     visit '/tumblr_api.html'
     expect(page).to have_link('News Item 1', :href => 'http://example.com/news/1')
     expect(page).to have_content('News item 1 content here')

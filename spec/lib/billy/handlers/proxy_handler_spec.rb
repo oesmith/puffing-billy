@@ -20,7 +20,7 @@ describe Billy::ProxyHandler do
         expect(subject.handles_request?(request[:method],
                                         request[:url],
                                         request[:headers],
-                                        request[:body])).to be_true
+                                        request[:body])).to be true
       end
     end
     context 'with non-whitelisted requests disabled' do
@@ -32,7 +32,7 @@ describe Billy::ProxyHandler do
         expect(subject.handles_request?(request[:method],
                                         request[:url],
                                         request[:headers],
-                                        request[:body])).to be_false
+                                        request[:body])).to be false
       end
 
       context 'a whitelisted host' do
@@ -45,7 +45,7 @@ describe Billy::ProxyHandler do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test:8080/index?some=param',
                                             request[:headers],
-                                            request[:body])).to be_false
+                                            request[:body])).to be false
           end
         end
         context 'without a port' do
@@ -57,14 +57,14 @@ describe Billy::ProxyHandler do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test',
                                             request[:headers],
-                                            request[:body])).to be_true
+                                            request[:body])).to be true
           end
 
           it 'handles requests for the host with a port' do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test:8080',
                                             request[:headers],
-                                            request[:body])).to be_true
+                                            request[:body])).to be true
           end
         end
 
@@ -77,14 +77,14 @@ describe Billy::ProxyHandler do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test',
                                             request[:headers],
-                                            request[:body])).to be_false
+                                            request[:body])).to be false
           end
 
           it 'handles requests for the host with a port' do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test:8080',
                                             request[:headers],
-                                            request[:body])).to be_true
+                                            request[:body])).to be true
           end
         end
       end
@@ -97,7 +97,7 @@ describe Billy::ProxyHandler do
       expect(subject.handle_request(request[:method],
                                     request[:url],
                                     request[:headers],
-                                    request[:body])).to be_nil
+                                    request[:body])).to be nil
     end
 
     context 'with a handled request' do
@@ -140,7 +140,7 @@ describe Billy::ProxyHandler do
         expect(subject.handle_request(request[:method],
                                       request[:url],
                                       request[:headers],
-                                      request[:body])).to be_nil
+                                      request[:body])).to be nil
       end
 
       it 'caches the response if cacheable' do
