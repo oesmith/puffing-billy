@@ -30,17 +30,34 @@ v0.2.3, 2014-02-07
 v0.2.1, 2013-05-12
 ------------------
 
+  * Add cucumber documentation to readme. (#12)
+  * Use multi_json (#13)
+  * Remove require from Gemfile example (#14)
+  * Add a README example of returning headers (#16)
+
 v0.2.0, 2013-03-17
 ------------------
+
+  * Update README with HTTPS quirk and trailing slash behaviour. (#3)
+  * Fixes to work with Capybara-Webkit (#6)
+  * VCR-like cache (#7)
 
 v0.1.3, 2012-11-05
 ------------------
 
+  * Implemented caching
+
 v0.1.2, 2012-10-12
 ------------------
 
+  * Slightly saner driver setup
+  * Updated README
+
 v0.1.1, 2012-10-12
 ------------------
+
+  * Content encoding fixes
+  * Updated README
 
 v0.1.0, 2012-10-11
 ------------------
