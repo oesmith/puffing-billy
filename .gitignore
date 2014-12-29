@@ -2,3 +2,4 @@ node_modules/
 log/test.log
 .idea/
 .ruby-version
+*.swp
