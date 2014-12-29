@@ -129,13 +129,17 @@ shared_examples_for 'a cache' do
   end
 
   context "cache persistence" do
+    let(:cache_path) { Billy.config.cache_path }
     let(:cached_key) { proxy.cache.key('get',"#{url}/foo","") }
     let(:cached_file) do
       f = cached_key + ".yml"
-      File.join(Billy.config.cache_path, f)
+      File.join(cache_path, f)
     end
 
-    before { Billy.config.whitelist = [] }
+    before do
+      Billy.config.whitelist = []
+      Dir.mkdir(cache_path) unless Dir.exist?(cache_path)
+    end
 
     after do
       File.delete(cached_file) if File.exists?(cached_file)
@@ -146,7 +150,7 @@ shared_examples_for 'a cache' do
 
       it 'should persist' do
         r = http.get('/foo')
-        expect(File.exists?(cached_file)).to be_true
+        expect(File.exists?(cached_file)).to be true
       end
 
       it 'should be read initially from persistent cache' do
@@ -211,7 +215,7 @@ shared_examples_for 'a cache' do
 
         it 'should not cache non-successful response when enabled' do
           http_error.get('/foo')
-          expect(File.exists?(cached_file)).to be_false
+          expect(File.exists?(cached_file)).to be false
         end
 
         it 'should cache successful response when enabled' do
@@ -235,6 +239,9 @@ shared_examples_for 'a cache' do
           # 3) Change the test servers to start/stop for each test instead of before all
           # 4) Remove the test server completely and rely on the server instantiated by the app
           pending "Unable to test this without affecting the running test servers"
+          # If the 'pending' continues to execute the spec, 'skip' it to avoid EM errors.
+          # If 'pending' stops the test, 'skip' isn't defined but it won't hit this line.
+          skip "Unable to test this without affecting the running test servers"
           expect{http_error.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
         end
       end
@@ -246,7 +253,7 @@ shared_examples_for 'a cache' do
 
       it 'shouldnt persist' do
         r = http.get('/foo')
-        expect(File.exists?(cached_file)).to be_false
+        expect(File.exists?(cached_file)).to be false
       end
     end
   end
@@ -320,7 +327,7 @@ describe Billy::Proxy do
   context 'caching' do
 
     it 'defaults to nil scope' do
-      expect(proxy.cache.scope).to be_nil
+      expect(proxy.cache.scope).to be nil
     end
 
     context 'HTTP' do
@@ -358,7 +365,7 @@ describe Billy::Proxy do
 
       it 'can be reset to the default scope' do
         proxy.cache.use_default_scope
-        expect(proxy.cache.scope).to be_nil
+        expect(proxy.cache.scope).to be nil
       end
 
       it 'can execute a block against a cache scope' do

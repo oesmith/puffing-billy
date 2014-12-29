@@ -46,10 +46,10 @@ describe Billy::JSONUtils do
     let(:non_json) { 'Not JSON.' }
 
     it 'identifies JSON' do
-      expect(Billy::JSONUtils::json?(json)).to be_true
+      expect(Billy::JSONUtils::json?(json)).to be true
     end
     it 'identifies non-JSON' do
-      expect(Billy::JSONUtils::json?(non_json)).to be_false
+      expect(Billy::JSONUtils::json?(non_json)).to be false
     end
   end
 end

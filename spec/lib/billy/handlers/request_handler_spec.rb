@@ -41,28 +41,28 @@ describe Billy::RequestHandler do
         handlers.each do |key,handler|
           expect(handler).to receive(:handles_request?).with(*args).and_return(false)
         end
-        expect(subject.handles_request?(*args)).to be_false
+        expect(subject.handles_request?(*args)).to be false
       end
 
       it 'returns true immediately if the stub handler handles the request' do
         expect(stub_handler).to       receive(:handles_request?).with(*args).and_return(true)
         expect(cache_handler).to_not  receive(:handles_request?)
         expect(proxy_handler).to_not  receive(:handles_request?)
-        expect(subject.handles_request?(*args)).to be_true
+        expect(subject.handles_request?(*args)).to be true
       end
 
       it 'returns true if the cache handler handles the request' do
         expect(stub_handler).to       receive(:handles_request?).with(*args).and_return(false)
         expect(cache_handler).to      receive(:handles_request?).with(*args).and_return(true)
         expect(proxy_handler).to_not  receive(:handles_request?)
-        expect(subject.handles_request?(*args)).to be_true
+        expect(subject.handles_request?(*args)).to be true
       end
 
       it 'returns true if the proxy handler handles the request' do
         expect(stub_handler).to   receive(:handles_request?).with(*args).and_return(false)
         expect(cache_handler).to  receive(:handles_request?).with(*args).and_return(false)
         expect(proxy_handler).to  receive(:handles_request?).with(*args).and_return(true)
-        expect(subject.handles_request?(*args)).to be_true
+        expect(subject.handles_request?(*args)).to be true
       end
     end
 

@@ -7,7 +7,7 @@ describe Billy::Handler do
   end
 
   it '#handles_request returns false by default' do
-    expect(handler.handles_request?(nil,nil,nil,nil)).to be_false
+    expect(handler.handles_request?(nil,nil,nil,nil)).to be false
   end
 
   it 'responds to #reset' do
