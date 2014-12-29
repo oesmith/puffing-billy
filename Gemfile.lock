@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    puffing-billy (0.2.3)
+    puffing-billy (0.3.0)
       capybara
       em-http-request
       em-synchrony
