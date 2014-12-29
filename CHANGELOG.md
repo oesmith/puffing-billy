@@ -1,9 +1,9 @@
 v0.3.0, 2014-12-29
 ------------------
 
+  * Fixing a bug where proxy to SSL can duplicate https in the request_url (#36)
   * Refactor proxy responses (#37)
   * Update http_parser to 0.6.0 and remove CONNECT request hack (#38)
-  * Fixing a bug where proxy to SSL can duplicate https in the request_url (#36)
   * Allow configurable Billy proxy port (#40)
   * Refactor handlers (#41)
   * Mark step definitions as ruby code (#52)
@@ -17,6 +17,15 @@ v0.3.0, 2014-12-29
 
 v0.2.3, 2014-02-07
 ------------------
+
+  * Fixed facebook spec (#24)
+  * Check for existing persistent cache files on demand (#26)
+  * Lazy-loading proxy and other minor fixes (#28)
+  * Support service-oriented architectures, scope cache to scenarios, and sort JSON in POSTs to avoid duplicate cache files (#30)
+  * Set the minimum version of capybara-webkit to 1.0.0 (#31)
+  * Updated gems, cache request headers, handle non-successful responses, ability to stop new connections (#33)
+  * Add requires matching gem name (#34)
+  * Remove duplicated rspec devel dependency (#35)
 
 v0.2.1, 2013-05-12
 ------------------
