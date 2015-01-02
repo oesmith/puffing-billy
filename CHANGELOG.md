@@ -1,4 +1,5 @@
 v0.4.0, 2015-01-02
+------------------
 
   * Add new configuration to merge cache hits by URL regex (#76)
   * Allow pipes in URLs by switching to Addressable (#84)
