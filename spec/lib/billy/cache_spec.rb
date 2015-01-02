@@ -7,6 +7,7 @@ describe Billy::Cache do
     let(:callback) { '&callback=quux' }
     let(:fragment) { '#baz' }
     let(:base_url) { 'http://example.com' }
+    let(:pipe_url) { 'https://fonts.googleapis.com:443/css?family=Cabin+Sketch:400,700|Love+Ya+Like+A+Sister' }
     let(:fragment_url) { "#{base_url}/#{fragment}" }
     let(:params_url) { "#{base_url}#{params}" }
     let(:params_url_with_callback) { "#{base_url}#{params}#{callback}" }
@@ -22,6 +23,10 @@ describe Billy::Cache do
       it 'appends params and fragment if both are present' do
         expect(cache.format_url(params_fragment_url)).to eq params_fragment_url
       end
+      it 'does not raise error for URLs with pipes' do
+        expect { cache.format_url(pipe_url) }.not_to raise_error
+      end
+
       context "when dynamic_jsonp is true" do
         it 'omits the callback param by default' do
           expect(cache.format_url(params_url_with_callback, false, true)).to eq params_url

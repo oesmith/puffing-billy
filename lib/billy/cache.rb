@@ -1,5 +1,5 @@
 require 'resolv'
-require 'uri'
+require 'addressable/uri'
 require 'yaml'
 require 'billy/json_utils'
 require 'singleton'
@@ -72,7 +72,7 @@ module Billy
 
     def key(method, orig_url, body, log_key = false)
       ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
-      url = URI(format_url(orig_url, ignore_params))
+      url = Addressable::URI.parse(format_url(orig_url, ignore_params))
       key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
       body_msg = ''
 
@@ -87,7 +87,7 @@ module Billy
     end
 
     def format_url(url, ignore_params=false, dynamic_jsonp=Billy.config.dynamic_jsonp)
-      url = URI(url)
+      url = Addressable::URI.parse(url)
       port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
       formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
 
