@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    puffing-billy (0.3.0)
+    puffing-billy (0.4.0)
       addressable
       em-http-request
       em-synchrony
