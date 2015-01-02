@@ -1,3 +1,9 @@
+v0.4.0, 2015-01-02
+
+  * Add new configuration to merge cache hits by URL regex (#76)
+  * Allow pipes in URLs by switching to Addressable (#84)
+  * Consistently ignore SSL errors (added to selenium driver) (#85)
+
 v0.3.0, 2014-12-29
 ------------------
 
