@@ -43,9 +43,9 @@ module Billy
     if defined?(Capybara::Webkit::Driver)
       Capybara.register_driver :webkit_billy do |app|
         driver = Capybara::Webkit::Driver.new(app)
+        driver.browser.ignore_ssl_errors
         driver.browser.set_proxy(:host => Billy.proxy.host,
                                  :port => Billy.proxy.port)
-        driver.browser.ignore_ssl_errors
         driver
       end
     end
@@ -53,6 +53,7 @@ module Billy
     if defined?(Selenium::WebDriver)
       Capybara.register_driver :selenium_billy do |app|
         profile = Selenium::WebDriver::Firefox::Profile.new
+        profile.assume_untrusted_certificate_issuer = false
         profile.proxy = Selenium::WebDriver::Proxy.new(
           :http => "#{Billy.proxy.host}:#{Billy.proxy.port}",
           :ssl => "#{Billy.proxy.host}:#{Billy.proxy.port}")
