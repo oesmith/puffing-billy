@@ -72,11 +72,16 @@ module Billy
 
     def key(method, orig_url, body, log_key = false)
       ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
+      merge_cached_response_key = _merge_cached_response_key(orig_url)
       url = Addressable::URI.parse(format_url(orig_url, ignore_params))
-      key = method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+      key = if merge_cached_response_key
+          method+'_'+Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
+        else
+          method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+        end
       body_msg = ''
 
-      if method == 'post' and !ignore_params
+      if method == 'post' && !ignore_params && !merge_cached_response_key
         body_formatted = JSONUtils::json?(body.to_s) ? JSONUtils::sort_json(body.to_s) : body.to_s
         body_msg = " with body '#{body_formatted}'"
         key += '_'+Digest::SHA1.hexdigest(body_formatted)
@@ -132,6 +137,15 @@ module Billy
     end
 
     private
+
+    def _merge_cached_response_key(url)
+      Billy.config.merge_cached_responses_whitelist.each do |disable_regex|
+        if url =~ disable_regex
+          return disable_regex.to_s # Use the stringified regex as the cache key if it matches
+        end
+      end
+      nil
+    end
 
     attr_writer :scope
   end
