@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     puffing-billy (0.4.0)
-      capybara
+      addressable
       em-http-request
       em-synchrony
       eventmachine
@@ -123,6 +123,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  capybara
   capybara-webkit (~> 1.0)
   cucumber
   faraday
