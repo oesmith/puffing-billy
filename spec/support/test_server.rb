@@ -42,7 +42,7 @@ module Billy
 
     def echo_app_setup(response_code = 200)
       counter = 0
-      Proc.new do |env|
+      proc do |env|
         req_body = env['rack.input'].read
         request_info = "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"
         res_body = request_info
@@ -62,8 +62,8 @@ module Billy
       if ssl
         http_server.ssl = true
         http_server.ssl_options = {
-          :private_key_file => File.expand_path('../../fixtures/test-server.key', __FILE__),
-          :cert_chain_file => File.expand_path('../../fixtures/test-server.crt', __FILE__)
+          private_key_file: File.expand_path('../../fixtures/test-server.key', __FILE__),
+          cert_chain_file: File.expand_path('../../fixtures/test-server.crt', __FILE__)
         }
       end
       http_server.start

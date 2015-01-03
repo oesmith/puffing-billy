@@ -8,11 +8,11 @@ shared_examples_for 'a proxy server' do
   end
 
   it 'should proxy POST requests' do
-    expect(http.post('/echo', :foo => 'bar').body).to eql "POST /echo\nfoo=bar"
+    expect(http.post('/echo', foo: 'bar').body).to eql "POST /echo\nfoo=bar"
   end
 
   it 'should proxy PUT requests' do
-    expect(http.post('/echo', :foo => 'bar').body).to eql "POST /echo\nfoo=bar"
+    expect(http.post('/echo', foo: 'bar').body).to eql "POST /echo\nfoo=bar"
   end
 
   it 'should proxy HEAD requests' do
@@ -26,44 +26,43 @@ end
 
 shared_examples_for 'a request stub' do
   it 'should stub GET requests' do
-    proxy.stub("#{url}/foo").
-      and_return(:text => 'hello, GET!')
+    proxy.stub("#{url}/foo")
+      .and_return(text: 'hello, GET!')
     expect(http.get('/foo').body).to eql 'hello, GET!'
   end
 
   it 'should stub GET response statuses' do
-    proxy.stub("#{url}/foo").
-      and_return(:code => 200)
+    proxy.stub("#{url}/foo")
+      .and_return(code: 200)
     expect(http.get('/foo').status).to eql 200
   end
 
   it 'should stub POST requests' do
-    proxy.stub("#{url}/bar", :method => :post).
-      and_return(:text => 'hello, POST!')
-    expect(http.post('/bar', :foo => :bar).body).to eql 'hello, POST!'
+    proxy.stub("#{url}/bar", method: :post)
+      .and_return(text: 'hello, POST!')
+    expect(http.post('/bar', foo: :bar).body).to eql 'hello, POST!'
   end
 
   it 'should stub PUT requests' do
-    proxy.stub("#{url}/baz", :method => :put).
-      and_return(:text => 'hello, PUT!')
-    expect(http.put('/baz', :foo => :bar).body).to eql 'hello, PUT!'
+    proxy.stub("#{url}/baz", method: :put)
+      .and_return(text: 'hello, PUT!')
+    expect(http.put('/baz', foo: :bar).body).to eql 'hello, PUT!'
   end
 
   it 'should stub HEAD requests' do
-    proxy.stub("#{url}/bap", :method => :head).
-      and_return(:headers => {'HTTP-X-Hello' => 'hello, HEAD!'})
+    proxy.stub("#{url}/bap", method: :head)
+      .and_return(headers: { 'HTTP-X-Hello' => 'hello, HEAD!' })
     expect(http.head('/bap').headers['http-x-hello']).to eql 'hello, HEAD!'
   end
 
   it 'should stub DELETE requests' do
-    proxy.stub("#{url}/bam", :method => :delete).
-      and_return(:text => 'hello, DELETE!')
+    proxy.stub("#{url}/bam", method: :delete)
+      .and_return(text: 'hello, DELETE!')
     expect(http.delete('/bam').body).to eql 'hello, DELETE!'
   end
 end
 
 shared_examples_for 'a cache' do
-
   context 'whitelisted GET requests' do
     it 'should not be cached' do
       assert_noncached_url
@@ -93,7 +92,7 @@ shared_examples_for 'a cache' do
     context 'with ports' do
       before do
         rack_app_url = URI(http.url_prefix)
-        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port+1}"]
+        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port + 1}"]
       end
 
       it 'should be cached' do
@@ -110,11 +109,11 @@ shared_examples_for 'a cache' do
     it 'should be cached' do
       r = http.get('/analytics?some_param=5')
       expect(r.body).to eql 'GET /analytics'
-      expect {
-        expect {
+      expect do
+        expect do
           r = http.get('/analytics?some_param=20')
-        }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
-      }.to_not change { r.body }
+        end.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
+      end.to_not change { r.body }
     end
   end
 
@@ -128,11 +127,11 @@ shared_examples_for 'a cache' do
     end
   end
 
-  context "cache persistence" do
+  context 'cache persistence' do
     let(:cache_path) { Billy.config.cache_path }
-    let(:cached_key) { proxy.cache.key('get',"#{url}/foo","") }
+    let(:cached_key) { proxy.cache.key('get', "#{url}/foo", '') }
     let(:cached_file) do
-      f = cached_key + ".yml"
+      f = cached_key + '.yml'
       File.join(cache_path, f)
     end
 
@@ -142,24 +141,24 @@ shared_examples_for 'a cache' do
     end
 
     after do
-      File.delete(cached_file) if File.exists?(cached_file)
+      File.delete(cached_file) if File.exist?(cached_file)
     end
 
-    context "enabled" do
+    context 'enabled' do
       before { Billy.config.persist_cache = true }
 
       it 'should persist' do
         r = http.get('/foo')
-        expect(File.exists?(cached_file)).to be true
+        expect(File.exist?(cached_file)).to be true
       end
 
       it 'should be read initially from persistent cache' do
         File.open(cached_file, 'w') do |f|
           cached = {
-            :headers => {},
-            :content => "GET /foo cached"
+            headers: {},
+            content: 'GET /foo cached'
           }
-          f.write(cached.to_yaml(:Encoding => :Utf8))
+          f.write(cached.to_yaml(Encoding: :Utf8))
         end
 
         r = http.get('/foo')
@@ -201,8 +200,8 @@ shared_examples_for 'a cache' do
         before { Billy.config.non_whitelisted_requests_disabled = true }
 
         it 'should raise error when disabled' do
-          #TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
-          expect{http.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed, "end of file reached")
+          # TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
+          expect { http.get('/foo') }.to raise_error(Faraday::Error::ConnectionFailed, 'end of file reached')
         end
       end
 
@@ -215,7 +214,7 @@ shared_examples_for 'a cache' do
 
         it 'should not cache non-successful response when enabled' do
           http_error.get('/foo')
-          expect(File.exists?(cached_file)).to be false
+          expect(File.exist?(cached_file)).to be false
         end
 
         it 'should cache successful response when enabled' do
@@ -238,22 +237,21 @@ shared_examples_for 'a cache' do
           # 2) Restart the test servers if they aren't running
           # 3) Change the test servers to start/stop for each test instead of before all
           # 4) Remove the test server completely and rely on the server instantiated by the app
-          pending "Unable to test this without affecting the running test servers"
+          pending 'Unable to test this without affecting the running test servers'
           # If the 'pending' continues to execute the spec, 'skip' it to avoid EM errors.
           # If 'pending' stops the test, 'skip' isn't defined but it won't hit this line.
-          skip "Unable to test this without affecting the running test servers"
-          expect{http_error.get('/foo')}.to raise_error(Faraday::Error::ConnectionFailed)
+          skip 'Unable to test this without affecting the running test servers'
+          expect { http_error.get('/foo') }.to raise_error(Faraday::Error::ConnectionFailed)
         end
       end
-
     end
 
-    context "disabled" do
+    context 'disabled' do
       before { Billy.config.persist_cache = false }
 
       it 'shouldnt persist' do
         r = http.get('/foo')
-        expect(File.exists?(cached_file)).to be false
+        expect(File.exist?(cached_file)).to be false
       end
     end
   end
@@ -261,41 +259,39 @@ shared_examples_for 'a cache' do
   def assert_noncached_url(url = '/foo')
     r = http.get(url)
     expect(r.body).to eql "GET #{url}"
-    expect {
-      expect {
+    expect do
+      expect do
         r = http.get(url)
-      }.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
-    }.to_not change { r.body }
+      end.to change { r.headers['HTTP-X-EchoCount'].to_i }.by(1)
+    end.to_not change { r.body }
   end
 
   def assert_cached_url(url = '/foo')
     r = http.get(url)
     expect(r.body).to eql "GET #{url}"
-    expect {
-      expect {
+    expect do
+      expect do
         r = http.get(url)
-      }.to_not change { r.headers['HTTP-X-EchoCount'] }
-    }.to_not change { r.body }
+      end.to_not change { r.headers['HTTP-X-EchoCount'] }
+    end.to_not change { r.body }
   end
 end
 
 describe Billy::Proxy do
-
   before do
     # Adding non-valid Faraday options throw an error: https://github.com/arsduo/koala/pull/311
     # Valid options: :request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class
     faraday_options = {
-      :proxy   => { :uri => proxy.url },
-      :request => { :timeout => 1.0 }
+      proxy: { uri: proxy.url },
+      request: { timeout: 1.0 }
     }
 
     @http       = Faraday.new @http_url,  faraday_options
-    @https      = Faraday.new @https_url, faraday_options.merge(:ssl => { :verify => false })
+    @https      = Faraday.new @https_url, faraday_options.merge(ssl: { verify: false })
     @http_error = Faraday.new @error_url, faraday_options
   end
 
   context 'proxying' do
-
     context 'HTTP' do
       let!(:http) { @http }
       it_should_behave_like 'a proxy server'
@@ -305,11 +301,9 @@ describe Billy::Proxy do
       let!(:http) { @https }
       it_should_behave_like 'a proxy server'
     end
-
   end
 
   context 'stubbing' do
-
     context 'HTTP' do
       let!(:url)  { @http_url }
       let!(:http) { @http }
@@ -321,11 +315,9 @@ describe Billy::Proxy do
       let!(:http) { @https }
       it_should_behave_like 'a request stub'
     end
-
   end
 
   context 'caching' do
-
     it 'defaults to nil scope' do
       expect(proxy.cache.scope).to be nil
     end
@@ -350,7 +342,7 @@ describe Billy::Proxy do
       let!(:http_error) { @http_error }
 
       before do
-        proxy.cache.scope_to "my_cache"
+        proxy.cache.scope_to 'my_cache'
       end
 
       after do
@@ -360,7 +352,7 @@ describe Billy::Proxy do
       it_should_behave_like 'a cache'
 
       it 'uses the cache scope' do
-        expect(proxy.cache.scope).to eq("my_cache")
+        expect(proxy.cache.scope).to eq('my_cache')
       end
 
       it 'can be reset to the default scope' do
@@ -369,21 +361,21 @@ describe Billy::Proxy do
       end
 
       it 'can execute a block against a cache scope' do
-        expect(proxy.cache.scope).to eq "my_cache"
-        proxy.cache.with_scope "another_cache" do
-          expect(proxy.cache.scope).to eq "another_cache"
+        expect(proxy.cache.scope).to eq 'my_cache'
+        proxy.cache.with_scope 'another_cache' do
+          expect(proxy.cache.scope).to eq 'another_cache'
         end
-        expect(proxy.cache.scope).to eq "my_cache"
+        expect(proxy.cache.scope).to eq 'my_cache'
       end
 
       it 'requires a block to be passed to with_scope' do
-        expect {proxy.cache.with_scope "some_scope"}.to raise_error ArgumentError
+        expect { proxy.cache.with_scope 'some_scope' }.to raise_error ArgumentError
       end
 
       it 'should have different keys for the same request under a different scope' do
-        args = ['get',"#{url}/foo",""]
+        args = ['get', "#{url}/foo", '']
         key = proxy.cache.key(*args)
-        proxy.cache.with_scope "another_cache" do
+        proxy.cache.with_scope 'another_cache' do
           expect(proxy.cache.key(*args)).to_not eq key
         end
       end

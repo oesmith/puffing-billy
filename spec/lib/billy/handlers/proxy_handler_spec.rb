@@ -2,13 +2,15 @@ require 'spec_helper'
 
 describe Billy::ProxyHandler do
   subject { Billy::ProxyHandler.new }
-  let(:request) { {
+  let(:request) do
+    {
       method:   'post',
       url:      'http://example.test:8080/index?some=param',
-      headers:  {'Accept-Encoding'  => 'gzip',
-                 'Cache-Control'    => 'no-cache' },
+      headers:  { 'Accept-Encoding'  => 'gzip',
+                  'Cache-Control'    => 'no-cache' },
       body:     'Some body'
-  } }
+    }
+  end
 
   describe '#handles_request?' do
     context 'with non-whitelisted requests enabled' do
@@ -108,31 +110,31 @@ describe Billy::ProxyHandler do
         header
       end
 
-      let(:em_response)     { double("response") }
-      let(:em_request)      {
-        double("EM::HttpRequest", :error => nil, :response => em_response, :response_header => response_header)
-      }
+      let(:em_response)     { double('response') }
+      let(:em_request)      do
+        double('EM::HttpRequest', error: nil, response: em_response, response_header: response_header)
+      end
 
       before do
         allow(subject).to receive(:handles_request?).and_return(true)
-        allow(em_response).to receive(:force_encoding).and_return("The response body")
+        allow(em_response).to receive(:force_encoding).and_return('The response body')
         allow(EventMachine::HttpRequest).to receive(:new).and_return(em_request)
         expect(em_request).to receive(:post).and_return(em_request)
       end
 
       it 'returns any error in the response' do
-        allow(em_request).to receive(:error).and_return("ERROR!")
+        allow(em_request).to receive(:error).and_return('ERROR!')
         expect(subject.handle_request(request[:method],
                                       request[:url],
                                       request[:headers],
-                                      request[:body])).to eql({ :error => "Request to #{request[:url]} failed with error: ERROR!"})
+                                      request[:body])).to eql(error: "Request to #{request[:url]} failed with error: ERROR!")
       end
 
       it 'returns a hashed response if the request succeeds' do
         expect(subject.handle_request(request[:method],
                                       request[:url],
                                       request[:headers],
-                                      request[:body])).to eql({:status=>200, :headers=>{"Connection"=>"close"}, :content=>"The response body"})
+                                      request[:body])).to eql(status: 200, headers: { 'Connection' => 'close' }, content: 'The response body')
       end
 
       it 'returns nil if both the error and response are for some reason nil' do
@@ -156,10 +158,10 @@ describe Billy::ProxyHandler do
         allow(Billy.config).to receive(:proxied_request_inactivity_timeout).and_return(42)
         allow(Billy.config).to receive(:proxied_request_connect_timeout).and_return(24)
 
-        expect(EventMachine::HttpRequest).to receive(:new).with(request[:url], {
-            inactivity_timeout: 42,
-            connect_timeout: 24
-        })
+        expect(EventMachine::HttpRequest).to receive(:new).with(request[:url],
+                                                                inactivity_timeout: 42,
+                                                                connect_timeout: 24
+        )
 
         subject.handle_request(request[:method],
                                request[:url],

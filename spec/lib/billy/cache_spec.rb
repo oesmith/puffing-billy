@@ -27,13 +27,13 @@ describe Billy::Cache do
         expect { cache.format_url(pipe_url) }.not_to raise_error
       end
 
-      context "when dynamic_jsonp is true" do
+      context 'when dynamic_jsonp is true' do
         it 'omits the callback param by default' do
           expect(cache.format_url(params_url_with_callback, false, true)).to eq params_url
         end
 
         it 'omits the params listed in Billy.config.dynamic_jsonp_keys' do
-          allow(Billy.config).to receive(:dynamic_jsonp_keys) { ["foo"] }
+          allow(Billy.config).to receive(:dynamic_jsonp_keys) { ['foo'] }
 
           expect(cache.format_url(params_url_with_callback, false, true)).to eq "#{base_url}?callback=quux"
         end
@@ -56,11 +56,10 @@ describe Billy::Cache do
       end
     end
 
-    context "with merge_cached_responses_whitelist set" do
-
-      let(:analytics_url1) { "http://www.example-analytics.com/user/SDF879932/" }
-      let(:analytics_url2) { "http://www.example-analytics.com/user/OIWEMLW39/" }
-      let(:regular_url) { "http://www.example-analytics.com/user.js" }
+    context 'with merge_cached_responses_whitelist set' do
+      let(:analytics_url1) { 'http://www.example-analytics.com/user/SDF879932/' }
+      let(:analytics_url2) { 'http://www.example-analytics.com/user/OIWEMLW39/' }
+      let(:regular_url) { 'http://www.example-analytics.com/user.js' }
 
       let(:regex_to_match_analytics_urls_only) do
         # Note that it matches the forward slash at the end of the URL, which doesn't match regular_url:
@@ -74,19 +73,18 @@ describe Billy::Cache do
       end
 
       it "has one cache key for the two analytics urls that match, and a separate one for the other that doesn't" do
-        expect(cache.key("post", analytics_url1, "body")).to eq cache.key("post", analytics_url2, "body")
-        expect(cache.key("post", analytics_url1, "body")).not_to eq cache.key("post", regular_url, "body")
+        expect(cache.key('post', analytics_url1, 'body')).to eq cache.key('post', analytics_url2, 'body')
+        expect(cache.key('post', analytics_url1, 'body')).not_to eq cache.key('post', regular_url, 'body')
       end
 
-      it "More specifically, the cache keys should be identical for the 2 analytics urls" do
-        identical_cache_key = "post_5fcb7a450e4cd54dcffcb526212757ee0ca9dc17"
-        distinct_cache_key = "post_www.example-analytics.com_81f097654a523bd7ddb10fd4aee781723e076a1a_02083f4579e08a612425c0c1a17ee47add783b94"
+      it 'More specifically, the cache keys should be identical for the 2 analytics urls' do
+        identical_cache_key = 'post_5fcb7a450e4cd54dcffcb526212757ee0ca9dc17'
+        distinct_cache_key = 'post_www.example-analytics.com_81f097654a523bd7ddb10fd4aee781723e076a1a_02083f4579e08a612425c0c1a17ee47add783b94'
 
-        expect(cache.key("post", analytics_url1, "body")).to eq identical_cache_key
-        expect(cache.key("post", regular_url, "body")).to eq distinct_cache_key
-        expect(cache.key("post", analytics_url2, "body")).to eq identical_cache_key
+        expect(cache.key('post', analytics_url1, 'body')).to eq identical_cache_key
+        expect(cache.key('post', regular_url, 'body')).to eq distinct_cache_key
+        expect(cache.key('post', analytics_url2, 'body')).to eq identical_cache_key
       end
-
     end
   end
 end
