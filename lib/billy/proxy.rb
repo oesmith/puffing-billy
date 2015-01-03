@@ -1,5 +1,4 @@
 require 'cgi'
-require 'uri'
 require 'eventmachine'
 
 module Billy

@@ -1,4 +1,5 @@
 require 'billy/handlers/handler'
+require 'addressable/uri'
 
 module Billy
   class StubHandler
@@ -7,7 +8,7 @@ module Billy
     def handle_request(method, url, headers, body)
       if handles_request?(method, url, headers, body)
         if (stub = find_stub(method, url))
-          query_string = URI.parse(url).query || ""
+          query_string = Addressable::URI.parse(url).query || ""
           params = CGI.parse(query_string)
           stub.call(params, headers, body).tap do |response|
             Billy.log(:info, "puffing-billy: STUB #{method} for '#{url}'")

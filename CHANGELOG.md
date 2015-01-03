@@ -1,3 +1,8 @@
+v0.4.1, 2015-01-02
+------------------
+
+  * Use Addressable for all URI parsing
+
 v0.4.0, 2015-01-02
 ------------------
 
@@ -17,7 +22,7 @@ v0.3.0, 2014-12-29
   * Adds EventMachine timeout configuration (#57)
   * Support dynamic jsonp with params (#58)
   * Writing error messages to the logger rather than stdout (#69)
-  * Don't recommend changing javascript_driver config (#70)
+  * Do not recommend changing javascript_driver config (#70)
   * README link pointing at wrong target (#73)
   * Adding example config to README for playing nicely with Webmock, VCR (#74)
   * Make dynamic_jsonp regex less brittle (#81)

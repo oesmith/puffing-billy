@@ -1,4 +1,4 @@
-require 'uri'
+require 'addressable/uri'
 require 'eventmachine'
 require 'http/parser'
 require 'em-http'
@@ -36,7 +36,7 @@ module Billy
         restart_with_ssl(@parser.request_url)
       else
         if @ssl
-          uri = URI.parse(@parser.request_url)
+          uri = Addressable::URI.parse(@parser.request_url)
           @url = "https://#{@ssl}#{[uri.path,uri.query].compact.join('?')}"
         else
           @url = @parser.request_url

@@ -1,4 +1,5 @@
 require 'billy/handlers/handler'
+require 'addressable/uri'
 require 'eventmachine'
 require 'em-synchrony/em-http'
 
@@ -73,7 +74,7 @@ module Billy
     def disabled_request?(url)
       return false unless Billy.config.non_whitelisted_requests_disabled
 
-      uri = URI(url)
+      uri = Addressable::URI.parse(url)
       # In isolated environments, you may want to stop the request from happening
       # or else you get "getaddrinfo: Name or service not known" errors
       blacklisted_path?(uri.path) || !whitelisted_url?(uri)
@@ -86,7 +87,7 @@ module Billy
     def cacheable?(url, headers, status)
       return false unless Billy.config.cache
 
-      url = URI(url)
+      url = Addressable::URI.parse(url)
       # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
       cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
     end

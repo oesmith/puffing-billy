@@ -1,3 +1,5 @@
+require 'addressable/uri'
+
 namespace :cache do
 
   desc 'Print out all cache file information'
@@ -57,7 +59,7 @@ namespace :cache do
 
     Dir.glob(cache_path+file_pattern) do |filename|
       data = load_cache_file(filename)
-      url = URI(data[:url])
+      url = Addressable::URI.parse(data[:url])
       data[:url_path] = "#{url.path}#{url.query ? '?'+url.query : ''}#{url.fragment ? '#'+url.fragment : ''}"
       data[:filename] = filename.gsub(Rails.root.to_s+'/','')
       cache_array << data

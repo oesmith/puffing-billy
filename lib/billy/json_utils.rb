@@ -1,4 +1,3 @@
-require 'uri'
 require 'json'
 
 module Billy
