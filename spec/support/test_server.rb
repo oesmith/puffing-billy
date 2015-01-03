@@ -42,7 +42,7 @@ module Billy
 
     def echo_app_setup(response_code = 200)
       counter = 0
-      proc do |env|
+      Proc.new do |env|
         req_body = env['rack.input'].read
         request_info = "#{env['REQUEST_METHOD']} #{env['PATH_INFO']}"
         res_body = request_info
