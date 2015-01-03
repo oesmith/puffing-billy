@@ -60,6 +60,7 @@ module Billy
             f.write(cached.to_yaml(Encoding: :Utf8))
           end
         rescue StandardError => e
+          Billy.log :error, "Error storing cache file: #{e.message}"
         end
       end
     end
@@ -76,7 +77,7 @@ module Billy
               method + '_' + Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
             else
               method + '_' + url.host + '_' + Digest::SHA1.hexdigest(scope.to_s + url.to_s)
-        end
+            end
       body_msg = ''
 
       if method == 'post' && !ignore_params && !merge_cached_response_key

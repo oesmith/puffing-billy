@@ -148,7 +148,7 @@ shared_examples_for 'a cache' do
       before { Billy.config.persist_cache = true }
 
       it 'should persist' do
-        r = http.get('/foo')
+        http.get('/foo')
         expect(File.exist?(cached_file)).to be true
       end
 
@@ -167,7 +167,7 @@ shared_examples_for 'a cache' do
 
       context 'cache_request_headers requests' do
         it 'should not be cached by default' do
-          r = http.get('/foo')
+          http.get('/foo')
           saved_cache = Billy.proxy.cache.fetch_from_persistence(cached_key)
           expect(saved_cache.keys).not_to include :request_headers
         end
@@ -178,7 +178,7 @@ shared_examples_for 'a cache' do
           end
 
           it 'should be cached' do
-            r = http.get('/foo')
+            http.get('/foo')
             saved_cache = Billy.proxy.cache.fetch_from_persistence(cached_key)
             expect(saved_cache.keys).to include :request_headers
           end
@@ -250,7 +250,7 @@ shared_examples_for 'a cache' do
       before { Billy.config.persist_cache = false }
 
       it 'shouldnt persist' do
-        r = http.get('/foo')
+        http.get('/foo')
         expect(File.exist?(cached_file)).to be false
       end
     end
