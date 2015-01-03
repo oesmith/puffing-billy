@@ -1,4 +1,5 @@
 require 'billy/handlers/handler'
+require 'addressable/uri'
 require 'cgi'
 
 module Billy
@@ -35,7 +36,7 @@ module Billy
     private
 
     def replace_response_callback(response, url)
-      request_uri = URI::parse(url)
+      request_uri = Addressable::URI.parse(url)
       if request_uri.query
         params = CGI::parse(request_uri.query)
         if params['callback'].any? and response[:content].match(/\w+\(/)
