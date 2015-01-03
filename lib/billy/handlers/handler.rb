@@ -15,7 +15,7 @@ module Billy
     # @return [Hash]                A hash with the keys [:status, :headers, :content]
     #                               Returns {:error => "Some error message"} if a failure occurs.
     #                               Returns nil if the request cannot be fulfilled.
-    def handle_request(http_method, url, headers, body)
+    def handle_request(_http_method, _url, _headers, _body)
       { error: 'The handler has not overridden the handle_request method!' }
     end
 
@@ -29,7 +29,7 @@ module Billy
     # @param  [String] body         The body of the HTTP request.
     # @return [Boolean]             True if the Handler can respond to the request, else false.
     #
-    def handles_request?(http_method, url, headers, body)
+    def handles_request?(_http_method, _url, _headers, _body)
       false
     end
 

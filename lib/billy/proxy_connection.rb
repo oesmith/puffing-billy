@@ -37,7 +37,7 @@ module Billy
       else
         if @ssl
           uri = Addressable::URI.parse(@parser.request_url)
-          @url = "https://#{@ssl}#{[uri.path,uri.query].compact.join('?')}"
+          @url = "https://#{@ssl}#{[uri.path, uri.query].compact.join('?')}"
         else
           @url = @parser.request_url
         end
@@ -52,17 +52,17 @@ module Billy
       @parser = Http::Parser.new(self)
       send_data("HTTP/1.0 200 Connection established\r\nProxy-agent: Puffing-Billy/0.0.0\r\n\r\n")
       start_tls(
-        :private_key_file => File.expand_path('../mitm.key', __FILE__),
-        :cert_chain_file => File.expand_path('../mitm.crt', __FILE__)
+        private_key_file: File.expand_path('../mitm.key', __FILE__),
+        cert_chain_file: File.expand_path('../mitm.crt', __FILE__)
       )
     end
 
     def handle_request
       EM.synchrony do
         handler.handle_request(@parser.http_method, @url, @headers, @body).tap do |response|
-          if response.has_key?(:error)
+          if response.key?(:error)
             close_connection
-            raise "puffing-billy: #{response[:error]}"
+            fail "puffing-billy: #{response[:error]}"
           else
             send_response(response)
           end

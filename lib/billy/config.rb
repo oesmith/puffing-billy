@@ -25,7 +25,7 @@ module Billy
       @ignore_params = []
       @persist_cache = false
       @dynamic_jsonp = false
-      @dynamic_jsonp_keys = ["callback"]
+      @dynamic_jsonp_keys = ['callback']
       @ignore_cache_port = true
       @non_successful_cache_disabled = false
       @non_successful_error_level = :warn
