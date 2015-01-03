@@ -17,7 +17,7 @@ module Billy
             :inactivity_timeout => Billy.config.proxied_request_inactivity_timeout,
             :connect_timeout => Billy.config.proxied_request_connect_timeout})
 
-        req = req.send(method.downcase, build_request_options(headers, body))
+        req = req.send(method.downcase, build_request_options(url, headers, body))
 
         if req.error
           return { :error => "Request to #{url} failed with error: #{req.error}" }
@@ -45,11 +45,14 @@ module Billy
       nil
     end
 
-    private
+  private
 
-    def build_request_options(headers, body)
+    def build_request_options(url, headers, body)
       headers = Hash[headers.map { |k,v| [k.downcase, v] }]
       headers.delete('accept-encoding')
+
+      uri = Addressable::URI.parse(url)
+      headers.merge!({'authorization' => [uri.user, uri.password]}) if uri.userinfo
 
       req_opts = {
           :redirects => 0,
