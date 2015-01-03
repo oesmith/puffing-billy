@@ -46,6 +46,5 @@ module Billy
         end
       end
     end
-
   end
 end
