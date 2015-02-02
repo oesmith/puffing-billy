@@ -45,13 +45,6 @@ describe Billy::ProxyRequestStub do
       expect(stub.matches?('GET', 'http://example.com/foo/bar/')).to be
       expect(stub.matches?('GET', 'http://example.com/foo/bar/?baz=bap')).to_not be
     end
-
-    it 'should match up only to the same request' do
-      stub = Billy::ProxyRequestStub.new('http://example.com/foo/?baz=bap')
-      expect(stub.matches?('GET', 'http://example.com/foo/')).to_not be
-      expect(stub.matches?('GET', 'http://example.com/foo/?baz=bap')).to be
-      expect(stub.matches?('GET', 'http://example.com/foo/bar/?baz=bap')).to_not be
-    end
   end
 
   context '#call (without #and_return)' do
