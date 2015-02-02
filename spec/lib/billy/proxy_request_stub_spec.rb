@@ -34,6 +34,19 @@ describe Billy::ProxyRequestStub do
     end
   end
 
+  context "#matches? (with strip_query_params false in config)" do
+    before do
+      Billy.config.strip_query_params = false
+    end
+
+    it 'should match up to and including query strings' do
+      stub = Billy::ProxyRequestStub.new('http://example.com/foo/bar/')
+      expect(stub.matches?('GET', 'http://example.com/foo/')).to_not be
+      expect(stub.matches?('GET', 'http://example.com/foo/bar/')).to be
+      expect(stub.matches?('GET', 'http://example.com/foo/bar/?baz=bap')).to_not be
+    end
+  end
+
   context '#call (without #and_return)' do
     let(:subject) { Billy::ProxyRequestStub.new('url') }
 
