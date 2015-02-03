@@ -203,7 +203,7 @@ they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
 `c.strip_query_params` is used to strip query parameters when you stub some requests
-with query parameters. Default value is false. For example, `proxy.stub('http://myapi.com/user/?country=FOO')`
+with query parameters. Default value is true. For example, `proxy.stub('http://myapi.com/user/?country=FOO')`
 is considered the same as: `proxy.stub('http://myapi.com/user/?anything=FOO')` and
 generally the same as: `proxy.stub('http://myapi.com/user/')`. When you need to distinguish between all these requests,
 you may set this config value to false.
