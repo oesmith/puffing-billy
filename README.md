@@ -202,6 +202,12 @@ caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
+`c.strip_query_params` is used to strip query parameters when you stub some requests
+with query parameters. Default value is true. For example, `proxy.stub('http://myapi.com/user/?country=FOO')`
+is considered the same as: `proxy.stub('http://myapi.com/user/?anything=FOO')` and
+generally the same as: `proxy.stub('http://myapi.com/user/')`. When you need to distinguish between all these requests,
+you may set this config value to false.
+
 `c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
 callback parameter. For example, if a request to `http://example.com/foo?callback=bar` 
 returns `bar({"some": "json"});` and is recorded, then a later request to
