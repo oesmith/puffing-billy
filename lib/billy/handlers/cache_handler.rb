@@ -7,6 +7,8 @@ module Billy
     extend Forwardable
     include Handler
 
+    attr_reader :cache
+
     def_delegators :cache, :reset, :cached?
 
     def initialize
@@ -29,7 +31,7 @@ module Billy
       nil
     end
 
-    def handles_request?(method, url, headers, body)
+    def handles_request?(method, url, _headers, body)
       cached?(method, url, body)
     end
 
@@ -38,15 +40,11 @@ module Billy
     def replace_response_callback(response, url)
       request_uri = Addressable::URI.parse(url)
       if request_uri.query
-        params = CGI::parse(request_uri.query)
-        if params['callback'].any? and response[:content].match(/\w+\(/)
+        params = CGI.parse(request_uri.query)
+        if params['callback'].any? && response[:content].match(/\w+\(/)
           response[:content].sub!(/\w+\(/, params['callback'].first + '(')
         end
       end
-    end
-
-    def cache
-      @cache
     end
   end
 end

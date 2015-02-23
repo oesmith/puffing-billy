@@ -1,15 +1,15 @@
-Dir[File.expand_path("../support/**/*.rb", __FILE__)].each {|f| require f}
+Dir[File.expand_path('../support/**/*.rb', __FILE__)].each { |f| require f }
 
 require 'pry'
 require 'billy/rspec'
 require 'rack'
 require 'logger'
 
-Capybara.app = Rack::Directory.new(File.expand_path("../../examples", __FILE__))
+Capybara.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
 Capybara.javascript_driver = :poltergeist_billy
 
 Billy.configure do |config|
-  config.logger = Logger.new(File.expand_path("../../log/test.log", __FILE__))
+  config.logger = Logger.new(File.expand_path('../../log/test.log', __FILE__))
 end
 
 RSpec.configure do |config|

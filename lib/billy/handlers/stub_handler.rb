@@ -8,7 +8,7 @@ module Billy
     def handle_request(method, url, headers, body)
       if handles_request?(method, url, headers, body)
         if (stub = find_stub(method, url))
-          query_string = Addressable::URI.parse(url).query || ""
+          query_string = Addressable::URI.parse(url).query || ''
           params = CGI.parse(query_string)
           stub.call(params, headers, body).tap do |response|
             Billy.log(:info, "puffing-billy: STUB #{method} for '#{url}'")
@@ -20,7 +20,7 @@ module Billy
       nil
     end
 
-    def handles_request?(method, url, headers, body)
+    def handles_request?(method, url, _headers, _body)
       !find_stub(method, url).nil?
     end
 

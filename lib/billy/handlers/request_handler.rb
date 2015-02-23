@@ -6,9 +6,9 @@ module Billy
     def_delegators :stub_handler, :stub
 
     def handlers
-      @handlers ||= { :stubs => StubHandler.new,
-                      :cache => CacheHandler.new,
-                      :proxy => ProxyHandler.new }
+      @handlers ||= { stubs: StubHandler.new,
+                      cache: CacheHandler.new,
+                      proxy: ProxyHandler.new }
     end
 
     def handle_request(method, url, headers, body)
@@ -20,7 +20,7 @@ module Billy
       end
 
       body_msg = method == 'post' ? " with body '#{body}'" : ''
-      { :error => "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
+      { error: "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
     end
 
     def handles_request?(method, url, headers, body)
@@ -32,9 +32,7 @@ module Billy
     end
 
     def reset
-      handlers.each_value do |handler|
-        handler.reset
-      end
+      handlers.each_value(&:reset)
     end
 
     def reset_stubs
@@ -46,7 +44,7 @@ module Billy
     end
 
     def restore_cache
-      warn "[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache."
+      warn '[DEPRECATION] `restore_cache` is deprecated as cache files are dynamically checked. Use `reset_cache` if you just want to clear the cache.'
       reset_cache
     end
 

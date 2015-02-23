@@ -17,51 +17,50 @@ module Billy
     def cached?(method, url, body)
       # Only log the key the first time it's looked up (in this method)
       key = key(method, url, body, true)
-      !@cache[key].nil? or persisted?(key)
+      !@cache[key].nil? || persisted?(key)
     end
 
     def persisted?(key)
-      Billy.config.persist_cache and File.exists?(cache_file(key))
+      Billy.config.persist_cache && File.exist?(cache_file(key))
     end
 
     def fetch(method, url, body)
       key = key(method, url, body)
-      @cache[key] or fetch_from_persistence(key)
+      @cache[key] || fetch_from_persistence(key)
     end
 
     def fetch_from_persistence(key)
-      begin
-        @cache[key] = YAML.load(File.open(cache_file(key))) if persisted?(key)
-      rescue ArgumentError => e
-        Billy.log :error, "Could not parse YAML: #{e.message}"
-        nil
-      end
+      @cache[key] = YAML.load(File.open(cache_file(key))) if persisted?(key)
+    rescue ArgumentError => e
+      Billy.log :error, "Could not parse YAML: #{e.message}"
+      nil
     end
 
     def store(method, url, request_headers, body, response_headers, status, content)
       cached = {
-        :scope => scope,
-        :url => format_url(url),
-        :body => body,
-        :status => status,
-        :method => method,
-        :headers => response_headers,
-        :content => content
+        scope: scope,
+        url: format_url(url),
+        body: body,
+        status: status,
+        method: method,
+        headers: response_headers,
+        content: content
       }
 
-      cached.merge!({:request_headers => request_headers}) if Billy.config.cache_request_headers
+      cached.merge!(request_headers: request_headers) if Billy.config.cache_request_headers
 
       key = key(method, url, body)
       @cache[key] = cached
 
       if Billy.config.persist_cache
-        Dir.mkdir(Billy.config.cache_path) unless File.exists?(Billy.config.cache_path)
+        Dir.mkdir(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
 
         begin
           File.open(cache_file(key), 'w') do |f|
-            f.write(cached.to_yaml(:Encoding => :Utf8))
+            f.write(cached.to_yaml(Encoding: :Utf8))
           end
         rescue StandardError => e
+          Billy.log :error, "Error storing cache file: #{e.message}"
         end
       end
     end
@@ -75,33 +74,33 @@ module Billy
       merge_cached_response_key = _merge_cached_response_key(orig_url)
       url = Addressable::URI.parse(format_url(orig_url, ignore_params))
       key = if merge_cached_response_key
-          method+'_'+Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
-        else
-          method+'_'+url.host+'_'+Digest::SHA1.hexdigest(scope.to_s + url.to_s)
-        end
+              method + '_' + Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
+            else
+              method + '_' + url.host + '_' + Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+            end
       body_msg = ''
 
       if method == 'post' && !ignore_params && !merge_cached_response_key
-        body_formatted = JSONUtils::json?(body.to_s) ? JSONUtils::sort_json(body.to_s) : body.to_s
+        body_formatted = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body.to_s) : body.to_s
         body_msg = " with body '#{body_formatted}'"
-        key += '_'+Digest::SHA1.hexdigest(body_formatted)
+        key += '_' + Digest::SHA1.hexdigest(body_formatted)
       end
 
       Billy.log(:info, "puffing-billy: CACHE KEY for '#{orig_url}#{body_msg}' is '#{key}'") if log_key
       key
     end
 
-    def format_url(url, ignore_params=false, dynamic_jsonp=Billy.config.dynamic_jsonp)
+    def format_url(url, ignore_params = false, dynamic_jsonp = Billy.config.dynamic_jsonp)
       url = Addressable::URI.parse(url)
       port_to_include = Billy.config.ignore_cache_port ? '' : ":#{url.port}"
-      formatted_url = url.scheme+'://'+url.host+port_to_include+url.path
+      formatted_url = url.scheme + '://' + url.host + port_to_include + url.path
 
       return formatted_url if ignore_params
 
       if url.query
         query_string = if dynamic_jsonp
                          query_hash = Rack::Utils.parse_query(url.query)
-                         Billy.config.dynamic_jsonp_keys.each{|k| query_hash.delete(k) }
+                         Billy.config.dynamic_jsonp_keys.each { |k| query_hash.delete(k) }
                          Rack::Utils.build_query(query_hash)
                        else
                          url.query
@@ -110,7 +109,7 @@ module Billy
         formatted_url += "?#{query_string}"
       end
 
-      formatted_url += '#'+url.fragment if url.fragment
+      formatted_url += '#' + url.fragment if url.fragment
 
       formatted_url
     end
@@ -124,10 +123,10 @@ module Billy
     end
 
     def with_scope(use_scope = nil, &block)
-      raise ArgumentError, 'Expected a block but none was received.' if block.nil?
+      fail ArgumentError, 'Expected a block but none was received.' if block.nil?
       original_scope = scope
       scope_to use_scope
-      block.call()
+      block.call
     ensure
       scope_to original_scope
     end

@@ -2,7 +2,6 @@ require 'json'
 
 module Billy
   module JSONUtils
-
     def self.json?(value)
       !!JSON.parse(value)
     rescue JSON::ParserError, TypeError
@@ -33,7 +32,7 @@ module Billy
     #   Processing JSON in this way enables a consistent SHA to be derived from
     #   JSON payloads which have the same name/value pairs, but different orders.
     def self.sort_json(json_str)
-      JSONUtils::sort_hash_keys(JSON.parse(json_str, symbolize_names: true)).to_json
+      JSONUtils.sort_hash_keys(JSON.parse(json_str, symbolize_names: true)).to_json
     end
   end
 end

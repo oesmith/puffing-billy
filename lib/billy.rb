@@ -1,15 +1,15 @@
-require "billy/version"
-require "billy/config"
-require "billy/handlers/handler"
-require "billy/handlers/request_handler"
-require "billy/handlers/stub_handler"
-require "billy/handlers/proxy_handler"
-require "billy/handlers/cache_handler"
-require "billy/proxy_request_stub"
-require "billy/cache"
-require "billy/proxy"
-require "billy/proxy_connection"
-require "billy/railtie" if defined?(Rails)
+require 'billy/version'
+require 'billy/config'
+require 'billy/handlers/handler'
+require 'billy/handlers/request_handler'
+require 'billy/handlers/stub_handler'
+require 'billy/handlers/proxy_handler'
+require 'billy/handlers/cache_handler'
+require 'billy/proxy_request_stub'
+require 'billy/cache'
+require 'billy/proxy'
+require 'billy/proxy_connection'
+require 'billy/railtie' if defined?(Rails)
 
 module Billy
   def self.proxy
@@ -44,8 +44,8 @@ module Billy
       Capybara.register_driver :webkit_billy do |app|
         driver = Capybara::Webkit::Driver.new(app)
         driver.browser.ignore_ssl_errors
-        driver.browser.set_proxy(:host => Billy.proxy.host,
-                                 :port => Billy.proxy.port)
+        driver.browser.set_proxy(host: Billy.proxy.host,
+                                 port: Billy.proxy.port)
         driver
       end
     end
@@ -55,9 +55,9 @@ module Billy
         profile = Selenium::WebDriver::Firefox::Profile.new
         profile.assume_untrusted_certificate_issuer = false
         profile.proxy = Selenium::WebDriver::Proxy.new(
-          :http => "#{Billy.proxy.host}:#{Billy.proxy.port}",
-          :ssl => "#{Billy.proxy.host}:#{Billy.proxy.port}")
-        Capybara::Selenium::Driver.new(app, :profile => profile)
+          http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
+          ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
+        Capybara::Selenium::Driver.new(app, profile: profile)
       end
     end
   end

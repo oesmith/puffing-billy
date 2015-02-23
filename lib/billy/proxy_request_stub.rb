@@ -3,10 +3,10 @@ require 'multi_json'
 module Billy
   class ProxyRequestStub
     def initialize(url, options = {})
-      @options = {:method => :get}.merge(options)
+      @options = { method: :get }.merge(options)
       @method = @options[:method].to_s.upcase
       @url = url
-      @response = {code: 204, headers: {}, text: ""}
+      @response = { code: 204, headers: {}, text: '' }
     end
 
     def and_return(response)
@@ -27,10 +27,10 @@ module Billy
       headers['Content-Type'] = res[:content_type] if res[:content_type]
 
       if res[:json]
-        headers = {'Content-Type' => 'application/json'}.merge(headers)
+        headers = { 'Content-Type' => 'application/json' }.merge(headers)
         body = MultiJson.dump(res[:json])
       elsif res[:jsonp]
-        headers = {'Content-Type' => 'application/javascript'}.merge(headers)
+        headers = { 'Content-Type' => 'application/javascript' }.merge(headers)
         if res[:callback]
           callback = res[:callback]
         elsif res[:callback_param]
@@ -40,11 +40,11 @@ module Billy
         end
         body = "#{callback}(#{MultiJson.dump(res[:jsonp])})"
       elsif res[:text]
-        headers = {'Content-Type' => 'text/plain'}.merge(headers)
+        headers = { 'Content-Type' => 'text/plain' }.merge(headers)
         body = res[:text]
       elsif res[:redirect_to]
         code = 302
-        headers = {'Location' => res[:redirect_to]}
+        headers = { 'Location' => res[:redirect_to] }
       else
         body = res[:body]
       end
