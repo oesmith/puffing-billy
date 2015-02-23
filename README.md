@@ -137,6 +137,12 @@ It's good practice to reset the driver after each scenario, so having an
 stubs are reset after each step, so any usage of a stub should be in the 
 same step that it was created in.
 
+## Minitest Usage
+
+Please see [this link](https://gist.github.com/sauy7/1b081266dd453a1b737b) for
+details and report back to [Issue #49](https://github.com/oesmith/puffing-billy/issues/49)
+if you get it fully working.
+
 ## Caching
 
 Requests routed through the external proxy are cached.
@@ -333,7 +339,7 @@ and tell it to ignore SSL certificate warnings. See
 to see how Billy's default drivers are configured.
 
 ## Working with VCR and Webmock
-If you use VCR and Webmock elsewhere in your specs, you will need to disable them
+If you use VCR and Webmock elsewhere in your specs, you may need to disable them
 for your specs utilizing Puffing Billy. To do so, you can configure your `spec_helper.rb`
 as shown below:
 
@@ -346,6 +352,12 @@ RSpec.configure do |config|
   end
 end
 ```
+
+## Resources
+
+[Bring Ruby VCR to Javascript testing with Capybara and puffing-billy](http://architects.dzone.com/articles/bring-ruby-vcr-javascript)
+[Integration Testing Stripe.js With Mocked Network Requests](http://dev.contractual.ly/testing-stripe-js-with-mocked-network/)
+[Clean-up unused cache files periodically with this config](https://github.com/oesmith/puffing-billy/pull/26#issuecomment-29905030)
 
 ## FAQ
 
