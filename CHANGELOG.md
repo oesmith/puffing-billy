@@ -1,3 +1,10 @@
+v0.5.0, 2015-02-22
+------------------
+
+  * Rubocop code cleanup (#89)
+  * Create option for strip query params in request stub (#93)
+  * Require compatible version of em-http-request (#94)
+
 v0.4.1, 2015-01-02
 ------------------
 
