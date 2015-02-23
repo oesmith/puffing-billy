@@ -355,9 +355,9 @@ end
 
 ## Resources
 
-[Bring Ruby VCR to Javascript testing with Capybara and puffing-billy](http://architects.dzone.com/articles/bring-ruby-vcr-javascript)
-[Integration Testing Stripe.js With Mocked Network Requests](http://dev.contractual.ly/testing-stripe-js-with-mocked-network/)
-[Clean-up unused cache files periodically with this config](https://github.com/oesmith/puffing-billy/pull/26#issuecomment-29905030)
+* [Bring Ruby VCR to Javascript testing with Capybara and puffing-billy](http://architects.dzone.com/articles/bring-ruby-vcr-javascript)
+* [Integration Testing Stripe.js With Mocked Network Requests](http://dev.contractual.ly/testing-stripe-js-with-mocked-network/)
+* [Clean-up unused cache files periodically with this config](https://github.com/oesmith/puffing-billy/pull/26#issuecomment-29905030)
 
 ## FAQ
 
