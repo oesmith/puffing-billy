@@ -52,7 +52,8 @@ In your `spec_helper.rb`:
 require 'billy/rspec'
 
 # select a driver for your chosen browser environment
-Capybara.javascript_driver = :selenium_billy
+Capybara.javascript_driver = :selenium_billy # Uses Firefox
+# Capybara.javascript_driver = :selenium_chrome_billy
 # Capybara.javascript_driver = :webkit_billy
 # Capybara.javascript_driver = :poltergeist_billy
 ```

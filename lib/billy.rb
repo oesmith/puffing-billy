@@ -59,6 +59,16 @@ module Billy
           ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
         Capybara::Selenium::Driver.new(app, profile: profile)
       end
+
+      Capybara.register_driver :selenium_chrome_billy do |app|
+        Capybara::Selenium::Driver.new(
+          app,
+          :browser => :chrome,
+          :switches => [
+            "--proxy-server '#{Billy.proxy.host}:#{Billy.proxy.port}'"
+          ]
+        )
+      end
     end
   end
 end
