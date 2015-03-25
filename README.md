@@ -46,7 +46,7 @@ Or install it yourself as:
 
 ## RSpec Usage
 
-In your `spec_helper.rb`:
+In your `rails_helper.rb`:
 
 ```ruby
 require 'billy/rspec'
@@ -151,7 +151,7 @@ By default, all requests to localhost or 127.0.0.1 will not be cached. If
 you're running your test server with a different hostname, you'll need to
 add that host to puffing-billy's whitelist.
 
-In your `spec_helper.rb`:
+In your `rails_helper.rb`:
 
 ```ruby
 Billy.configure do |c|
@@ -162,7 +162,7 @@ end
 If you would like to cache other local rack apps, you must whitelist only the
 specific port for the application that is executing tests.  If you are using
 [Capybara](https://github.com/jnicklas/capybara), this can be accomplished by
-adding this in your `spec_helper.rb`:
+adding this in your `rails_helper.rb`:
 
 ```ruby
 server = Capybara.current_session.server
@@ -278,7 +278,7 @@ context 'with a cache scope' do
   end
 
   # Remember to set the cache scope back to the default in an after block
-  # within the context it is used, and/or at the global spec_helper level!
+  # within the context it is used, and/or at the global rails_helper level!
   after do
     proxy.cache.use_default_scope
   end
@@ -340,7 +340,7 @@ to see how Billy's default drivers are configured.
 
 ## Working with VCR and Webmock
 If you use VCR and Webmock elsewhere in your specs, you may need to disable them
-for your specs utilizing Puffing Billy. To do so, you can configure your `spec_helper.rb`
+for your specs utilizing Puffing Billy. To do so, you can configure your `rails_helper.rb`
 as shown below:
 
 ```ruby
