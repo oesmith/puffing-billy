@@ -16,7 +16,7 @@ module Billy
     def start(threaded = true)
       if threaded
         Thread.new { main_loop }
-        sleep(0.01) while @signature.nil?
+        sleep(0.01) while (not defined?(@signature)) or @signature.nil?
       else
         main_loop
       end
