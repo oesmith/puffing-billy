@@ -72,11 +72,26 @@ module Billy
       ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
       merge_cached_response_key = _merge_cached_response_key(orig_url)
       url = Addressable::URI.parse(format_url(orig_url, ignore_params))
-      key = if merge_cached_response_key
-              method + '_' + Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
-            else
-              method + '_' + url.host + '_' + Digest::SHA1.hexdigest(scope.to_s + url.to_s)
-            end
+
+      key_pattern = Billy.config.key_pattern.select do |v|
+        Billy::Config::DEFAULT_KEY_PATTERN.include?(v)
+      end
+
+      key_base = key_pattern.each_with_object([]) do |v, base|
+        base << case v
+                when :method then method
+                when :host then url.host
+                when :scope then scope.to_s unless scope.to_s.empty?
+                end
+      end.compact
+
+      key = key_base.join('_') + '_' +
+        if merge_cached_response_key
+          Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
+        else
+          Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+        end
+
       body_msg = ''
 
       if Billy.config.cache_request_body_methods.include?(method) && !ignore_params && !merge_cached_response_key
