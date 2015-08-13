@@ -8,7 +8,7 @@ module Billy
 
     attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :path_blacklist, :ignore_params,
                   :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
-                  :non_whitelisted_requests_disabled, :cache_path, :proxy_port, :proxied_request_inactivity_timeout,
+                  :non_whitelisted_requests_disabled, :cache_path, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
                   :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys, :merge_cached_responses_whitelist,
                   :strip_query_params
 
@@ -32,6 +32,7 @@ module Billy
       @non_successful_error_level = :warn
       @non_whitelisted_requests_disabled = false
       @cache_path = File.join(Dir.tmpdir, 'puffing-billy')
+      @proxy_host = 'localhost'
       @proxy_port = RANDOM_AVAILABLE_PORT
       @proxied_request_inactivity_timeout = 10 # defaults from https://github.com/igrigorik/em-http-request/wiki/Redirects-and-Timeouts
       @proxied_request_connect_timeout = 5

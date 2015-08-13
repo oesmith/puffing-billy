@@ -133,9 +133,9 @@ And /^a stub for google$/ do
 end
 ```
 
-It's good practice to reset the driver after each scenario, so having an 
-`@billy` tag switches the drivers on for a given scenario. Also note that 
-stubs are reset after each step, so any usage of a stub should be in the 
+It's good practice to reset the driver after each scenario, so having an
+`@billy` tag switches the drivers on for a given scenario. Also note that
+stubs are reset after each step, so any usage of a stub should be in the
 same step that it was created in.
 
 ## Minitest Usage
@@ -194,6 +194,8 @@ Billy.configure do |c|
   c.non_successful_error_level = :warn
   c.non_whitelisted_requests_disabled = false
   c.cache_path = 'spec/req_cache/'
+  c.proxy_host = 'example.com' # defaults to localhost
+  c.proxy_port = 12345 # defaults to random
 end
 ```
 
@@ -216,10 +218,10 @@ generally the same as: `proxy.stub('http://myapi.com/user/')`. When you need to 
 you may set this config value to false.
 
 `c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
-callback parameter. For example, if a request to `http://example.com/foo?callback=bar` 
+callback parameter. For example, if a request to `http://example.com/foo?callback=bar`
 returns `bar({"some": "json"});` and is recorded, then a later request to
 `http://example.com/foo?callback=baz` will be a cache hit and respond with
-`baz({"some": "json"});` This is useful because most JSONP implementations 
+`baz({"some": "json"});` This is useful because most JSONP implementations
 base the callback name off of a timestamp or something else dynamic.
 
 `c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
@@ -294,7 +296,7 @@ context 'with a cache scope' do
   end
 
   # Or you can run a block within the context of a cache scope:
-  # Note: When using scope blocks, be sure that both the action that triggers a 
+  # Note: When using scope blocks, be sure that both the action that triggers a
   #       request and the assertion that a response has been received are within the block
   it 'can execute a block against a named cache' do
     expect(proxy.cache.scope).to eq("my_cache")
