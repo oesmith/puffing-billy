@@ -74,7 +74,7 @@ module Billy
       url = Addressable::URI.parse(format_url(orig_url, ignore_params))
 
       key_pattern = Billy.config.key_pattern.select do |v|
-        Billy::Config::DEFAULT_KEY_PATTERN.include?(v)
+        Billy::Config::KEY_PATTERN_WHITELIST.include?(v)
       end
 
       key_base = key_pattern.each_with_object([]) do |v, base|
@@ -82,6 +82,7 @@ module Billy
                 when :method then method
                 when :host then url.host
                 when :scope then scope.to_s unless scope.to_s.empty?
+                else v.to_s unless v.to_s.empty?
                 end
       end.compact
 
