@@ -10,7 +10,7 @@ module Billy
                   :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
                   :non_whitelisted_requests_disabled, :cache_path, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
                   :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys, :merge_cached_responses_whitelist,
-                  :strip_query_params
+                  :strip_query_params, :proxied_request_host, :proxied_request_port
 
     def initialize
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
@@ -37,6 +37,8 @@ module Billy
       @proxied_request_inactivity_timeout = 10 # defaults from https://github.com/igrigorik/em-http-request/wiki/Redirects-and-Timeouts
       @proxied_request_connect_timeout = 5
       @strip_query_params = true
+      @proxied_request_host = nil
+      @proxied_request_port = 80
     end
   end
 

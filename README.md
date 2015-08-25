@@ -196,6 +196,8 @@ Billy.configure do |c|
   c.cache_path = 'spec/req_cache/'
   c.proxy_host = 'example.com' # defaults to localhost
   c.proxy_port = 12345 # defaults to random
+  c.proxied_request_host = nil
+  c.proxied_request_port = 80
 end
 ```
 
@@ -257,6 +259,11 @@ no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
 allowed, all others will throw an error with the URL attempted to be accessed.
 This is useful for debugging issues in isolated environments (ie.
 continuous integration).
+
+`c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
+
+`c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
+server is required to access the internet.  Most common in larger companies.
 
 ### Cache Scopes
 

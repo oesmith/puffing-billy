@@ -13,10 +13,15 @@ module Billy
 
     def handle_request(method, url, headers, body)
       if handles_request?(method, url, headers, body)
-        req = EventMachine::HttpRequest.new(url,
-                                            inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
-                                            connect_timeout: Billy.config.proxied_request_connect_timeout)
+        opts = { inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
+                 connect_timeout:    Billy.config.proxied_request_connect_timeout }
 
+        if Billy.config.proxied_request_host && !bypass_internal_proxy?(url)
+          opts.merge!({ proxy: { host: Billy.config.proxied_request_host,
+                                 port: Billy.config.proxied_request_port }} )
+        end
+
+        req = EventMachine::HttpRequest.new(url, opts)
         req = req.send(method.downcase, build_request_options(headers, body))
 
         if req.error
@@ -108,6 +113,10 @@ module Billy
 
     def cacheable_status?(status)
       Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
+    end
+
+    def bypass_internal_proxy?(url)
+      url.include?('localhost') || url.include?('127.') || url.include?('.dev') || url.include?('.fin')
     end
   end
 end
