@@ -50,6 +50,27 @@ describe Billy::ProxyHandler do
                                             request[:body])).to be false
           end
         end
+
+        context 'as a regex' do
+          before do
+            expect(Billy.config).to receive(:whitelist) { [%r{example\.test\/a}] }
+          end
+
+          it 'handles requests for the host without a port' do
+            expect(subject.handles_request?(request[:method],
+                                            'http://example.test/a',
+                                            request[:headers],
+                                            request[:body])).to be_true
+          end
+
+          it 'handles requests for the host with a port' do
+            expect(subject.handles_request?(request[:method],
+                                            'http://example.test:8080/a',
+                                            request[:headers],
+                                            request[:body])).to be_true
+          end
+        end
+
         context 'without a port' do
           before do
             expect(Billy.config).to receive(:whitelist) { ['example.test'] }
