@@ -16,7 +16,7 @@ module Billy
     def start(threaded = true)
       if threaded
         Thread.new { main_loop }
-        sleep(0.01) while @signature.nil?
+        sleep(0.01) while (not defined?(@signature)) || @signature.nil?
       else
         main_loop
       end
@@ -49,7 +49,7 @@ module Billy
 
         @signature = EM.start_server('127.0.0.1', Billy.config.proxy_port, ProxyConnection) do |p|
           p.handler = request_handler
-          p.cache = @cache
+          p.cache = @cache if defined?(@cache)
         end
 
         Billy.log(:info, "puffing-billy: Proxy listening on #{url}")
