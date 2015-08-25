@@ -364,17 +364,17 @@ end
 ```
 
 As an alternative if you're using VCR, you can ignore requests coming from the browser.
-One way of doing that is by adding to your `rails_helper.rb` the excerpt bellow:
+One way of doing that is by adding to your `rails_helper.rb` the excerpt below:
 
 ```ruby
 VCR.configure do |config|
   config.ignore_request do |request|
-    request.headers.include?("Referer")
+    request.headers.include?('Referer')
   end
 end
 ```
 
-Note that this approach may cause unexpectations if your backend sends the Refer HTTP header (which is unlikely).
+Note that this approach may cause unexpected behavior if your backend sends the Referer HTTP header (which is unlikely).
 
 
 ## Resources
