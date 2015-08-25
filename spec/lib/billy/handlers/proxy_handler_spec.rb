@@ -60,14 +60,14 @@ describe Billy::ProxyHandler do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test/a',
                                             request[:headers],
-                                            request[:body])).to be_true
+                                            request[:body])).to be true
           end
 
           it 'handles requests for the host with a port' do
             expect(subject.handles_request?(request[:method],
                                             'http://example.test:8080/a',
                                             request[:headers],
-                                            request[:body])).to be_true
+                                            request[:body])).to be true
           end
         end
 
