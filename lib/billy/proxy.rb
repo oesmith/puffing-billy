@@ -27,7 +27,7 @@ module Billy
     end
 
     def host
-      'localhost'
+      Billy.config.proxy_host
     end
 
     def port
