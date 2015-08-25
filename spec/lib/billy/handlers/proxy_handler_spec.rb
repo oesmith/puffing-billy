@@ -5,7 +5,7 @@ describe Billy::ProxyHandler do
   let(:request) do
     {
       method:   'post',
-      url:      'http://example.test:8080/index?some=param',
+      url:      'http://usern:pw@example.test:8080/index?some=param',
       headers:  { 'Accept-Encoding'  => 'gzip',
                   'Cache-Control'    => 'no-cache' },
       body:     'Some body'
@@ -205,6 +205,22 @@ describe Billy::ProxyHandler do
                                request[:headers],
                                request[:body])
       end
+    end
+  end
+
+  describe '#build_request_options' do
+    it 'creates authorization header when URL has basic auth' do
+      request_options = subject.send(:build_request_options, request[:url],
+                                                             request[:headers],
+                                                             request[:body])
+      expect(request_options[:head]).to have_key 'authorization'
+    end
+
+    it 'does not include authorization header without basic auth' do
+      request_options = subject.send(:build_request_options, request[:url].gsub('usern:pw@',''),
+                                                             request[:headers],
+                                                             request[:body])
+      expect(request_options[:head]).not_to have_key 'authorization'
     end
   end
 end
