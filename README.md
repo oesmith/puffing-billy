@@ -250,7 +250,7 @@ that are running on random ports.
 or 304 status codes.  This prevents unauthorized or internal server errors from
 being cached and used for future test runs.
 
-`c.non_successful_error_level` is used to log when non-successful resposnes are
+`c.non_successful_error_level` is used to log when non-successful responses are
 received.  By default, it just writes to the log file, but when set to `:error`
 it throws an error with the URL and status code received for easier debugging.
 
