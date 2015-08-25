@@ -16,7 +16,7 @@ module Billy
         opts = { inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
                  connect_timeout:    Billy.config.proxied_request_connect_timeout }
 
-        if Billy.config.proxied_request_host && !(url.include?('localhost') || url.include?('127.') || url.include?('.dev') || url.include?('.fin'))
+        if Billy.config.proxied_request_host && !bypass_internal_proxy?(url)
           opts.merge!({ proxy: { host: Billy.config.proxied_request_host,
                                  port: Billy.config.proxied_request_port }} )
         end
@@ -113,6 +113,10 @@ module Billy
 
     def cacheable_status?(status)
       Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
+    end
+
+    def bypass_internal_proxy?(url)
+      url.include?('localhost') || url.include?('127.') || url.include?('.dev') || url.include?('.fin')
     end
   end
 end
