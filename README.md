@@ -133,9 +133,9 @@ And /^a stub for google$/ do
 end
 ```
 
-It's good practice to reset the driver after each scenario, so having an 
-`@billy` tag switches the drivers on for a given scenario. Also note that 
-stubs are reset after each step, so any usage of a stub should be in the 
+It's good practice to reset the driver after each scenario, so having an
+`@billy` tag switches the drivers on for a given scenario. Also note that
+stubs are reset after each step, so any usage of a stub should be in the
 same step that it was created in.
 
 ## Minitest Usage
@@ -194,6 +194,10 @@ Billy.configure do |c|
   c.non_successful_error_level = :warn
   c.non_whitelisted_requests_disabled = false
   c.cache_path = 'spec/req_cache/'
+  c.proxy_host = 'example.com' # defaults to localhost
+  c.proxy_port = 12345 # defaults to random
+  c.proxied_request_host = nil
+  c.proxied_request_port = 80
 end
 ```
 
@@ -216,10 +220,10 @@ generally the same as: `proxy.stub('http://myapi.com/user/')`. When you need to 
 you may set this config value to false.
 
 `c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
-callback parameter. For example, if a request to `http://example.com/foo?callback=bar` 
+callback parameter. For example, if a request to `http://example.com/foo?callback=bar`
 returns `bar({"some": "json"});` and is recorded, then a later request to
 `http://example.com/foo?callback=baz` will be a cache hit and respond with
-`baz({"some": "json"});` This is useful because most JSONP implementations 
+`baz({"some": "json"});` This is useful because most JSONP implementations
 base the callback name off of a timestamp or something else dynamic.
 
 `c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
@@ -246,7 +250,7 @@ that are running on random ports.
 or 304 status codes.  This prevents unauthorized or internal server errors from
 being cached and used for future test runs.
 
-`c.non_successful_error_level` is used to log when non-successful resposnes are
+`c.non_successful_error_level` is used to log when non-successful responses are
 received.  By default, it just writes to the log file, but when set to `:error`
 it throws an error with the URL and status code received for easier debugging.
 
@@ -255,6 +259,11 @@ no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
 allowed, all others will throw an error with the URL attempted to be accessed.
 This is useful for debugging issues in isolated environments (ie.
 continuous integration).
+
+`c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
+
+`c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
+server is required to access the internet.  Most common in larger companies.
 
 ### Cache Scopes
 
@@ -294,7 +303,7 @@ context 'with a cache scope' do
   end
 
   # Or you can run a block within the context of a cache scope:
-  # Note: When using scope blocks, be sure that both the action that triggers a 
+  # Note: When using scope blocks, be sure that both the action that triggers a
   #       request and the assertion that a response has been received are within the block
   it 'can execute a block against a named cache' do
     expect(proxy.cache.scope).to eq("my_cache")
@@ -353,6 +362,20 @@ RSpec.configure do |config|
   end
 end
 ```
+
+As an alternative if you're using VCR, you can ignore requests coming from the browser.
+One way of doing that is by adding to your `rails_helper.rb` the excerpt below:
+
+```ruby
+VCR.configure do |config|
+  config.ignore_request do |request|
+    request.headers.include?('Referer')
+  end
+end
+```
+
+Note that this approach may cause unexpected behavior if your backend sends the Referer HTTP header (which is unlikely).
+
 
 ## Resources
 

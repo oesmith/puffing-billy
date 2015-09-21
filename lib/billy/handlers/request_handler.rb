@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module Billy
   class RequestHandler
     extend Forwardable

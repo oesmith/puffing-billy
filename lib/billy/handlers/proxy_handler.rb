@@ -13,11 +13,16 @@ module Billy
 
     def handle_request(method, url, headers, body)
       if handles_request?(method, url, headers, body)
-        req = EventMachine::HttpRequest.new(url,
-                                            inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
-                                            connect_timeout: Billy.config.proxied_request_connect_timeout)
+        opts = { inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
+                 connect_timeout:    Billy.config.proxied_request_connect_timeout }
 
-        req = req.send(method.downcase, build_request_options(headers, body))
+        if Billy.config.proxied_request_host && !bypass_internal_proxy?(url)
+          opts.merge!({ proxy: { host: Billy.config.proxied_request_host,
+                                 port: Billy.config.proxied_request_port }} )
+        end
+
+        req = EventMachine::HttpRequest.new(url, opts)
+        req = req.send(method.downcase, build_request_options(url, headers, body))
 
         if req.error
           return { error: "Request to #{url} failed with error: #{req.error}" }
@@ -45,11 +50,14 @@ module Billy
       nil
     end
 
-    private
+  private
 
-    def build_request_options(headers, body)
+    def build_request_options(url, headers, body)
       headers = Hash[headers.map { |k, v| [k.downcase, v] }]
       headers.delete('accept-encoding')
+
+      uri = Addressable::URI.parse(url)
+      headers.merge!({'authorization' => [uri.user, uri.password]}) if uri.userinfo
 
       req_opts = {
         redirects: 0,
@@ -93,9 +101,13 @@ module Billy
     end
 
     def whitelisted_url?(url)
-      !Billy.config.whitelist.index do |v|
-        v =~ /^#{url.host}(?::#{url.port})?$/
-      end.nil?
+      Billy.config.whitelist.any? do |value|
+        if value.is_a?(Regexp)
+          url.to_s =~ value || url.omit(:port).to_s =~ value
+        else
+          value =~ /^#{url.host}(?::#{url.port})?$/
+        end
+      end
     end
 
     def blacklisted_path?(path)
@@ -108,6 +120,10 @@ module Billy
 
     def cacheable_status?(status)
       Billy.config.non_successful_cache_disabled ? successful_status?(status) : true
+    end
+
+    def bypass_internal_proxy?(url)
+      url.include?('localhost') || url.include?('127.') || url.include?('.dev') || url.include?('.fin')
     end
   end
 end

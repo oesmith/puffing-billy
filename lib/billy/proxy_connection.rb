@@ -37,7 +37,7 @@ module Billy
       if @parser.http_method == 'CONNECT'
         restart_with_ssl(@parser.request_url)
       else
-        if @ssl
+        if defined?(@ssl) && @ssl
           uri = Addressable::URI.parse(@parser.request_url)
           @url = "https://#{@ssl}#{[uri.path, uri.query].compact.join('?')}"
         else
