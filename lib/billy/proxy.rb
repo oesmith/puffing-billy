@@ -50,6 +50,9 @@ module Billy
         @signature = EM.start_server('127.0.0.1', Billy.config.proxy_port, ProxyConnection) do |p|
           p.handler = request_handler
           p.cache = @cache
+          p.errback do |msg|
+            Billy.log :error, msg
+          end
         end
 
         Billy.log(:info, "puffing-billy: Proxy listening on #{url}")
