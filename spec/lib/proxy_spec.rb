@@ -230,17 +230,6 @@ shared_examples_for 'a cache' do
         end
 
         it 'should raise error for non-successful responses when :error' do
-          # When this config setting is set, the EventMachine running the test servers is killed upon error raising
-          # The `raise` is required to bubble up the error to the test running it
-          # The Faraday error is raised upon `close_connection` so this can be non-pending if we can do one of the following:
-          # 1) Remove the `raise error_message` conditionally for this test
-          # 2) Restart the test servers if they aren't running
-          # 3) Change the test servers to start/stop for each test instead of before all
-          # 4) Remove the test server completely and rely on the server instantiated by the app
-          pending 'Unable to test this without affecting the running test servers'
-          # If the 'pending' continues to execute the spec, 'skip' it to avoid EM errors.
-          # If 'pending' stops the test, 'skip' isn't defined but it won't hit this line.
-          skip 'Unable to test this without affecting the running test servers'
           expect { http_error.get('/foo') }.to raise_error(Faraday::Error::ConnectionFailed)
         end
       end
