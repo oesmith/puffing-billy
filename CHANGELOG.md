@@ -1,10 +1,10 @@
 v0.6.1, 2015-08-25
 ------------------
 
-  * Fix `instance variable not initialized` warnings (#107)
-  * Add regex support to whitelist (#111)
-  * Support basic auth in requests (#121)
-  * Added alternative to run VCR in parallel (#122)
+  * Fix `instance variable not initialized` warnings [#107](https://github.com/oesmith/puffing-billy/pull/107)
+  * Add regex support to whitelist [#111](https://github.com/oesmith/puffing-billy/pull/111)
+  * Support basic auth in requests [#121](https://github.com/oesmith/puffing-billy/pull/121)
+  * Added alternative to run VCR in parallel [#122](https://github.com/oesmith/puffing-billy/pull/122)
 
 v0.6.0, 2015-08-25
 ------------------
