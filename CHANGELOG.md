@@ -9,7 +9,7 @@ v0.6.1, 2015-08-25
 v0.6.0, 2015-08-25
 ------------------
 
-  * Fix uninitalized constant error in Minitest (#109)
+  * Fix uninitialized constant error in Minitest (#109)
   * Add support for customizing Billy proxy host (#112)
   * Add support for internal proxies (#118)
 
