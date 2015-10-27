@@ -46,7 +46,7 @@ module Billy
           :ignore_ssl_errors => false,
           :proxy => {:host => Billy.proxy.host, :port => Billy.proxy.port}
         }
-        Capybara::Webkit::Driver.new(app, options)
+        Capybara::Webkit::Driver.new(app, Capybara::Webkit::Configuration.to_hash.merge(options))
       end
     end
 
