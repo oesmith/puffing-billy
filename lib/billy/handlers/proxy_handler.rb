@@ -33,7 +33,7 @@ module Billy
 
           unless allowed_response_code?(response[:status])
             if Billy.config.non_successful_error_level == :error
-              return { error: "Request failed due to response status #{response[:status]} for '#{url}' which was not allowed." }
+              return { error: "#{method} Request failed due to response status #{response[:status]} for '#{url}' which was not allowed." }
             else
               Billy.log(:warn, "puffing-billy: Received response status code #{response[:status]} for '#{url}'")
             end
