@@ -7,6 +7,8 @@ require 'em-synchrony'
 
 module Billy
   class ProxyConnection < EventMachine::Connection
+    include EventMachine::Deferrable
+
     attr_accessor :handler
     attr_accessor :cache
 
