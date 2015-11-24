@@ -1,3 +1,11 @@
+v0.6.2, 2015-11-23
+------------------
+
+  * Enhanced error output for proxy handling [#125](https://github.com/oesmith/puffing-billy/pull/125)
+  * Use options to create webkit driver [#129](https://github.com/oesmith/puffing-billy/pull/129)
+  * Billy config and Capybara::Webkit config compatibility [#130](https://github.com/oesmith/puffing-billy/pull/130)
+  * Output the request method when proxy returns an error [#134](https://github.com/oesmith/puffing-billy/pull/134)
+
 v0.6.1, 2015-08-25
 ------------------
 
