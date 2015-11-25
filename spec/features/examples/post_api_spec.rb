@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'jQuery POST API example', type: :feature, js: true do
   before do
-    proxy.stub('http://example.com/api').and_return(
+    proxy.stub('http://example.com/api', method: 'post').and_return(
       headers: { 'Access-Control-Allow-Origin' => '*' },
       code: 201
     )
