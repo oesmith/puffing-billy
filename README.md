@@ -92,6 +92,12 @@ proxy.stub('https://example.com:443/secure/').and_return(:text => 'secrets!!1!')
 proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, body|
   { :text => "Hello, #{params['name'][0]}"}
 })
+
+# Stub out a POST. Don't forget to allow a CORS request and set the method to 'post'
+proxy.stub('http://example.com/api', :method => 'post').and_return(
+  :headers => { 'Access-Control-Allow-Origin' => '*' },
+  :code => 201
+)
 ```
 
 Stubs are reset between tests.  Any requests that are not stubbed will be
@@ -401,4 +407,3 @@ Note that this approach may cause unexpected behavior if your backend sends the 
 
 1. Integration for test frameworks other than rspec.
 2. Show errors from the EventMachine reactor loop in the test output.
-
