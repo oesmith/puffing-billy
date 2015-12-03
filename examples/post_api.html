@@ -1,0 +1,16 @@
+<!doctype html>
+<body>
+  <h1>POST to API</h1>
+  <div id="result"></div>
+  <script type='text/javascript' src='http://code.jquery.com/jquery-1.8.2.min.js'></script>
+  <script type='text/javascript'>
+  $(function () {
+    $.post('http://example.com/api', { foo: 'bar' }).done(function(data) {
+      $('#result').append('Success!');
+    })
+    .fail(function(data) {
+      $('#result').append('Fail!');
+    });
+  })
+  </script>
+</body>
