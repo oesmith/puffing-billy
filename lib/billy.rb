@@ -43,7 +43,7 @@ module Billy
     if defined?(Capybara::Webkit::Driver)
       Capybara.register_driver :webkit_billy do |app|
         options = {
-          ignore_ssl_errors: false,
+          ignore_ssl_errors: true,
           proxy: {host: Billy.proxy.host, port: Billy.proxy.port}
         }
         Capybara::Webkit::Driver.new(app, Capybara::Webkit::Configuration.to_hash.merge(options))
