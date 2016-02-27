@@ -22,6 +22,10 @@ shared_examples_for 'a proxy server' do
   it 'should proxy DELETE requests' do
     expect(http.delete('/echo').body).to eql 'DELETE /echo'
   end
+
+  it 'should proxy OPTIONS requests' do
+    expect(http.run_request(:options, '/echo', nil, nil).body).to eql 'OPTIONS /echo'
+  end
 end
 
 shared_examples_for 'a request stub' do
@@ -59,6 +63,12 @@ shared_examples_for 'a request stub' do
     proxy.stub("#{url}/bam", method: :delete)
       .and_return(text: 'hello, DELETE!')
     expect(http.delete('/bam').body).to eql 'hello, DELETE!'
+  end
+
+  it 'should stub OPTIONS requests' do
+    proxy.stub("#{url}/bim", method: :options)
+      .and_return(text: 'hello, OPTIONS!')
+    expect(http.run_request(:options, '/bim', nil, nil).body).to eql 'hello, OPTIONS!'
   end
 end
 
