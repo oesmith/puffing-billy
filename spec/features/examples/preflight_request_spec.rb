@@ -11,6 +11,9 @@ describe 'jQuery preflight request example', type: :feature, js: true do
   end
 
   it 'stubs out the OPTIONS request' do
+    visit '/preflight_request.html'
+    expect(page.find('#result')).to have_content 'Fail!'
+
     proxy.stub(url, method: 'options').and_return(
       headers: {
         'Access-Control-Allow-Methods' => 'GET, OPTIONS',
