@@ -98,6 +98,16 @@ proxy.stub('http://example.com/api', :method => 'post').and_return(
   :headers => { 'Access-Control-Allow-Origin' => '*' },
   :code => 201
 )
+
+# Stub out an OPTIONS request. Set the headers to the values you require.
+proxy.stub(url, :method => :options).and_return(
+  :headers => {
+    'Access-Control-Allow-Methods' => 'GET, PATCH, POST, PUT, OPTIONS',
+    'Access-Control-Allow-Headers' => 'X-Requested-With, X-Prototype-Version, Content-Type',
+    'Access-Control-Allow-Origin'  => '*'
+  },
+  :code => 200
+)
 ```
 
 Stubs are reset between tests.  Any requests that are not stubbed will be
