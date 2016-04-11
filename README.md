@@ -100,7 +100,7 @@ proxy.stub('http://example.com/api', :method => 'post').and_return(
 )
 
 # Stub out an OPTIONS request. Set the headers to the values you require.
-proxy.stub(url, :method => :options).and_return(
+proxy.stub('http://example.com/api', :method => :options).and_return(
   :headers => {
     'Access-Control-Allow-Methods' => 'GET, PATCH, POST, PUT, OPTIONS',
     'Access-Control-Allow-Headers' => 'X-Requested-With, X-Prototype-Version, Content-Type',
