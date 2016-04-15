@@ -80,7 +80,7 @@ module Billy
             end
       body_msg = ''
 
-      if method == 'post' && !ignore_params && !merge_cached_response_key
+      if Billy.config.cache_request_body_methods.include?(method) && !ignore_params && !merge_cached_response_key
         body_formatted = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body.to_s) : body.to_s
         body_msg = " with body '#{body_formatted}'"
         key += '_' + Digest::SHA1.hexdigest(body_formatted)

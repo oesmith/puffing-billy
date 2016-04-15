@@ -97,8 +97,8 @@ describe Billy::RequestHandler do
         expect(subject.handle_request(*args)).to eql(error: 'Connection to url not cached and new http connections are disabled')
       end
 
-      it 'returns an error hash with body message if POST request is not handled' do
-        args[0] = 'post'
+      it 'returns an error hash with body message if request cached based on body is not handled' do
+        args[0] = Billy.config.cache_request_body_methods[0]
         expect(stub_handler).to receive(:handle_request).with(*args)
         expect(cache_handler).to receive(:handle_request).with(*args)
         expect(proxy_handler).to receive(:handle_request).with(*args)

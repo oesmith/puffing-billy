@@ -86,5 +86,33 @@ describe Billy::Cache do
         expect(cache.key('post', analytics_url2, 'body')).to eq identical_cache_key
       end
     end
+
+    context 'with cache_request_body_methods set' do
+      before do
+        allow(Billy.config).to receive(:cache_request_body_methods) {
+          ['patch']
+        }
+      end
+
+      context "for requests with methods specified in cache_request_body_methods" do
+        it "should have a different cache key for requests with different bodies" do
+          key1 = cache.key('patch', "http://example.com", "body1")
+          key2 = cache.key('patch', "http://example.com", "body2")
+          expect(key1).not_to eq key2
+        end
+
+        it "should have the same cache key for requests with the same bodies" do
+          key1 = cache.key('patch', "http://example.com", "body1")
+          key2 = cache.key('patch', "http://example.com", "body1")
+          expect(key1).to eq key2
+        end
+      end
+
+      it "should have the same cache key for request with different bodies if their methods are not included in cache_request_body_methods" do
+          key1 = cache.key('put', "http://example.com", "body1")
+          key2 = cache.key('put', "http://example.com", "body2")
+          expect(key1).to eq key2
+      end
+    end
   end
 end

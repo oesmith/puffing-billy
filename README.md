@@ -204,6 +204,7 @@ Billy.configure do |c|
   c.proxy_port = 12345 # defaults to random
   c.proxied_request_host = nil
   c.proxied_request_port = 80
+  c.cache_request_body_methods = ['post', 'patch', 'put'] # defaults to ['post']
 end
 ```
 
@@ -270,6 +271,8 @@ continuous integration).
 
 `c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
 server is required to access the internet.  Most common in larger companies.
+
+`c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
 
 ### Cache Scopes
 
