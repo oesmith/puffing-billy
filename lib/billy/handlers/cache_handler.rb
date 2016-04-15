@@ -25,6 +25,11 @@ module Billy
             replace_response_callback(response, url)
           end
 
+          if Billy.config.after_cache_handles_request
+            request = { method: method, url: url, headers: headers, body: body }
+            Billy.config.after_cache_handles_request.call(request, response)
+          end
+
           return response
         end
       end
