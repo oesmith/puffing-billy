@@ -1,3 +1,10 @@
+v0.7.0, 2016-05-05
+------------------
+  * Change WebKit driver to ignore SSL errors [#140](https://github.com/oesmith/puffing-billy/pull/140)
+  * Add documentation and specs for stubbing out options requests [#141](https://github.com/oesmith/puffing-billy/pull/141)
+  * Support distinguishing non-POST requests in cache based on request body [#148](https://github.com/oesmith/puffing-billy/pull/148)
+  * Allow Puffing Billy to run with custom host [#150](https://github.com/oesmith/puffing-billy/pull/150)
+
 v0.6.2, 2015-11-23
 ------------------
 
