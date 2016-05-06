@@ -21,7 +21,7 @@ module Billy
         end
       end
 
-      body_msg = method == 'post' ? " with body '#{body}'" : ''
+      body_msg = Billy.config.cache_request_body_methods.include?(method) ? " with body '#{body}'" : ''
       { error: "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
     end
 
