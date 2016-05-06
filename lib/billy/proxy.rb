@@ -47,7 +47,7 @@ module Billy
           Billy.log :error, e.backtrace.join("\n")
         end
 
-        @signature = EM.start_server('127.0.0.1', Billy.config.proxy_port, ProxyConnection) do |p|
+        @signature = EM.start_server(host, Billy.config.proxy_port, ProxyConnection) do |p|
           p.handler = request_handler
           p.cache = @cache if defined?(@cache)
           p.errback do |msg|
