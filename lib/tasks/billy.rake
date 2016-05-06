@@ -75,7 +75,7 @@ namespace :cache do
   def print_cache_details(cache)
     puts "   Scope: #{cache[:scope]}" if cache[:scope]
     puts "     URL: #{cache[:url]}"
-    puts "    Body: #{cache[:body]}" if cache[:method] == 'post'
+    puts "    Body: #{cache[:body]}" if Billy.config.cache_request_body_methods.include?(cache[:method])
     puts " Details: Request method '#{cache[:method]}' returned response status code: '#{cache[:status]}'"
     puts "Filename: #{cache[:filename]}"
     puts "\n\n"
