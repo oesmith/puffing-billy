@@ -12,11 +12,22 @@ describe Billy::ProxyRequestStub do
         .matches?('GET', 'http://example.com')).to be
       expect(Billy::ProxyRequestStub.new('http://example.com', method: :post)
         .matches?('GET', 'http://example.com')).to_not be
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :options)
+        .matches?('GET', 'http://example.com')).to_not be
 
       expect(Billy::ProxyRequestStub.new('http://example.com', method: :post)
         .matches?('POST', 'http://example.com')).to be
       expect(Billy::ProxyRequestStub.new('http://fooxample.com', method: :post)
         .matches?('POST', 'http://example.com')).to_not be
+        expect(Billy::ProxyRequestStub.new('http://fooxample.com', method: :options)
+          .matches?('POST', 'http://example.com')).to_not be
+
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :options)
+        .matches?('OPTIONS', 'http://example.com')).to be
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :options)
+        .matches?('OPTIONS', 'http://zzzzzexample.com')).to_not be
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :post)
+        .matches?('OPTIONS', 'http://example.com')).to_not be
     end
 
     it 'should match regexps' do
