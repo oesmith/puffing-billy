@@ -10,7 +10,7 @@ module Billy
         if (stub = find_stub(method, url))
           query_string = Addressable::URI.parse(url).query || ''
           params = CGI.parse(query_string)
-          stub.call(params, headers, body).tap do |response|
+          stub.call(method, url, params, headers, body).tap do |response|
             Billy.log(:info, "puffing-billy: STUB #{method} for '#{url}'")
             return { status: response[0], headers: response[1], content: response[2] }
           end

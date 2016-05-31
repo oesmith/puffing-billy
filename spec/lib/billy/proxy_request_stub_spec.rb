@@ -62,7 +62,7 @@ describe Billy::ProxyRequestStub do
     let(:subject) { Billy::ProxyRequestStub.new('url') }
 
     it 'returns a 204 empty response' do
-      expect(subject.call({}, {}, nil)).to eql [204, { 'Content-Type' => 'text/plain' }, '']
+      expect(subject.call('', '', {}, {}, nil)).to eql [204, { 'Content-Type' => 'text/plain' }, '']
     end
   end
 
@@ -71,7 +71,7 @@ describe Billy::ProxyRequestStub do
 
     it 'should generate bare responses' do
       subject.and_return body: 'baz foo bar'
-      expect(subject.call({}, {}, nil)).to eql [
+      expect(subject.call('', '', {}, {}, nil)).to eql [
         200,
         {},
         'baz foo bar'
@@ -80,7 +80,7 @@ describe Billy::ProxyRequestStub do
 
     it 'should generate text responses' do
       subject.and_return text: 'foo bar baz'
-      expect(subject.call({}, {}, nil)).to eql [
+      expect(subject.call('', '', {}, {}, nil)).to eql [
         200,
         { 'Content-Type' => 'text/plain' },
         'foo bar baz'
@@ -89,7 +89,7 @@ describe Billy::ProxyRequestStub do
 
     it 'should generate JSON responses' do
       subject.and_return json: { foo: 'bar' }
-      expect(subject.call({}, {}, nil)).to eql [
+      expect(subject.call('', '', {}, {}, nil)).to eql [
         200,
         { 'Content-Type' => 'application/json' },
         '{"foo":"bar"}'
@@ -99,7 +99,7 @@ describe Billy::ProxyRequestStub do
     context 'JSONP' do
       it 'should generate JSONP responses' do
         subject.and_return jsonp: { foo: 'bar' }
-        expect(subject.call({ 'callback' => ['baz'] }, {}, nil)).to eql [
+        expect(subject.call('', '', { 'callback' => ['baz'] }, {}, nil)).to eql [
           200,
           { 'Content-Type' => 'application/javascript' },
           'baz({"foo":"bar"})'
@@ -108,7 +108,7 @@ describe Billy::ProxyRequestStub do
 
       it 'should generate JSONP responses with custom callback parameter' do
         subject.and_return jsonp: { foo: 'bar' }, callback_param: 'cb'
-        expect(subject.call({ 'cb' => ['bap'] }, {}, nil)).to eql [
+        expect(subject.call('', '', { 'cb' => ['bap'] }, {}, nil)).to eql [
           200,
           { 'Content-Type' => 'application/javascript' },
           'bap({"foo":"bar"})'
@@ -117,7 +117,7 @@ describe Billy::ProxyRequestStub do
 
       it 'should generate JSONP responses with custom callback name' do
         subject.and_return jsonp: { foo: 'bar' }, callback: 'cb'
-        expect(subject.call({}, {}, nil)).to eql [
+        expect(subject.call('', '', {}, {}, nil)).to eql [
           200,
           { 'Content-Type' => 'application/javascript' },
           'cb({"foo":"bar"})'
@@ -127,7 +127,7 @@ describe Billy::ProxyRequestStub do
 
     it 'should generate redirection responses' do
       subject.and_return redirect_to: 'http://example.com'
-      expect(subject.call({}, {}, nil)).to eql [
+      expect(subject.call('', '', {}, {}, nil)).to eql [
         302,
         { 'Location' => 'http://example.com' },
         nil
@@ -136,7 +136,7 @@ describe Billy::ProxyRequestStub do
 
     it 'should set headers' do
       subject.and_return text: 'foo', headers: { 'HTTP-X-Foo' => 'bar' }
-      expect(subject.call({}, {}, nil)).to eql [
+      expect(subject.call('', '', {}, {}, nil)).to eql [
         200,
         { 'Content-Type' => 'text/plain', 'HTTP-X-Foo' => 'bar' },
         'foo'
@@ -145,7 +145,7 @@ describe Billy::ProxyRequestStub do
 
     it 'should set status codes' do
       subject.and_return text: 'baz', code: 410
-      expect(subject.call({}, {}, nil)).to eql [
+      expect(subject.call('', '', {}, {}, nil)).to eql [
         410,
         { 'Content-Type' => 'text/plain' },
         'baz'
@@ -163,11 +163,52 @@ describe Billy::ProxyRequestStub do
         expect(body).to eql 'body text'
         { code: 418, text: 'success' }
       end)
-      expect(subject.call(expected_params, expected_headers, expected_body)).to eql [
+      expect(subject.call('', '', expected_params, expected_headers, expected_body)).to eql [
         418,
         { 'Content-Type' => 'text/plain' },
         'success'
       ]
+    end
+  end
+
+  context '#stub_requests' do
+    let(:subject) { Billy::ProxyRequestStub.new('url') }
+
+    before :each do
+      Billy.config.record_stub_requests = true
+    end
+
+    it 'should record requests' do
+      subject.call('', '', {}, {}, nil)
+      expect(subject.has_requests?).to be true
+    end
+
+    it 'should record multiple requests' do
+      expected_amount = 3
+      expected_amount.times do
+        subject.call('', '', {}, {}, nil)
+      end
+
+      expect(subject.requests.length).to eql expected_amount
+    end
+
+    it 'should set a request' do
+      expected_request = {
+        method: 'POST',
+        url: 'test-url',
+        params: { 'param1' => ['one'], 'param2' => ['two'] },
+        headers: { 'header1' => 'three', 'header2' => 'four' },
+        body: 'body text'
+      }
+
+      subject.call(
+        expected_request[:method],
+        expected_request[:url],
+        expected_request[:params],
+        expected_request[:headers],
+        expected_request[:body]
+      )
+      expect(subject.requests[0]).to eql expected_request
     end
   end
 end

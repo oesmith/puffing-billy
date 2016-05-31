@@ -2,10 +2,13 @@ require 'multi_json'
 
 module Billy
   class ProxyRequestStub
+    attr_reader :requests
+
     def initialize(url, options = {})
       @options = { method: :get }.merge(options)
       @method = @options[:method].to_s.upcase
       @url = url
+      @requests = []
       @response = { code: 204, headers: {}, text: '' }
     end
 
@@ -14,7 +17,9 @@ module Billy
       self
     end
 
-    def call(params, headers, body)
+    def call(method, url, params, headers, body)
+      push_request(method, url, params, headers, body)
+
       if @response.respond_to?(:call)
         res = @response.call(params, headers, body)
       else
@@ -52,6 +57,10 @@ module Billy
       [code, headers, body]
     end
 
+    def has_requests?
+      @requests.any?
+    end
+
     def matches?(method, url)
       if method == @method
         if @url.is_a?(Regexp)
@@ -59,6 +68,22 @@ module Billy
         else
           Billy.config.strip_query_params ? (url.split('?')[0] == @url) : (url == @url)
         end
+      end
+    end
+
+    private
+
+    attr_writer :requests
+
+    def push_request(method, url, params, headers, body)
+      if Billy.config.record_stub_requests
+        @requests.push({
+          method: method,
+          url: url,
+          params: params,
+          headers: headers,
+          body: body
+        })
       end
     end
   end
