@@ -7,14 +7,20 @@ describe 'intercept request example', type: :feature, js: true do
   end
 
   it 'should intercept a GET request directly' do
-    stub = proxy.stub('http://example.com/')
+    stub = proxy.stub('http://example.com/').and_return(
+      headers: { 'Access-Control-Allow-Origin' => '*' },
+      code: 200
+    )
     visit 'http://example.com/'
     expect(stub.has_requests?).to be true
     expect(stub.requests).not_to be_empty
   end
 
   it 'should intercept a POST request through an intermediary page' do
-    stub = proxy.stub('http://example.com/', method: 'post')
+    stub = proxy.stub('http://example.com/', method: 'post').and_return(
+      headers: { 'Access-Control-Allow-Origin' => '*' },
+      code: 200
+    )
     visit '/intercept_request.html'
     Timeout::timeout(5) do
       sleep(0.1) until stub.has_requests?
