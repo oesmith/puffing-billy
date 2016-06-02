@@ -365,6 +365,27 @@ RSpec.configure do |config|
 end
 ```
 
+## Stub requests recording
+
+If you want to record requests to stubbed URIs, set the following configuration option:
+
+```ruby
+Billy.configure do |c|
+  c.record_stub_requests = true
+end
+```
+
+Example usage:
+
+```ruby
+it 'should intercept a GET request' do
+  stub = proxy.stub('http://example.com/')
+  visit 'http://example.com/'
+  expect(stub.has_requests?).to be true
+  expect(stub.requests).not_to be_empty
+end
+```
+
 ## Proxy timeouts
 
 By default, the Puffing Billy proxy will use the EventMachine:HttpRequest timeouts of 5 seconds
