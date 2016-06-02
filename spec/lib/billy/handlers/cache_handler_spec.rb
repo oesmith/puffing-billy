@@ -97,6 +97,23 @@ describe Billy::CacheHandler do
                                       other_request[:headers],
                                       other_request[:body])).to eql(status: 200, headers: { 'Connection' => 'close' }, content: 'no jsonp but has parentheses()')
       end
+
+      context 'when after_cache_handles_request is set' do
+        it "should call the callback with the request and response" do
+          allow(Billy.config).to receive(:after_cache_handles_request) do
+            proc do |request, response|
+              response[:headers]['Access-Control-Allow-Origin'] = "*"
+              response[:content] = request[:body]
+            end
+          end
+          expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
+          expect(Billy::Cache.instance).to receive(:fetch).and_return(status: 200, headers: { 'Connection' => 'close' }, content: 'The response body')
+          expect(handler.handle_request(request[:method],
+                                        request[:url],
+                                        request[:headers],
+                                        request[:body])).to eql(status: 200, headers: { 'Connection' => 'close', 'Access-Control-Allow-Origin' => "*" }, content: 'Some body')
+        end
+      end
     end
 
     context 'updating jsonp callback names disabled' do

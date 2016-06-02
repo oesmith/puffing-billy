@@ -284,6 +284,25 @@ server is required to access the internet.  Most common in larger companies.
 
 `c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
 
+`c.after_cache_handles_request` is used to configure a callback that can operate on the response after it has been retrieved from the cache but before it is returned. The callback receives the request and response as arguments, with a request object like: `{ method: method, url: url, headers: headers, body: body }`. An example usage would be manipulating the Access-Control-Allow-Origin header so that your test server doesn't always have to run on the same port in order to accept cached responses to CORS requests:
+
+```
+Billy.configure do |c|
+  ...
+  fix_cors_header = proc do |_request, response|
+    allowed_origins = response[:headers]['Access-Control-Allow-Origin']
+    if allowed_origins.present?
+      localhost_port_pattern = %r{(?<=http://127\.0\.0\.1:)(\d+)}
+      allowed_origins.sub!(
+        localhost_port_pattern, Capybara.current_session.server.port.to_s
+      )
+    end
+  end
+  c.after_cache_handles_request = fix_cors_header
+  ...
+end
+```
+
 ### Cache Scopes
 
 If you need to cache different responses to the same HTTP request, you can use
