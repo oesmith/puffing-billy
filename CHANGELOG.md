@@ -1,3 +1,9 @@
+v0.8.0, 2016-06-02
+------------------
+  * Add optional after_cache_handles_request callback for manipulating cached responses [#149](https://github.com/oesmith/puffing-billy/pull/149)
+  * Remove rspec-expectations deprecation warning for README example [#153](https://github.com/oesmith/puffing-billy/pull/153)
+  * Make stub requests accessible [#154](https://github.com/oesmith/puffing-billy/pull/154)
+
 v0.7.0, 2016-05-05
 ------------------
   * Change WebKit driver to ignore SSL errors [#140](https://github.com/oesmith/puffing-billy/pull/140)
