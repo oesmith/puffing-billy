@@ -1,4 +1,4 @@
-# Puffing Billy
+# Puffing Billy [![Build Status](https://travis-ci.org/oesmith/puffing-billy.svg?branch=master)](https://travis-ci.org/oesmith/puffing-billy) 
 
 A rewriting web proxy for testing interactions between your browser and
 external sites. Works with ruby + rspec.
