@@ -1,9 +1,5 @@
-module Billy
-  class Railtie < Rails::Railtie
-    railtie_name 'billy'
+# Deprecated
+require 'billy/capybara/capybara'
+require 'billy/init/railtie'
 
-    rake_tasks do
-      load 'tasks/billy.rake'
-    end
-  end
-end
+warn "[DEPRECATION] `require 'billy/railtie'` is deprecated. Please use `require 'billy/capybara/railtie'` instead."

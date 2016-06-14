@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'billy'
 require 'resolv'
 
 shared_examples_for 'a proxy server' do
