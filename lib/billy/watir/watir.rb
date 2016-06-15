@@ -28,9 +28,9 @@ module Billy
   end
 
   def self.register_drivers
-    ['watir-webdriver'].each do |d|
+    ['watir-webdriver'].each do |driver|
       begin
-        require d
+        require driver
       rescue LoadError
       end
     end

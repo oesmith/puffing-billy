@@ -2,9 +2,9 @@ require 'billy'
 
 module Billy
   def self.register_drivers
-    ['capybara/poltergeist', 'capybara/webkit', 'selenium/webdriver'].each do |d|
+    ['capybara/poltergeist', 'capybara/webkit', 'selenium/webdriver'].each do |driver|
       begin
-        require d
+        require driver
       rescue LoadError
       end
     end
