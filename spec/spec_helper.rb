@@ -2,9 +2,11 @@ Dir[File.expand_path('../support/**/*.rb', __FILE__)].each { |f| require f }
 
 require 'pry'
 require 'billy/capybara/rspec'
+require 'billy/watir/rspec'
 require 'rack'
 require 'logger'
 
+browser = Billy.browser :phantomjs
 Capybara.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
 Capybara.javascript_driver = :poltergeist_billy
 
@@ -20,6 +22,7 @@ RSpec.configure do |config|
 
   config.before :all do
     start_test_servers
+    @browser = browser
   end
 
   config.before :each do
@@ -28,5 +31,9 @@ RSpec.configure do |config|
 
   config.after :each do
     Billy.config.reset
+  end
+
+  config.after :suite do
+    browser.close
   end
 end

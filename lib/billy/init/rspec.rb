@@ -1,5 +1,3 @@
-Billy.register_drivers
-
 module Billy
   module RspecHelper
     def proxy

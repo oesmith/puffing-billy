@@ -34,7 +34,7 @@ module Billy
     @browser
   end
 
-  def self.register_drivers
+  def self.register_drivers_watir
     ['watir-webdriver'].each do |driver|
       begin
         require driver

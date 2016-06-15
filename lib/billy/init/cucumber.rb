@@ -1,7 +1,5 @@
 require 'cucumber'
 
-Billy.register_drivers
-
 module Billy
   module CucumberHelper
     def proxy

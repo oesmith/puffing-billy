@@ -1,7 +1,7 @@
 require 'billy'
 
 module Billy
-  def self.register_drivers
+  def self.register_drivers_capybara
     ['capybara/poltergeist', 'capybara/webkit', 'selenium/webdriver'].each do |driver|
       begin
         require driver
