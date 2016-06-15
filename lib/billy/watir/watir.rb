@@ -11,7 +11,7 @@ module Billy
       end
       args[:switches] = switches
 
-      @browser = Watir::Browser.new :chrome, **args
+      @browser = Watir::Browser.new :chrome, args
     elsif(name === :phantomjs)
       additional_args = args[:args]
       if additional_args.nil?
@@ -20,7 +20,7 @@ module Billy
         additional_args.push(*@settings[:phantomjs][:args])
       end
       args[:args] = additional_args
-      @browser = Watir::Browser.new :phantomjs, **args
+      @browser = Watir::Browser.new :phantomjs, args
     else
       profile = args[:profile]
       if profile.nil?
@@ -29,7 +29,7 @@ module Billy
       profile.proxy = @settings[:firefox][:proxy]
       args[:profile] = profile
 
-      @browser = Watir::Browser.new :firefox, **args
+      @browser = Watir::Browser.new :firefox, args
     end
     @browser
   end
