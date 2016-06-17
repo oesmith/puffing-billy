@@ -73,9 +73,9 @@ module Billy
       response = {
         status: req.response_header.status,
         headers: req.response_header.raw,
-        content: req.response.force_encoding('BINARY') }
+        content: req.response.force_encoding('BINARY')
+      }
       response[:headers].merge!('Connection' => 'close')
-      response[:headers].delete('Transfer-Encoding')
       response
     end
 
