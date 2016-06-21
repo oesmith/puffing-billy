@@ -1,2 +1,2 @@
-require 'billy/watir/watir'
+require 'billy/browsers/watir'
 require 'billy/init/railtie'

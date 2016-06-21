@@ -1,2 +1,2 @@
-require 'billy/capybara/capybara'
+require 'billy/browsers/capybara'
 require 'billy/init/railtie'

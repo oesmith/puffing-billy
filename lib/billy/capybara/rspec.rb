@@ -1,5 +1,5 @@
 require 'capybara/rspec'
-require 'billy/capybara/capybara'
+require 'billy/browsers/capybara'
 require 'billy/init/rspec'
 
-Billy.register_drivers_capybara
+Billy::Browsers::Capybara.register_drivers

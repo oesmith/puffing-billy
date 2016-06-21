@@ -6,7 +6,7 @@ require 'billy/watir/rspec'
 require 'rack'
 require 'logger'
 
-browser = Billy.browser :phantomjs
+browser = Billy::Browsers::Watir.new :phantomjs
 Capybara.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
 Capybara.javascript_driver = :poltergeist_billy
 

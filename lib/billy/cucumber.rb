@@ -1,8 +1,8 @@
 # Deprecated
 require 'capybara/cucumber'
-require 'billy/capybara/capybara'
+require 'billy/browsers/capybara'
 require 'billy/init/cucumber'
 
-Billy.register_drivers_capybara
+Billy::Browsers::Capybara.register_drivers
 
 warn "[DEPRECATION] `require 'billy/cucumber'` is deprecated. Please use `require 'billy/capybara/cucumber'` instead."
