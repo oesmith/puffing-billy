@@ -1,18 +1,18 @@
 require 'spec_helper'
 
 describe Billy::Cache do
-  describe 'format_url' do
-    let(:cache) { Billy::Cache.instance }
-    let(:params) { '?foo=bar' }
-    let(:callback) { '&callback=quux' }
-    let(:fragment) { '#baz' }
-    let(:base_url) { 'http://example.com' }
-    let(:pipe_url) { 'https://fonts.googleapis.com:443/css?family=Cabin+Sketch:400,700|Love+Ya+Like+A+Sister' }
-    let(:fragment_url) { "#{base_url}/#{fragment}" }
-    let(:params_url) { "#{base_url}#{params}" }
-    let(:params_url_with_callback) { "#{base_url}#{params}#{callback}" }
-    let(:params_fragment_url) { "#{base_url}#{params}#{fragment}" }
+  let(:cache) { Billy::Cache.instance }
+  let(:params) { '?foo=bar' }
+  let(:callback) { '&callback=quux' }
+  let(:fragment) { '#baz' }
+  let(:base_url) { 'http://example.com' }
+  let(:pipe_url) { 'https://fonts.googleapis.com:443/css?family=Cabin+Sketch:400,700|Love+Ya+Like+A+Sister' }
+  let(:fragment_url) { "#{base_url}/#{fragment}" }
+  let(:params_url) { "#{base_url}#{params}" }
+  let(:params_url_with_callback) { "#{base_url}#{params}#{callback}" }
+  let(:params_fragment_url) { "#{base_url}#{params}#{fragment}" }
 
+  describe 'format_url' do
     context 'with ignore_params set to false' do
       it 'is a no-op if there are no params' do
         expect(cache.format_url(base_url)).to eq base_url
@@ -112,6 +112,46 @@ describe Billy::Cache do
           key1 = cache.key('put', "http://example.com", "body1")
           key2 = cache.key('put', "http://example.com", "body2")
           expect(key1).to eq key2
+      end
+    end
+  end
+
+  describe 'key' do
+    context 'with use_ignore_params set to false' do
+      before do
+        allow(Billy.config).to receive(:use_ignore_params) { false }
+      end
+
+      it "should use the same cache key if the base url IS NOT whitelisted in allow_params" do
+        key1 = cache.key('put', params_url, 'body')
+        key2 = cache.key('put', params_url, 'body')
+        expect(key1).to eq key2
+      end
+
+      it "should have the same cache key if the base IS whitelisted in allow_params" do
+        allow(Billy.config).to receive(:allow_params) { [base_url] }
+        key1 = cache.key('put', params_url, 'body')
+        key2 = cache.key('put', params_url, 'body')
+        expect(key1).to eq key2
+      end
+
+      it "should have different cache keys if the base url is added in between two requests" do
+        key1 = cache.key('put', params_url, 'body')
+        allow(Billy.config).to receive(:allow_params) { [base_url] }
+        key2 = cache.key('put', params_url, 'body')
+        expect(key1).not_to eq key2
+      end
+
+      it "should not use ignore_params when whitelisted" do
+        allow(Billy.config).to receive(:allow_params) { [base_url] }
+        expect(cache).to receive(:format_url).once.with(params_url, true).and_call_original
+        expect(cache).to receive(:format_url).once.with(params_url, false).and_call_original
+        key1 = cache.key('put', params_url, 'body')
+      end
+
+      it "should use ignore_params when not whitelisted" do
+        expect(cache).to receive(:format_url).twice.with(params_url, true).and_call_original
+        cache.key('put', params_url, 'body')
       end
     end
   end

@@ -230,6 +230,10 @@ caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
+`c.allow_params` is used to allow parameters of certain requests when caching. This is best used when a site
+has a large number of analytics and social buttons. `c.allow_params` is the opposite of `c.ignore_params`,
+a whitelist to a blacklist. In order to toggle between using one or the other, use `c.use_ignore_params`.
+
 `c.strip_query_params` is used to strip query parameters when you stub some requests
 with query parameters. Default value is true. For example, `proxy.stub('http://myapi.com/user/?country=FOO')`
 is considered the same as: `proxy.stub('http://myapi.com/user/?anything=FOO')` and
@@ -285,6 +289,9 @@ server is required to access the internet.  Most common in larger companies.
 `c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
 
 `c.after_cache_handles_request` is used to configure a callback that can operate on the response after it has been retrieved from the cache but before it is returned. The callback receives the request and response as arguments, with a request object like: `{ method: method, url: url, headers: headers, body: body }`. An example usage would be manipulating the Access-Control-Allow-Origin header so that your test server doesn't always have to run on the same port in order to accept cached responses to CORS requests:
+
+`c.use_ignore_params` is used to choose whether to use the ignore_params blacklist or the allow_params whitelist. Set to `true` to use `c.ignore_params`,
+`false` to use `c.allow_params`
 
 ```
 Billy.configure do |c|

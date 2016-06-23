@@ -70,7 +70,11 @@ module Billy
     end
 
     def key(method, orig_url, body, log_key = false)
-      ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
+      if Billy.config.use_ignore_params == true
+        ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
+      else # Billy.config.use_ignore_params == false
+        ignore_params = !Billy.config.allow_params.include?(format_url(orig_url, true))
+      end
       merge_cached_response_key = _merge_cached_response_key(orig_url)
       url = Addressable::URI.parse(format_url(orig_url, ignore_params))
       key = if merge_cached_response_key
