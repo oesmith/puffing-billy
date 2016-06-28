@@ -5,23 +5,23 @@ module Billy
   module Browsers
     class Watir < ::Watir::Browser
 
-      DEFAULTS = {
-        chrome: {
-          switches: %W[--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}]
-        },
-        phantomjs: {
-          args: %W[--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}]
-        },
-        firefox: {
-          profile: Selenium::WebDriver::Firefox::Profile.new,
-          proxy: Selenium::WebDriver::Proxy.new(
-            http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
-            ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}"
-          )
-        }
-      }
-
       def initialize(name, args = {})
+        @defaults = {
+          chrome: {
+            switches: %W[--proxy-server=#{Billy.config.proxy_host}:#{Billy.config.proxy_port}]
+          },
+          phantomjs: {
+            args: %W[--proxy=#{Billy.config.proxy_host}:#{Billy.config.proxy_port}]
+          },
+          firefox: {
+            profile: Selenium::WebDriver::Firefox::Profile.new,
+            proxy: Selenium::WebDriver::Proxy.new(
+              http: "#{Billy.config.proxy_host}:#{Billy.config.proxy_port}",
+              ssl: "#{Billy.config.proxy_host}:#{Billy.config.proxy_port}"
+            )
+          }
+        }
+
         args = case name
           when :chrome then configure_chrome(args)
           when :phantomjs then configure_phantomjs(args)
@@ -34,19 +34,19 @@ module Billy
 
       def configure_chrome(args)
         args[:switches] ||= []
-        args[:switches] += DEFAULTS[:chrome][:switches]
+        args[:switches] += @defaults[:chrome][:switches]
         args
       end
 
       def configure_phantomjs(args)
         args[:args] ||= []
-        args[:args] += DEFAULTS[:phantomjs][:args]
+        args[:args] += @defaults[:phantomjs][:args]
         args
       end
 
       def configure_firefox(args)
-        args[:profile] ||= DEFAULTS[:firefox][:profile]
-        args[:profile].proxy = DEFAULTS[:firefox][:proxy]
+        args[:profile] ||= @defaults[:firefox][:profile]
+        args[:profile].proxy = @defaults[:firefox][:proxy]
         args
       end
 
