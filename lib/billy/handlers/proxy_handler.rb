@@ -111,7 +111,7 @@ module Billy
     end
 
     def blacklisted_path?(path)
-      !Billy.config.path_blacklist.index { |bl| path.include?(bl) }.nil?
+      !Billy.config.path_blacklist.index { |bl| bl.is_a?(Regexp) ? path =~ bl : path.include?(bl) }.nil?
     end
 
     def successful_status?(status)
