@@ -8,16 +8,16 @@ module Billy
       def initialize(name, args = {})
         @defaults = {
           chrome: {
-            switches: %W[--proxy-server=#{Billy.config.proxy_host}:#{Billy.config.proxy_port}]
+            switches: %W[--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}]
           },
           phantomjs: {
-            args: %W[--proxy=#{Billy.config.proxy_host}:#{Billy.config.proxy_port}]
+            args: %W[--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}]
           },
           firefox: {
             profile: Selenium::WebDriver::Firefox::Profile.new,
             proxy: Selenium::WebDriver::Proxy.new(
-              http: "#{Billy.config.proxy_host}:#{Billy.config.proxy_port}",
-              ssl: "#{Billy.config.proxy_host}:#{Billy.config.proxy_port}"
+              http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
+              ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}"
             )
           }
         }
