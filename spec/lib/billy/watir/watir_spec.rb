@@ -8,7 +8,7 @@ describe 'Watir-specific tests', type: :feature, js: true do
   end
 
   it 'should raise a NameError if an invalid browser driver is specified' do
-    expect(Billy::Browsers::Watir.new :invalid).to raise_error(NameError)
+    expect{Billy::Browsers::Watir.new :invalid}.to raise_error(NameError)
   end
 
   it 'should respond to a stubbed GET request' do
