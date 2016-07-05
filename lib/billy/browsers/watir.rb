@@ -6,26 +6,12 @@ module Billy
     class Watir < ::Watir::Browser
 
       def initialize(name, args = {})
-        @defaults = {
-          chrome: {
-            switches: %W[--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}]
-          },
-          phantomjs: {
-            args: %W[--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}]
-          },
-          firefox: {
-            profile: Selenium::WebDriver::Firefox::Profile.new,
-            proxy: Selenium::WebDriver::Proxy.new(
-              http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
-              ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}"
-            )
-          }
-        }
-
         args = case name
           when :chrome then configure_chrome(args)
           when :phantomjs then configure_phantomjs(args)
-          else configure_firefox(args)
+          when :firefox then configure_firefox(args)
+          else
+            raise NameError, "Invalid browser driver specified. (Expected: :chrome, :phantomjs, :firefox)"
         end
         super
       end
@@ -34,19 +20,22 @@ module Billy
 
       def configure_chrome(args)
         args[:switches] ||= []
-        args[:switches] += @defaults[:chrome][:switches]
+        args[:switches] += %W[--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}]
         args
       end
 
       def configure_phantomjs(args)
         args[:args] ||= []
-        args[:args] += @defaults[:phantomjs][:args]
+        args[:args] += %W[--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}]
         args
       end
 
       def configure_firefox(args)
-        args[:profile] ||= @defaults[:firefox][:profile]
-        args[:profile].proxy = @defaults[:firefox][:proxy]
+        args[:profile] ||= Selenium::WebDriver::Firefox::Profile.new
+        args[:profile].proxy = Selenium::WebDriver::Proxy.new(
+          http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
+          ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}"
+        )
         args
       end
 

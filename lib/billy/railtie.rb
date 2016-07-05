@@ -1,7 +1,9 @@
-# Deprecated
-require 'billy/browsers/capybara'
-require 'billy/init/railtie'
+module Billy
+  class Railtie < Rails::Railtie
+    railtie_name 'billy'
 
-Billy::Browsers::Capybara.register_drivers
-
-warn "[DEPRECATION] `require 'billy/railtie'` is deprecated. Please use `require 'billy/capybara/railtie'` instead."
+    rake_tasks do
+      load 'tasks/billy.rake'
+    end
+  end
+end
