@@ -30,7 +30,8 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'addressable'
   gem.add_runtime_dependency 'eventmachine', '~> 1.0.4'
   gem.add_runtime_dependency 'em-synchrony'
-  gem.add_runtime_dependency 'em-http-request', '~> 1.1.0'
+  # Pinning to 1.1.3 due to https://github.com/oesmith/puffing-billy/issues/164
+  gem.add_runtime_dependency 'em-http-request', '= 1.1.3'
   gem.add_runtime_dependency 'eventmachine_httpserver'
   gem.add_runtime_dependency 'http_parser.rb', '~> 0.6.0'
   gem.add_runtime_dependency 'multi_json'
