@@ -3,7 +3,7 @@ PATH
   specs:
     puffing-billy (0.8.0)
       addressable
-      em-http-request (~> 1.1.0)
+      em-http-request (= 1.1.3)
       em-synchrony
       eventmachine (~> 1.0.4)
       eventmachine_httpserver
@@ -152,4 +152,4 @@ DEPENDENCIES
   thin
 
 BUNDLED WITH
-   1.11.2
+   1.12.5
