@@ -27,6 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rb-inotify'
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'cucumber'
+  gem.add_development_dependency 'watir-webdriver'
   gem.add_runtime_dependency 'addressable'
   gem.add_runtime_dependency 'eventmachine', '~> 1.0.4'
   gem.add_runtime_dependency 'em-synchrony'

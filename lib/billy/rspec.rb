@@ -1,20 +1,4 @@
-require 'capybara/rspec'
-require 'billy'
+# Deprecated
+require 'billy/capybara/rspec'
 
-Billy.register_drivers
-
-module Billy
-  module RspecHelper
-    def proxy
-      Billy.proxy
-    end
-  end
-end
-
-RSpec.configure do |config|
-  config.include(Billy::RspecHelper)
-
-  config.after(:each) do
-    proxy.reset
-  end
-end
+warn "[DEPRECATION] `require 'billy/rspec'` is deprecated. Please use `require 'billy/capybara/rspec'` instead."

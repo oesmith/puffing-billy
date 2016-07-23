@@ -126,6 +126,8 @@ GEM
       eventmachine (~> 1.0)
       rack (~> 1.0)
     thor (0.19.1)
+    watir-webdriver (0.9.1)
+      selenium-webdriver (>= 2.46.2)
     websocket (1.2.2)
     websocket-driver (0.6.2)
       websocket-extensions (>= 0.1.0)
@@ -150,6 +152,7 @@ DEPENDENCIES
   rspec
   selenium-webdriver
   thin
+  watir-webdriver
 
 BUNDLED WITH
-   1.11.2
+   1.12.4
