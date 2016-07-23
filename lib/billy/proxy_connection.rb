@@ -74,12 +74,25 @@ module Billy
 
     private
 
+    def prepare_response_headers_for_evma_httpserver(headers)
+      # Remove the headers below because they will be added later by evma_httpserver (EventMachine::DelegatedHttpResponse).
+      # See https://github.com/eventmachine/evma_httpserver/blob/master/lib/evma_httpserver/response.rb
+      headers_to_remove = [
+        'transfer-encoding',
+        'content-length',
+        'content-encoding'
+      ]
+
+      headers.delete_if {|key, value| headers_to_remove.include?(key.downcase) }
+    end
+
     def send_response(response)
       res = EM::DelegatedHttpResponse.new(self)
       res.status = response[:status]
-      res.headers = response[:headers]
+      res.headers = prepare_response_headers_for_evma_httpserver(response[:headers])
       res.content = response[:content]
       res.send_response
     end
+    
   end
 end
