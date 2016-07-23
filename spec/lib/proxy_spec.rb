@@ -135,6 +135,20 @@ shared_examples_for 'a cache' do
     it 'should be cached' do
       assert_cached_url('/api')
     end
+
+    context 'path_blacklist includes regex' do
+      before do
+        Billy.config.path_blacklist = [/widgets$/]
+      end
+
+      it 'should not cache a non-match' do
+        assert_noncached_url('/widgets/5/edit')
+      end
+
+      it 'should cache a match' do
+        assert_cached_url('/widgets')
+      end
+    end
   end
 
   context 'cache persistence' do
