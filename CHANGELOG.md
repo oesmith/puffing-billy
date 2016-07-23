@@ -1,3 +1,9 @@
+v0.9.0, 2016-07-23
+------------------
+  * Add Watir web driver support [#158](https://github.com/oesmith/puffing-billy/pull/158)
+  * Fix response headers by anticipating EventMachine::HttpResponse behavior [#162](https://github.com/oesmith/puffing-billy/pull/162)
+  * Support using a Regexp in path_blacklist [#163](https://github.com/oesmith/puffing-billy/pull/163)
+
 v0.8.0, 2016-06-02
 ------------------
   * Add optional after_cache_handles_request callback for manipulating cached responses [#149](https://github.com/oesmith/puffing-billy/pull/149)
