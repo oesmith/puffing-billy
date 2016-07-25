@@ -13,10 +13,10 @@ module Billy
       def self.register_drivers
         DRIVERS.each do |name, driver|
           begin
- -          require driver
+            require driver
             send("register_#{name}_driver")
- -        rescue LoadError
- -        end
+          rescue LoadError
+          end
         end
       end
 
