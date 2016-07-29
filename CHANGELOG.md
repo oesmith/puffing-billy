@@ -1,3 +1,7 @@
+v0.9.1, 2016-07-28
+------------------
+  * Rescue LoadErrors during driver registration [#170](https://github.com/oesmith/puffing-billy/pull/170)
+
 v0.9.0, 2016-07-23
 ------------------
   * Add Watir web driver support [#158](https://github.com/oesmith/puffing-billy/pull/158)
