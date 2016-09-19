@@ -408,6 +408,22 @@ RSpec.configure do |config|
 end
 ```
 
+## Separate Cache Directory for Each Test (in Cucumber)
+
+If you want the cache for each test to be independent, i.e. have it's own directory where the cache files are stored, you can use a Before tag like so:
+
+```rb
+Before('@javascript') do |scenario, block|
+  Billy.configure do |c|
+    feature_name = scenario.feature.name.underscore
+    scenario_name = scenario.name.underscore
+    c.cache_path = "features/support/fixtures/req_cache/#{feature_name}/"
+    Dir.mkdir(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
+    c.cache_path = "features/support/fixtures/req_cache/#{feature_name}/#{scenario_name}/"
+  end
+end
+```
+
 ## Stub requests recording
 
 If you want to record requests to stubbed URIs, set the following configuration option:
@@ -477,7 +493,6 @@ end
 ```
 
 Note that this approach may cause unexpected behavior if your backend sends the Referer HTTP header (which is unlikely).
-
 
 ## Resources
 
