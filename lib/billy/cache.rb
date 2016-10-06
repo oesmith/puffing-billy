@@ -30,7 +30,7 @@ module Billy
     end
 
     def fetch_from_persistence(key)
-      @cache[key] = YAML.load(File.open(cache_file(key))) if persisted?(key)
+      @cache[key] = YAML.load_file(cache_file(key)) if persisted?(key)
     rescue ArgumentError => e
       Billy.log :error, "Could not parse YAML: #{e.message}"
       nil
