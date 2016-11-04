@@ -21,6 +21,7 @@ module Billy
                                  port: Billy.config.proxied_request_port }} )
         end
 
+        cache_scope = Billy::Cache.instance.scope
         cache_key = Billy::Cache.instance.key(method.downcase, url, body)
 
         req = EventMachine::HttpRequest.new(url, opts)
@@ -42,7 +43,17 @@ module Billy
           end
 
           if cacheable?(url, response[:headers], response[:status])
-            Billy::Cache.instance.store(cache_key, method.downcase, url, headers, body, response[:headers], response[:status], response[:content])
+            Billy::Cache.instance.store(
+              cache_key,
+              cache_scope,
+              method.downcase,
+              url,
+              headers,
+              body,
+              response[:headers],
+              response[:status],
+              response[:content]
+            )
           end
 
           Billy.log(:info, "puffing-billy: PROXY #{method} succeeded for '#{url}'")

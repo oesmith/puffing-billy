@@ -36,9 +36,9 @@ module Billy
       nil
     end
 
-    def store(key, method, url, request_headers, body, response_headers, status, content)
+    def store(key, _scope, method, url, request_headers, body, response_headers, status, content)
       cached = {
-        scope: scope,
+        scope: _scope,
         url: format_url(url),
         body: body,
         status: status,
