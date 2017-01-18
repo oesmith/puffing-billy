@@ -36,9 +36,9 @@ module Billy
       nil
     end
 
-    def store(method, url, request_headers, body, response_headers, status, content)
+    def store(key, _scope, method, url, request_headers, body, response_headers, status, content)
       cached = {
-        scope: scope,
+        scope: _scope,
         url: format_url(url),
         body: body,
         status: status,
@@ -49,7 +49,6 @@ module Billy
 
       cached.merge!(request_headers: request_headers) if Billy.config.cache_request_headers
 
-      key = key(method, url, body)
       @cache[key] = cached
 
       if Billy.config.persist_cache
