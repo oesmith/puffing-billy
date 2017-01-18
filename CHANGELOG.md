@@ -1,3 +1,8 @@
+v0.9.2, 2017-01-18
+------------------
+  * Ensure that files are closed after being opened [#175](https://github.com/oesmith/puffing-billy/pull/175)
+  * Fix floating scopes [#177](https://github.com/oesmith/puffing-billy/pull/177)
+
 v0.9.1, 2016-07-28
 ------------------
   * Rescue LoadErrors during driver registration [#170](https://github.com/oesmith/puffing-billy/pull/170)
