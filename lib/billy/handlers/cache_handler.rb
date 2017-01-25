@@ -30,6 +30,10 @@ module Billy
             Billy.config.after_cache_handles_request.call(request, response)
           end
 
+          if Billy.config.cache_simulates_network_delays
+            Kernel.sleep(Billy.config.cache_simulates_network_delay_time)
+          end
+
           return response
         end
       end

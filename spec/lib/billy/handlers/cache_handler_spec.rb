@@ -139,5 +139,32 @@ describe Billy::CacheHandler do
                                     request[:headers],
                                     request[:body])).to be nil
     end
+
+    context 'network delay simulation' do
+      before do
+        allow(Billy::Cache.instance).to receive(:cached?).and_return(true)
+        allow(Billy::Cache.instance).to receive(:fetch).and_return(status: 200, headers: { 'Connection' => 'close' }, content: 'dynamicCallback1234({"yolo":"kitten"})')
+      end
+
+      context 'when cache_simulates_network_delays is disabled' do
+        it 'does not sleep for default delay before responding' do
+          expect(Kernel).not_to receive(:sleep)
+          handler.handle_request(request[:method], request[:url], request[:headers], request[:body])
+        end
+      end
+
+      context 'when cache_simulates_network_delays is enabled' do
+        around do |example|
+          Billy.config.cache_simulates_network_delays = true
+          example.call
+          Billy.config.cache_simulates_network_delays = false
+        end
+
+        it 'sleeps for default delay before responding' do
+          expect(Kernel).to receive(:sleep).with(Billy.config.cache_simulates_network_delay_time)
+          handler.handle_request(request[:method], request[:url], request[:headers], request[:body])
+        end
+      end
+    end
   end
 end
