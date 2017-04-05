@@ -291,6 +291,9 @@ using `c.dynamic_jsonp`. This is helpful when JSONP APIs use cache-busting
 parameters. For example, if you want `http://example.com/foo?callback=bar&id=1&cache_bust=12345` and `http://example.com/foo?callback=baz&id=1&cache_bust=98765` to be cache hits for each other, you would set `c.dynamic_jsonp_keys = ['callback', 'cache_bust']` to ignore both params. Note
 that in this example the `id` param would still be considered important.
 
+`c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback 
+parameter. The default is `callback`.
+
 `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
 including whitelisted ones.  This is useful if your AUT has routes that get data
 from external services, such as `/api` where the ajax request is a local URL but
