@@ -258,6 +258,7 @@ Billy.configure do |c|
   c.proxied_request_host = nil
   c.proxied_request_port = 80
   c.cache_request_body_methods = ['post', 'patch', 'put'] # defaults to ['post']
+  c.key_pattern = [:scope, :method, :host] # defaults to [:method, :host]
 end
 ```
 
