@@ -349,6 +349,10 @@ Billy.configure do |c|
 end
 ```
 
+`c.cache_simulates_network_delays` is used to add some delay before cache returns response. When set to `true`, cached requests will wait from configured delay time before responding. This allows to catch various race conditions in asynchronous front-end requests. The default is `false`.
+
+`c.cache_simulates_network_delay_time` is used to configure time (in seconds) to wait until responding from cache. The default is `0.1`.
+
 ### Cache Scopes
 
 If you need to cache different responses to the same HTTP request, you can use
