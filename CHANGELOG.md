@@ -1,3 +1,8 @@
+v0.10.0, 2017-04-06
+-------------------
+  * Allow to simulate network delays when responding from cache [#182](https://github.com/oesmith/puffing-billy/pull/182)
+  * Allow the dynamic jsonp callback name to be configured [#185](https://github.com/oesmith/puffing-billy/pull/185)
+
 v0.9.2, 2017-01-18
 ------------------
   * Ensure that files are closed after being opened [#175](https://github.com/oesmith/puffing-billy/pull/175)
