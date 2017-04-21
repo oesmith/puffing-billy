@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     puffing-billy (0.10.0)
-      addressable (~> 2.4.0)
+      addressable (~> 2.4)
       em-http-request (~> 1.1.0)
       em-synchrony
       eventmachine (~> 1.0.4)
@@ -13,7 +13,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.4.0)
+    addressable (2.5.1)
+      public_suffix (~> 2.0, >= 2.0.2)
     builder (3.2.2)
     capybara (2.4.4)
       mime-types (>= 1.16)
@@ -50,7 +51,7 @@ GEM
       eventmachine (>= 1.0.0.beta.4)
     em-synchrony (1.0.6)
       eventmachine (>= 1.0.0.beta.1)
-    eventmachine (1.0.8)
+    eventmachine (1.0.9.1)
     eventmachine_httpserver (0.2.1)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
@@ -75,13 +76,13 @@ GEM
     lumberjack (1.0.9)
     method_source (0.8.2)
     mime-types (2.6.1)
-    mini_portile (0.6.2)
+    mini_portile2 (2.1.0)
     multi_json (1.11.2)
     multi_test (0.1.2)
     multipart-post (2.0.0)
     nenv (0.2.0)
-    nokogiri (1.6.6.2)
-      mini_portile (~> 0.6.0)
+    nokogiri (1.7.1)
+      mini_portile2 (~> 2.1.0)
     notiffany (0.0.7)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -94,6 +95,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    public_suffix (2.0.5)
     rack (1.6.4)
     rack-test (0.6.3)
       rack (>= 1.0)
