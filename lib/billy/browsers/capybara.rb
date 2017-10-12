@@ -55,9 +55,12 @@ module Billy
         end
 
         ::Capybara.register_driver :selenium_chrome_billy do |app|
+          options = Selenium::WebDriver::Chrome::Options.new
+          options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
+
           ::Capybara::Selenium::Driver.new(
             app, browser: :chrome,
-            switches: ["--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}"]
+            options: options
           )
         end
       end
