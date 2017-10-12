@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    puffing-billy (0.10.0)
+    puffing-billy (0.10.1)
       addressable (~> 2.4.0)
       em-http-request (~> 1.1.0)
       em-synchrony
@@ -155,4 +155,4 @@ DEPENDENCIES
   watir-webdriver
 
 BUNDLED WITH
-   1.14.6
+   1.15.0

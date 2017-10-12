@@ -1,3 +1,7 @@
+v0.10.1, 2017-10-12
+-------------------
+  * Fix selenium webdriver deprecation warning [#194](https://github.com/oesmith/puffing-billy/pull/194)
+
 v0.10.0, 2017-04-06
 -------------------
   * Allow to simulate network delays when responding from cache [#182](https://github.com/oesmith/puffing-billy/pull/182)
