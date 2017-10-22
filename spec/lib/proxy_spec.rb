@@ -297,9 +297,13 @@ describe Billy::Proxy do
       proxy: { uri: proxy.url },
       request: { timeout: 1.0 }
     }
+    faraday_ssl_options = faraday_options.merge(ssl: {
+      verify: true,
+      ca_file: Billy.certificate_authority.cert_file
+    })
 
     @http       = Faraday.new @http_url,  faraday_options
-    @https      = Faraday.new @https_url, faraday_options.merge(ssl: { verify: false })
+    @https      = Faraday.new @https_url, faraday_ssl_options
     @http_error = Faraday.new @error_url, faraday_options
   end
 

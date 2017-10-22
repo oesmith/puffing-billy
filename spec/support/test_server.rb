@@ -57,13 +57,21 @@ module Billy
       end
     end
 
+    def certificate_chain(domain)
+      ca = Billy.certificate_authority.cert
+      cert = Billy::Certificate.new(domain)
+      chain = Billy::CertificateChain.new(domain, cert.cert, ca)
+      [chain.file, cert.key_file]
+    end
+
     def start_server(echo, ssl = false)
       http_server = Thin::Server.new '127.0.0.1', 0, echo
       if ssl
+        chain_file, key_file = certificate_chain('localhost')
         http_server.ssl = true
         http_server.ssl_options = {
-          private_key_file: File.expand_path('../../fixtures/test-server.key', __FILE__),
-          cert_chain_file: File.expand_path('../../fixtures/test-server.crt', __FILE__)
+          private_key_file: key_file,
+          cert_chain_file: chain_file
         }
       end
       http_server.start

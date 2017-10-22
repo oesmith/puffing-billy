@@ -7,6 +7,9 @@ require 'billy/handlers/proxy_handler'
 require 'billy/handlers/cache_handler'
 require 'billy/proxy_request_stub'
 require 'billy/cache'
+require 'billy/ssl/authority'
+require 'billy/ssl/certificate'
+require 'billy/ssl/certificate_chain'
 require 'billy/proxy'
 require 'billy/proxy_connection'
 require 'billy/railtie' if defined?(Rails)
@@ -18,5 +21,9 @@ module Billy
       proxy.start
       proxy
     )
+  end
+
+  def self.certificate_authority
+    @certificate_authority ||= Billy::Authority.new
   end
 end
