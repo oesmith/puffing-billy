@@ -1,7 +1,19 @@
 language: ruby
+cache: bundler
 before_install:
   - gem install bundler
+  - export PHANTOMJS_VERSION='2.1.1'
+  - export PHANTOMJS_URL='https://github.com/Medium/phantomjs'
+  - export PHANTOMJS_URL+="/releases/download/v${PHANTOMJS_VERSION}"
+  - export PHANTOMJS_URL+="/phantomjs-${PHANTOMJS_VERSION}-linux-x86_64.tar.bz2"
+  - >
+    wget -q ${PHANTOMJS_URL} &&
+    tar xfv phantomjs-${PHANTOMJS_VERSION}-linux-x86_64.tar.bz2 \
+      --wildcards */bin/phantomjs --strip-components=2
+  - export PATH="`pwd`:${PATH}"
+before_script:
   - phantomjs --version
+  - bundle --version
 rvm:
   - 1.9.3
   - 2.0.0
