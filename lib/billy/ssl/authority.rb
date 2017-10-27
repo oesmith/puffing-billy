@@ -17,6 +17,8 @@ module Billy
   # extensions. It's just a mimic of the mighty mitmproxy certificate
   # authority file.
   class Authority
+    include Billy::CertificateHelpers
+
     attr_reader :key, :cert
 
     # The authority generation does not require any arguments from outside
@@ -33,23 +35,15 @@ module Billy
     end
 
     # Write out the private key to file (PEM format) and give back the
-    # file path. This will produce a temporary file which will be remove
-    # after the current process terminates.
+    # file path.
     def key_file
-      path = File.join(Billy.config.certs_path, 'ca.key')
-      FileUtils.mkdir_p(File.dirname(path))
-      File.write(path, key.to_pem)
-      path
+      write_file('ca.key', key.to_pem)
     end
 
     # Write out the certifcate to file (PEM format) and give back the
-    # file path. This will produce a temporary file which will be remove
-    # after the current process terminates.
+    # file path.
     def cert_file
-      path = File.join(Billy.config.certs_path, 'ca.crt')
-      FileUtils.mkdir_p(File.dirname(path))
-      File.write(path, cert.to_pem)
-      path
+      write_file('ca.crt', cert.to_pem)
     end
 
     private
@@ -67,26 +61,7 @@ module Billy
 
     # Give back the static subject name of the certificate.
     def name
-      ['CN=Puffing Billy', 'O=Puffing Billy'].join('/')
-                                             .prepend('/')
-                                             .concat('/')
-    end
-
-    # Give back an appropriate date for the beginning of this
-    # certificate life. We give back now 2 days ago.
-    def valid_from
-      Time.now - (2 * 24 * 60 * 60)
-    end
-
-    # Give back an appropriate date for the end of this certificate life.
-    # We give back now in 2 days.
-    def valid_to
-      Time.now + (2 * 24 * 60 * 60)
-    end
-
-    # Generate a random serial number for the certificate.
-    def serial
-      Time.now.to_i + rand(100_000_000_000)
+      '/CN=Puffing Billy/O=Puffing Billy/'
     end
 
     # Generate a fresh new certificate for the configured domain.
@@ -105,8 +80,8 @@ module Billy
       cert.subject = OpenSSL::X509::Name.parse(name)
       cert.issuer = cert.subject
       cert.public_key = key.public_key
-      cert.not_before = valid_from
-      cert.not_after = valid_to
+      cert.not_before = days_ago(2)
+      cert.not_after = days_from_now(2)
     end
 
     # Add all extensions (defined by the +extensions+ method) to the given

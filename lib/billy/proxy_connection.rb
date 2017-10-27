@@ -52,9 +52,8 @@ module Billy
     def restart_with_ssl(url)
       @ssl = url
       @parser = Http::Parser.new(self)
-      generate_certificate_chain(url)
       send_data("HTTP/1.0 200 Connection established\r\nProxy-agent: Puffing-Billy/0.0.0\r\n\r\n")
-      start_tls(private_key_file: @key_file, cert_chain_file: @chain_file)
+      start_tls(certificate_chain(url))
     end
 
     def handle_request
@@ -92,14 +91,14 @@ module Billy
       res.send_response
     end
 
-    def generate_certificate_chain(url)
+    def certificate_chain(url)
       domain = url.split(':').first
       ca = Billy.certificate_authority.cert
       cert = Billy::Certificate.new(domain)
       chain = Billy::CertificateChain.new(domain, cert.cert, ca)
 
-      @chain_file = chain.file
-      @key_file = cert.key_file
+      { private_key_file: cert.key_file,
+        cert_chain_file: chain.file }
     end
   end
 end

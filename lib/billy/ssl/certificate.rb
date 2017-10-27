@@ -7,7 +7,7 @@ require 'fileutils'
 module Billy
   # This class is dedicated to the generation of a request certifcate for a
   # given domain name. We have to generate for each handled connection a new
-  # request certifcate, due to the fact that each request has propably a
+  # request certifcate, due to the fact that each request has probably a
   # different domain name which will be proxied. So we can't know of future
   # domain name we could include in the list of subject alternative names
   # which is required by modern browsers. (Chrome 58+)
@@ -20,6 +20,8 @@ module Billy
   # enable the usage of Chrome Headless at a time where no ssl issue ignoring
   # works. And its even secure at testing level.
   class Certificate
+    include Billy::CertificateHelpers
+
     attr_reader :key, :cert, :domain
 
     # To generate a new request certifcate just pass the domain in and you
@@ -36,23 +38,15 @@ module Billy
     end
 
     # Write out the private key to file (PEM format) and give back the
-    # file path. This will produce a temporary file which will be remove
-    # after the current process terminates.
+    # file path.
     def key_file
-      path = File.join(Billy.config.certs_path, "request-#{domain}.key")
-      FileUtils.mkdir_p(File.dirname(path))
-      File.write(path, key.to_pem)
-      path
+      write_file("request-#{domain}.key", key.to_pem)
     end
 
     # Write out the certifcate to file (PEM format) and give back the
-    # file path. This will produce a temporary file which will be remove
-    # after the current process terminates.
+    # file path.
     def cert_file
-      path = File.join(Billy.config.certs_path, "request-#{domain}.crt")
-      FileUtils.mkdir_p(File.dirname(path))
-      File.write(path, cert.to_pem)
-      path
+      write_file("request-#{domain}.crt", cert.to_pem)
     end
 
     private
@@ -61,23 +55,6 @@ module Billy
     def extensions
       # ln_sn, value, critical
       [['subjectAltName', "DNS:#{domain}", false]]
-    end
-
-    # Give back an appropriate date for the beginning of this
-    # certificate life. We give back now 2 days ago.
-    def valid_from
-      Time.now - (2 * 24 * 60 * 60)
-    end
-
-    # Give back an appropriate date for the end of this certificate life.
-    # We give back now in 2 days.
-    def valid_to
-      Time.now + (2 * 24 * 60 * 60)
-    end
-
-    # Generate a random serial number for the certificate.
-    def serial
-      Time.now.to_i + rand(100_000_000_000)
     end
 
     # Generate a fresh new certificate for the configured domain.
@@ -102,8 +79,8 @@ module Billy
     def configure(cert)
       req = signing_request
       cert.issuer = Billy.certificate_authority.cert.subject
-      cert.not_after = valid_to
-      cert.not_before = valid_from
+      cert.not_before = days_ago(2)
+      cert.not_after = days_from_now(2)
       cert.public_key = req.public_key
       cert.serial = serial
       cert.subject = req.subject

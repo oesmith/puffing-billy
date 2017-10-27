@@ -552,7 +552,7 @@ certutil -d sql:$HOME/.pki/nssdb -A \
 SCRIPT
 ```
 
-Mind the reset of the `HOME` environment variable. Furtunately Chrome takes
+Mind the reset of the `HOME` environment variable. Fortunately Chrome takes
 care of the users home, so we can setup a new temporary directory for the test
 run, without messing with potential user configurations.
 

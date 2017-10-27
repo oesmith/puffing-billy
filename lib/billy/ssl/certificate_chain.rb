@@ -5,7 +5,7 @@ require 'fileutils'
 
 module Billy
   # This class is dedicated to the generation of a certificate chain in the
-  # PEM format. Fortunately we just have to concatinate the given certificates
+  # PEM format. Fortunately we just have to concatenate the given certificates
   # in the given order and write them to temporary file which will last until
   # the current process terminates.
   #
@@ -13,6 +13,8 @@ module Billy
   # on modern browser like Chrome 59+ or Firefox 55+, but its good to ship it
   # anyways. This mimics the behaviour of the mighty mitmproxy.
   class CertificateChain
+    include Billy::CertificateHelpers
+
     attr_reader :certificates, :domain
 
     # Just pass all certificates into the new instance. We use the variadic
@@ -32,10 +34,8 @@ module Billy
     # produce a temporary file which will be remove after the current process
     # terminates.
     def file
-      path = File.join(Billy.config.certs_path, "chain-#{domain}.pem")
-      FileUtils.mkdir_p(File.dirname(path))
-      File.write(path, certificates.map { |cert| cert.to_pem }.join)
-      path
+      contents = certificates.map { |cert| cert.to_pem }.join
+      write_file("chain-#{domain}.pem", contents)
     end
   end
 end
