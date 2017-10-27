@@ -1,3 +1,27 @@
+v0.10.1, 2017-10-12
+-------------------
+  * Fix selenium webdriver deprecation warning [#194](https://github.com/oesmith/puffing-billy/pull/194)
+
+v0.10.0, 2017-04-06
+-------------------
+  * Allow to simulate network delays when responding from cache [#182](https://github.com/oesmith/puffing-billy/pull/182)
+  * Allow the dynamic jsonp callback name to be configured [#185](https://github.com/oesmith/puffing-billy/pull/185)
+
+v0.9.2, 2017-01-18
+------------------
+  * Ensure that files are closed after being opened [#175](https://github.com/oesmith/puffing-billy/pull/175)
+  * Fix floating scopes [#177](https://github.com/oesmith/puffing-billy/pull/177)
+
+v0.9.1, 2016-07-28
+------------------
+  * Rescue LoadErrors during driver registration [#170](https://github.com/oesmith/puffing-billy/pull/170)
+
+v0.9.0, 2016-07-23
+------------------
+  * Add Watir web driver support [#158](https://github.com/oesmith/puffing-billy/pull/158)
+  * Fix response headers by anticipating EventMachine::HttpResponse behavior [#162](https://github.com/oesmith/puffing-billy/pull/162)
+  * Support using a Regexp in path_blacklist [#163](https://github.com/oesmith/puffing-billy/pull/163)
+
 v0.8.0, 2016-06-02
 ------------------
   * Add optional after_cache_handles_request callback for manipulating cached responses [#149](https://github.com/oesmith/puffing-billy/pull/149)

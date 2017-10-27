@@ -1,19 +1,4 @@
-require 'cucumber'
-require 'capybara/cucumber'
-require 'billy'
+# Deprecated
+require 'billy/capybara/cucumber'
 
-Billy.register_drivers
-
-module Billy
-  module CucumberHelper
-    def proxy
-      Billy.proxy
-    end
-  end
-end
-
-World(Billy::CucumberHelper)
-
-After('@billy') do
-  proxy.reset
-end
+warn "[DEPRECATION] `require 'billy/cucumber'` is deprecated. Please use `require 'billy/capybara/cucumber'` instead."

@@ -2,10 +2,11 @@ require 'spec_helper'
 
 describe Billy::CacheHandler do
   let(:handler) { Billy::CacheHandler.new }
+  let(:request_url) { 'http://example.test:8080/index?some=param&callback=dynamicCallback5678' }
   let(:request) do
     {
       method:   'post',
-      url:      'http://example.test:8080/index?some=param&callback=dynamicCallback5678',
+      url:      request_url,
       headers:  { 'Accept-Encoding'  => 'gzip',
                   'Cache-Control'    => 'no-cache' },
       body:     'Some body'
@@ -114,6 +115,26 @@ describe Billy::CacheHandler do
                                         request[:body])).to eql(status: 200, headers: { 'Connection' => 'close', 'Access-Control-Allow-Origin' => "*" }, content: 'Some body')
         end
       end
+
+      context 'when dynamic_jsonp_callback_name is set' do
+        let(:dynamic_jsonp_callback_name) { 'customCallback' }
+        let(:request_url) { "http://example.test:8080/index?some=param&#{dynamic_jsonp_callback_name}=dynamicCallback5678" }
+
+        before do
+          allow(Billy.config).to receive(:dynamic_jsonp_callback_name) do
+            dynamic_jsonp_callback_name
+          end
+        end
+
+        it 'should call the callback with the specified name' do
+          expect(Billy::Cache.instance).to receive(:cached?).and_return(true)
+          expect(Billy::Cache.instance).to receive(:fetch).and_return(status: 200, headers: { 'Connection' => 'close' }, content: 'dynamicCallback1234({"yolo":"kitten"})')
+          expect(handler.handle_request(request[:method],
+                                        request[:url],
+                                        request[:headers],
+                                        request[:body])).to eql(status: 200, headers: { 'Connection' => 'close' }, content: 'dynamicCallback5678({"yolo":"kitten"})')
+        end
+      end
     end
 
     context 'updating jsonp callback names disabled' do
@@ -138,6 +159,33 @@ describe Billy::CacheHandler do
                                     request[:url],
                                     request[:headers],
                                     request[:body])).to be nil
+    end
+
+    context 'network delay simulation' do
+      before do
+        allow(Billy::Cache.instance).to receive(:cached?).and_return(true)
+        allow(Billy::Cache.instance).to receive(:fetch).and_return(status: 200, headers: { 'Connection' => 'close' }, content: 'dynamicCallback1234({"yolo":"kitten"})')
+      end
+
+      context 'when cache_simulates_network_delays is disabled' do
+        it 'does not sleep for default delay before responding' do
+          expect(Kernel).not_to receive(:sleep)
+          handler.handle_request(request[:method], request[:url], request[:headers], request[:body])
+        end
+      end
+
+      context 'when cache_simulates_network_delays is enabled' do
+        around do |example|
+          Billy.config.cache_simulates_network_delays = true
+          example.call
+          Billy.config.cache_simulates_network_delays = false
+        end
+
+        it 'sleeps for default delay before responding' do
+          expect(Kernel).to receive(:sleep).with(Billy.config.cache_simulates_network_delay_time)
+          handler.handle_request(request[:method], request[:url], request[:headers], request[:body])
+        end
+      end
     end
   end
 end

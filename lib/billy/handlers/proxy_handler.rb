@@ -21,6 +21,9 @@ module Billy
                                  port: Billy.config.proxied_request_port }} )
         end
 
+        cache_scope = Billy::Cache.instance.scope
+        cache_key = Billy::Cache.instance.key(method.downcase, url, body)
+
         req = EventMachine::HttpRequest.new(url, opts)
         req = req.send(method.downcase, build_request_options(url, headers, body))
 
@@ -40,7 +43,17 @@ module Billy
           end
 
           if cacheable?(url, response[:headers], response[:status])
-            Billy::Cache.instance.store(method.downcase, url, headers, body, response[:headers], response[:status], response[:content])
+            Billy::Cache.instance.store(
+              cache_key,
+              cache_scope,
+              method.downcase,
+              url,
+              headers,
+              body,
+              response[:headers],
+              response[:status],
+              response[:content]
+            )
           end
 
           Billy.log(:info, "puffing-billy: PROXY #{method} succeeded for '#{url}'")
@@ -73,9 +86,9 @@ module Billy
       response = {
         status: req.response_header.status,
         headers: req.response_header.raw,
-        content: req.response.force_encoding('BINARY') }
+        content: req.response.force_encoding('BINARY')
+      }
       response[:headers].merge!('Connection' => 'close')
-      response[:headers].delete('Transfer-Encoding')
       response
     end
 
@@ -111,7 +124,7 @@ module Billy
     end
 
     def blacklisted_path?(path)
-      !Billy.config.path_blacklist.index { |bl| path.include?(bl) }.nil?
+      !Billy.config.path_blacklist.index { |bl| bl.is_a?(Regexp) ? path =~ bl : path.include?(bl) }.nil?
     end
 
     def successful_status?(status)

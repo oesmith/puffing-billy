@@ -1,4 +1,4 @@
-# Puffing Billy [![Gem Version](https://badge.fury.io/rb/puffing-billy.svg)](https://badge.fury.io/rb/puffing-billy) [![Build Status](https://travis-ci.org/oesmith/puffing-billy.svg?branch=master)](https://travis-ci.org/oesmith/puffing-billy) 
+# Puffing Billy [![Gem Version](https://badge.fury.io/rb/puffing-billy.svg)](https://badge.fury.io/rb/puffing-billy) [![Build Status](https://travis-ci.org/oesmith/puffing-billy.svg?branch=master)](https://travis-ci.org/oesmith/puffing-billy)
 
 A rewriting web proxy for testing interactions between your browser and
 external sites. Works with ruby + rspec.
@@ -46,10 +46,12 @@ Or install it yourself as:
 
 ## RSpec Usage
 
+### Setup for Capybara
+
 In your `rails_helper.rb`:
 
 ```ruby
-require 'billy/rspec'
+require 'billy/capybara/rspec'
 
 # select a driver for your chosen browser environment
 Capybara.javascript_driver = :selenium_billy # Uses Firefox
@@ -58,11 +60,24 @@ Capybara.javascript_driver = :selenium_billy # Uses Firefox
 # Capybara.javascript_driver = :poltergeist_billy
 ```
 
-Note: :poltergeist_billy doesn't support proxying any localhosts, so you must use
-:webkit_billy for headless specs when using puffing-billy for other local rack apps.
+> __Note__: `:poltergeist_billy` doesn't support proxying any localhosts, so you must use
+`:webkit_billy` for headless specs when using puffing-billy for other local rack apps.
 See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
 
-In your tests:
+### Setup for Watir
+
+In your `rails_helper.rb`:
+
+```ruby
+require 'billy/watir/rspec'
+
+# select a driver for your chosen browser environment
+@browser = Billy::Browsers::Watir.new :firefox
+# @browser = Billy::Browsers::Watir.new = :chrome
+# @browser = Billy::Browsers::Watir.new = :phantomjs
+```
+
+### In your tests (Capybara/Watir)
 
 ```ruby
 # Stub and return text, json, jsonp (or anything else)
@@ -115,16 +130,6 @@ proxied to the remote server.
 
 ## Cucumber Usage
 
-In your `features/support/env.rb`:
-
-```ruby
-require 'billy/cucumber'
-
-After do
-  Capybara.use_default_driver
-end
-```
-
 An example feature:
 
 ```
@@ -133,6 +138,18 @@ Feature: Stubbing via billy
   @javascript @billy
   Scenario: Test billy
     And a stub for google
+```
+
+### Capybara
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/capybara/cucumber'
+
+After do
+  Capybara.use_default_driver
+end
 ```
 
 And in steps:
@@ -153,6 +170,32 @@ It's good practice to reset the driver after each scenario, so having an
 `@billy` tag switches the drivers on for a given scenario. Also note that
 stubs are reset after each step, so any usage of a stub should be in the
 same step that it was created in.
+
+### Watir
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/watir/cucumber'
+
+After do
+  @browser.close
+end
+```
+
+And in steps:
+
+```ruby
+Before('@billy') do
+  @browser = Billy::Browsers::Watir.new :firefox
+end
+
+And /^a stub for google$/ do
+  proxy.stub('http://www.google.com/').and_return(:text => "I'm not Google!")
+  @browser.goto 'http://www.google.com/'
+  expect(@browser.text).to eq("I'm not Google!")
+end
+```
 
 ## Minitest Usage
 
@@ -252,6 +295,9 @@ using `c.dynamic_jsonp`. This is helpful when JSONP APIs use cache-busting
 parameters. For example, if you want `http://example.com/foo?callback=bar&id=1&cache_bust=12345` and `http://example.com/foo?callback=baz&id=1&cache_bust=98765` to be cache hits for each other, you would set `c.dynamic_jsonp_keys = ['callback', 'cache_bust']` to ignore both params. Note
 that in this example the `id` param would still be considered important.
 
+`c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback 
+parameter. The default is `callback`.
+
 `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
 including whitelisted ones.  This is useful if your AUT has routes that get data
 from external services, such as `/api` where the ajax request is a local URL but
@@ -309,6 +355,10 @@ Billy.configure do |c|
   ...
 end
 ```
+
+`c.cache_simulates_network_delays` is used to add some delay before cache returns response. When set to `true`, cached requests will wait from configured delay time before responding. This allows to catch various race conditions in asynchronous front-end requests. The default is `false`.
+
+`c.cache_simulates_network_delay_time` is used to configure time (in seconds) to wait until responding from cache. The default is `0.1`.
 
 ### Cache Scopes
 
@@ -369,6 +419,21 @@ In Rspec:
 ```ruby
 RSpec.configure do |config|
   config.before :each { proxy.cache.use_default_scope }
+end
+```
+
+## Separate Cache Directory for Each Test (in Cucumber)
+
+If you want the cache for each test to be independent, i.e. have it's own directory where the cache files are stored, you can use a Before tag like so:
+
+```rb
+Before('@javascript') do |scenario, block|
+  Billy.configure do |c|
+    feature_name = scenario.feature.name.underscore
+    scenario_name = scenario.name.underscore
+    c.cache_path = "features/support/fixtures/req_cache/#{feature_name}/#{scenario_name}/"
+    Dir.mkdir_p(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
+  end
 end
 ```
 
@@ -441,7 +506,6 @@ end
 ```
 
 Note that this approach may cause unexpected behavior if your backend sends the Referer HTTP header (which is unlikely).
-
 
 ## Resources
 

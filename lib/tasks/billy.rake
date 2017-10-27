@@ -67,7 +67,7 @@ namespace :cache do
   end
 
   def load_cache_file(filename)
-    YAML.load(File.open(filename))
+    YAML.load_file(filename)
   rescue ArgumentError => e
     puts "Could not parse YAML: #{e.message}"
   end

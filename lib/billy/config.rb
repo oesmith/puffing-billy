@@ -9,9 +9,9 @@ module Billy
     attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :path_blacklist, :ignore_params, :allow_params,
                   :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
                   :non_whitelisted_requests_disabled, :cache_path, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
-                  :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys, :merge_cached_responses_whitelist,
+                  :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys, :dynamic_jsonp_callback_name, :merge_cached_responses_whitelist,
                   :strip_query_params, :proxied_request_host, :proxied_request_port, :cache_request_body_methods, :after_cache_handles_request,
-                  :record_stub_requests, :use_ignore_params
+                  :cache_simulates_network_delays, :cache_simulates_network_delay_time, :record_stub_requests, :use_ignore_params
 
     def initialize
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
@@ -29,6 +29,7 @@ module Billy
       @persist_cache = false
       @dynamic_jsonp = false
       @dynamic_jsonp_keys = ['callback']
+      @dynamic_jsonp_callback_name = 'callback'
       @ignore_cache_port = true
       @non_successful_cache_disabled = false
       @non_successful_error_level = :warn
@@ -43,6 +44,8 @@ module Billy
       @proxied_request_port = 80
       @cache_request_body_methods = ['post']
       @after_cache_handles_request = nil
+      @cache_simulates_network_delays = false
+      @cache_simulates_network_delay_time = 0.1
       @record_stub_requests = false
       @use_ignore_params = true
     end
