@@ -1,3 +1,9 @@
+v0.11.0, 2017-11-09
+-------------------
+  * Improved semantic versioning of dependencies [#197](https://github.com/oesmith/puffing-billy/pull/197)
+  * Implemented a dynamic generation of SSL request certificates [#198](https://github.com/oesmith/puffing-billy/pull/198)
+  * Added Billy.config.allow_params whitelist feature [#200](https://github.com/oesmith/puffing-billy/pull/200)
+
 v0.10.1, 2017-10-12
 -------------------
   * Fix selenium webdriver deprecation warning [#194](https://github.com/oesmith/puffing-billy/pull/194)
