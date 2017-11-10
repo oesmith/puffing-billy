@@ -5,6 +5,7 @@ require 'billy/capybara/rspec'
 require 'billy/watir/rspec'
 require 'rack'
 require 'logger'
+require 'fileutils'
 
 browser = Billy::Browsers::Watir.new :phantomjs
 Capybara.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
@@ -19,6 +20,11 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
   config.order = 'random'
+
+  config.before :suite do
+    FileUtils.rm_rf(Billy.config.certs_path)
+    FileUtils.rm_rf(Billy.config.cache_path)
+  end
 
   config.before :all do
     start_test_servers

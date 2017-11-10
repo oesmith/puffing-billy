@@ -253,6 +253,7 @@ Billy.configure do |c|
   c.non_successful_error_level = :warn
   c.non_whitelisted_requests_disabled = false
   c.cache_path = 'spec/req_cache/'
+  c.certs_path = 'spec/req_certs/'
   c.proxy_host = 'example.com' # defaults to localhost
   c.proxy_port = 12345 # defaults to random
   c.proxied_request_host = nil
@@ -295,7 +296,7 @@ using `c.dynamic_jsonp`. This is helpful when JSONP APIs use cache-busting
 parameters. For example, if you want `http://example.com/foo?callback=bar&id=1&cache_bust=12345` and `http://example.com/foo?callback=baz&id=1&cache_bust=98765` to be cache hits for each other, you would set `c.dynamic_jsonp_keys = ['callback', 'cache_bust']` to ignore both params. Note
 that in this example the `id` param would still be considered important.
 
-`c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback 
+`c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback
 parameter. The default is `callback`.
 
 `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
@@ -326,6 +327,13 @@ no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
 allowed, all others will throw an error with the URL attempted to be accessed.
 This is useful for debugging issues in isolated environments (ie.
 continuous integration).
+
+`c.cache_path` can be used to locate the cache directory to a different place
+other than `system temp directory/puffing-billy`.
+
+`c.certs_path` can be used to locate the directory for dynamically generated
+SSL certificates to a different place other than `system temp
+directory/puffing-billy/certs`.
 
 `c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
 
@@ -506,6 +514,54 @@ end
 ```
 
 Note that this approach may cause unexpected behavior if your backend sends the Referer HTTP header (which is unlikely).
+
+## SSL usage
+
+Unfortunately we cannot setup the runtime certificate authority on your browser
+at time of configuring the Capybara driver.  So you need to take care of this
+step yourself as a prepartion. A good point would be directly after configuring
+this gem.
+
+### Google Chrome Headless example
+
+Google Chrome/Chromium is capable to run as a test browser with the new
+headless mode which is not able to handle the deprecated
+`--ignore-certificate-errors` flag. But the headless mode is capable of
+handling the user PKI certificate store.  So you just need to import the
+runtime Puffing Billy certificate authority on your system store, or generate a
+new store for your current session. The following examples demonstrates the
+former variant:
+
+```ruby
+# Overwrite the local home directory for chrome. We use this
+# to setup a custom SSL certificate store.
+ENV['HOME'] = "#{Dir.tmpdir}/chrome-home-#{Time.now.to_i}"
+
+# Clear and recreate the Chrome home directory.
+FileUtils.rm_rf(ENV['HOME'])
+FileUtils.mkdir_p(ENV['HOME'])
+
+# Setup a new pki certificate database for Chrome
+system <<~SCRIPT
+cd "#{ENV['HOME']}"
+curl -s -k -o "cacert-root.crt" "http://www.cacert.org/certs/root.crt"
+curl -s -k -o "cacert-class3.crt" "http://www.cacert.org/certs/class3.crt"
+echo > .password
+mkdir -p .pki/nssdb
+CERT_DIR=sql:$HOME/.pki/nssdb
+certutil -N -d .pki/nssdb -f .password
+certutil -d ${CERT_DIR}  -A -t TC \
+  -n "CAcert.org" -i cacert-root.crt
+certutil -d ${CERT_DIR} -A -t TC \
+  -n "CAcert.org Class 3" -i cacert-class3.crt
+certutil -d sql:$HOME/.pki/nssdb -A \
+  -n puffing-billy -t "CT,C,C" -i #{Billy.certificate_authority.cert_file}
+SCRIPT
+```
+
+Mind the reset of the `HOME` environment variable. Fortunately Chrome takes
+care of the users home, so we can setup a new temporary directory for the test
+run, without messing with potential user configurations.
 
 ## Resources
 

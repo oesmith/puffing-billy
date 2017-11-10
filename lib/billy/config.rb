@@ -8,7 +8,7 @@ module Billy
 
     attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :path_blacklist, :ignore_params, :allow_params,
                   :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
-                  :non_whitelisted_requests_disabled, :cache_path, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
+                  :non_whitelisted_requests_disabled, :cache_path, :certs_path, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
                   :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys, :dynamic_jsonp_callback_name, :merge_cached_responses_whitelist,
                   :strip_query_params, :proxied_request_host, :proxied_request_port, :cache_request_body_methods, :after_cache_handles_request,
                   :cache_simulates_network_delays, :cache_simulates_network_delay_time, :record_stub_requests, :use_ignore_params
@@ -35,6 +35,7 @@ module Billy
       @non_successful_error_level = :warn
       @non_whitelisted_requests_disabled = false
       @cache_path = File.join(Dir.tmpdir, 'puffing-billy')
+      @certs_path = File.join(Dir.tmpdir, 'puffing-billy', 'certs')
       @proxy_host = 'localhost'
       @proxy_port = RANDOM_AVAILABLE_PORT
       @proxied_request_inactivity_timeout = 10 # defaults from https://github.com/igrigorik/em-http-request/wiki/Redirects-and-Timeouts
