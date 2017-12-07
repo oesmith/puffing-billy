@@ -533,6 +533,12 @@ new store for your current session. The following examples demonstrates the
 former variant:
 
 ```ruby
+# Install the fabulous `os` gem first
+# See: https://rubygems.org/gems/os
+# gem install os
+#
+# --
+
 # Overwrite the local home directory for chrome. We use this
 # to setup a custom SSL certificate store.
 ENV['HOME'] = "#{Dir.tmpdir}/chrome-home-#{Time.now.to_i}"
@@ -542,26 +548,52 @@ FileUtils.rm_rf(ENV['HOME'])
 FileUtils.mkdir_p(ENV['HOME'])
 
 # Setup a new pki certificate database for Chrome
-system <<~SCRIPT
-cd "#{ENV['HOME']}"
-curl -s -k -o "cacert-root.crt" "http://www.cacert.org/certs/root.crt"
-curl -s -k -o "cacert-class3.crt" "http://www.cacert.org/certs/class3.crt"
-echo > .password
-mkdir -p .pki/nssdb
-CERT_DIR=sql:$HOME/.pki/nssdb
-certutil -N -d .pki/nssdb -f .password
-certutil -d ${CERT_DIR}  -A -t TC \
-  -n "CAcert.org" -i cacert-root.crt
-certutil -d ${CERT_DIR} -A -t TC \
-  -n "CAcert.org Class 3" -i cacert-class3.crt
-certutil -d sql:$HOME/.pki/nssdb -A \
-  -n puffing-billy -t "CT,C,C" -i #{Billy.certificate_authority.cert_file}
-SCRIPT
+if OS.linux?
+  system <<~SCRIPT
+    cd "#{ENV['HOME']}"
+    curl -s -k -o "cacert-root.crt" "http://www.cacert.org/certs/root.crt"
+    curl -s -k -o "cacert-class3.crt" "http://www.cacert.org/certs/class3.crt"
+    echo > .password
+    mkdir -p .pki/nssdb
+    CERT_DIR=sql:$HOME/.pki/nssdb
+    certutil -N -d .pki/nssdb -f .password
+    certutil -d ${CERT_DIR}  -A -t TC \
+      -n "CAcert.org" -i cacert-root.crt
+    certutil -d ${CERT_DIR} -A -t TC \
+      -n "CAcert.org Class 3" -i cacert-class3.crt
+    certutil -d sql:$HOME/.pki/nssdb -A \
+      -n puffing-billy -t "CT,C,C" -i #{Billy.certificate_authority.cert_file}
+  SCRIPT
+end
+
+# Setup the macOS certificate store
+if OS.mac?
+  prompt = 'Add Puffing Billy root certificate authority ' \
+           'to system certificate store'
+  system <<~SCRIPT
+    sudo -p "# #{prompt}`echo $'\nPassword: '`" \
+      security find-certificate -a -Z -c 'Puffing Billy' \
+      | grep 'SHA-1 hash' | cut -d ':' -f2 | xargs -n1 \
+      sudo security delete-certificate -Z >/dev/null 2>&1 || true
+    sudo security add-trusted-cert -d -r trustRoot \
+      -k /Library/Keychains/System.keychain \
+      #{Billy.certificate_authority.cert_file}
+  SCRIPT
+end
 ```
 
 Mind the reset of the `HOME` environment variable. Fortunately Chrome takes
 care of the users home, so we can setup a new temporary directory for the test
 run, without messing with potential user configurations.
+
+The macOS support requires the input of your password to manipulate the system
+certificate store. If you are lazy you can turn off sudo password prompt for
+the security command, but it's strongly advised against. (You know passwordless
+security, is no security in this case) Further, the macOS handling here cleans
+up old Puffing Billy root certificate authorities and put the current one into
+the system store. So after a run of your the suite only one certificate will be
+left over. If this is not enough you can handling the cleanup again with a
+custom on-after hook.
 
 ## Resources
 
