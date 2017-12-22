@@ -19,7 +19,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'thin'
   gem.add_development_dependency 'faraday'
   gem.add_development_dependency 'poltergeist'
-  gem.add_development_dependency 'selenium-webdriver'
+  # selenium-webdriver 3.8 drops support for PhantomJS
+  gem.add_development_dependency 'selenium-webdriver', '<= 3.7.0'
   gem.add_development_dependency 'capybara'
   gem.add_development_dependency 'capybara-webkit', '~> 1.0'
   gem.add_development_dependency 'rack'
