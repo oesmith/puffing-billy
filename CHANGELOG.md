@@ -1,3 +1,8 @@
+v0.11.1, 2017-12-22
+-------------------
+  * Prevent eventmachine from installing 1.2.x [#206](https://github.com/oesmith/puffing-billy/pull/206)
+  * Prevent selenium-webdriver from installing 3.8 [#209](https://github.com/oesmith/puffing-billy/pull/209)
+
 v0.11.0, 2017-11-09
 -------------------
   * Improved semantic versioning of dependencies [#197](https://github.com/oesmith/puffing-billy/pull/197)
