@@ -515,6 +515,15 @@ end
 
 Note that this approach may cause unexpected behavior if your backend sends the Referer HTTP header (which is unlikely).
 
+### Raising errors from stubs
+
+By default PuffingBilly suppress errors from stub-blocks.
+To make it raise errors instead, add this test initializers:
+
+```ruby
+EM.error_handler { |e| raise e }
+```
+
 ## SSL usage
 
 Unfortunately we cannot setup the runtime certificate authority on your browser
