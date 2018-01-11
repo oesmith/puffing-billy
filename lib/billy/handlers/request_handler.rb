@@ -5,7 +5,7 @@ module Billy
     extend Forwardable
     include Handler
 
-    def_delegators :stub_handler, :stub
+    def_delegators :stub_handler, :stub, :unstub
 
     def handlers
       @handlers ||= { stubs: StubHandler.new,

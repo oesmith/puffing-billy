@@ -28,10 +28,9 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rb-inotify'
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'cucumber'
-  gem.add_development_dependency 'watir-webdriver', '0.9.1'
-  # addressable 2.5.0 drops support for ruby 1.9.3
-  gem.add_runtime_dependency 'addressable', '~> 2.4', '>= 2.4.0'
-  gem.add_runtime_dependency 'eventmachine', '1.2.0.1'
+  gem.add_development_dependency 'watir', '~> 6.10.0'
+  gem.add_runtime_dependency 'addressable', '~> 2.5'
+  gem.add_runtime_dependency 'eventmachine', '~> 1.0.4'
   gem.add_runtime_dependency 'em-synchrony'
   gem.add_runtime_dependency 'em-http-request', '~> 1.1', '>= 1.1.0'
   gem.add_runtime_dependency 'eventmachine_httpserver'

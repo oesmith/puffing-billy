@@ -15,7 +15,10 @@ before_script:
   - phantomjs --version
   - bundle --version
 rvm:
-  - 1.9.3
   - 2.0.0
   - 2.1.0
+  - 2.2.0
+  - 2.3.0
+  - 2.4.0
 script: bundle exec rspec spec
+

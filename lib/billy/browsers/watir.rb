@@ -1,5 +1,5 @@
 require 'billy'
-require 'watir-webdriver'
+require 'watir'
 
 module Billy
   module Browsers
@@ -25,8 +25,9 @@ module Billy
       end
 
       def configure_phantomjs(args)
-        args[:args] ||= []
-        args[:args] += %W[--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}]
+        args[:driver_opts] ||= {}
+        args[:driver_opts][:args] ||= []
+        args[:driver_opts][:args] += %W[--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}]
         args
       end
 
