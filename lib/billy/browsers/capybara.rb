@@ -57,6 +57,7 @@ module Billy
         ::Capybara.register_driver :selenium_chrome_billy do |app|
           options = Selenium::WebDriver::Chrome::Options.new
           options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
+          options.add_argument("--proxy-bypass-list=localhost")
 
           ::Capybara::Selenium::Driver.new(
             app, browser: :chrome,
