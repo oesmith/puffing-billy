@@ -118,7 +118,13 @@ module Billy
     end
 
     def cache_file(key)
-      File.join(Billy.config.cache_path, "#{key}.yml")
+      file = File.join(Billy.config.cache_path, "#{key}.yml")
+
+      if File.symlink? file
+        file = File.readlink file
+      end
+
+      file
     end
 
     def scope_to(new_scope = nil)
