@@ -1,3 +1,8 @@
+v0.12.0, 2018-02-07
+-------------------
+  * Follow cache file symlinks [#220](https://github.com/oesmith/puffing-billy/pull/220)
+  * Update eventmachine to support HTTP/2 resources [#217](https://github.com/oesmith/puffing-billy/pull/217)
+
 v0.11.1, 2017-12-22
 -------------------
   * Prevent eventmachine from installing 1.2.x [#206](https://github.com/oesmith/puffing-billy/pull/206)
