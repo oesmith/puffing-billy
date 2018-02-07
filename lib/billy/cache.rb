@@ -54,10 +54,10 @@ module Billy
 
       if Billy.config.persist_cache
         if Billy.config.use_shared_mocks
-          Dir.mkdir_p(Billy.config.shared_mock_path)
+          FileUtils.mkdir_p(Billy.config.shared_mock_path)
         end
 
-        Dir.mkdir_p(Billy.config.cache_path)
+        FileUtils.mkdir_p(Billy.config.cache_path)
 
         begin
           File.open(cache_file(key), 'w') do |f|
