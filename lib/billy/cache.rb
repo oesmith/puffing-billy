@@ -51,8 +51,13 @@ module Billy
 
       @cache[key] = cached
 
+
       if Billy.config.persist_cache
-        Dir.mkdir(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
+        if Billy.config.use_shared_mocks
+          Dir.mkdir_p(Billy.config.shared_mock_path)
+        end
+
+        Dir.mkdir_p(Billy.config.cache_path)
 
         begin
           File.open(cache_file(key), 'w') do |f|
@@ -118,7 +123,18 @@ module Billy
     end
 
     def cache_file(key)
-      file = File.join(Billy.config.cache_path, "#{key}.yml")
+      # set the path to the default path
+      path = Billy.config.cache_path
+
+      # if shared mocks is on and the key matches the shared mock glob
+      if Billy.config.use_shared_mocks
+        if Billy.config.shared_mock_key_match.match(key)
+          # set the path to the shared path
+          path = Billy.config.shared_mock_path
+        end
+      end
+
+      file = File.join(path, "#{key}.yml")
 
       if File.symlink? file
         file = File.readlink file
