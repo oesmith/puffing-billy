@@ -28,11 +28,13 @@ module Billy
     end
 
     def handles_request?(method, url, headers, body)
-      [:stubs, :cache, :proxy].each do |key|
-        return true if handlers[key].handles_request?(method, url, headers, body)
+      [:stubs, :cache, :proxy].any? do |key|
+        handlers[key].handles_request?(method, url, headers, body)
       end
+    end
 
-      false
+    def stubs
+      stub_handler.stubs
     end
 
     def reset
@@ -40,7 +42,7 @@ module Billy
     end
 
     def reset_stubs
-      handlers[:stubs].reset
+      stub_handler.reset
     end
 
     def reset_cache
