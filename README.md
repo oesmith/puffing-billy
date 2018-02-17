@@ -269,6 +269,7 @@ Billy.configure do |c|
   c.proxy_port = 12345 # defaults to random
   c.proxied_request_host = nil
   c.proxied_request_port = 80
+  c.record_requests = true # defaults to false
   c.cache_request_body_methods = ['post', 'patch', 'put'] # defaults to ['post']
 end
 ```
@@ -350,6 +351,64 @@ directory/puffing-billy/certs`.
 
 `c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
 server is required to access the internet.  Most common in larger companies.
+
+`c.record_requests` can be used to record all requests that puffing billy proxied.
+This can be useful for debugging purposes, for instance if you are unsure why
+your stubbed requests are not being successfully proxied.
+
+Example usage:
+
+```ruby
+require 'table_print' # Add this dependency to your gemfile
+
+Billy.configure do |c|
+  c.record_requests = true
+end
+
+RSpec.configure do |config|
+  config.prepend_after(:example, type: :feature) do
+    puts "Requests received via Puffing Billy Proxy:"
+
+    puts TablePrint::Printer.table_print(Billy.proxy.requests, [
+      :status,
+      :handler,
+      :method,
+      { url: { width: 100 } },
+      :headers,
+      :body
+    ])
+  end
+end
+```
+
+This will generate a human readable list of all requests after each test run:
+
+```
+Requests received via Puffing Billy Proxy:
+STATUS   | HANDLER | METHOD  | URL                                     | HEADERS                        | BODY
+---------|---------|---------|-----------------------------------------|--------------------------------|-----
+complete | proxy   | GET     | http://127.0.0.1:56692/                 | {"Accept"=>"text/html,appli... |
+complete | proxy   | GET     | http://127.0.0.1:56692/assets/appl...   | {"Accept"=>"text/css,*/*;q=... |
+complete | proxy   | GET     | http://127.0.0.1:56692/assets/app...    | {"Accept"=>"*/*", "Referer"... |
+complete | proxy   | GET     | http://127.0.0.1:56692/javascript/index | {"Accept"=>"text/html,appli... |
+complete | stubs   | OPTIONS | https://api.github.com:443/             | {"Access-Control-Request-Me... |
+complete | stubs   | GET     | https://api.github.com:443/             | {"Accept"=>"*/*", "Referer"... |
+inflight |         | GET     | http://127.0.0.1:56692/example          | {"Referer"=>"http://127.0.0... |
+.
+
+Finished in 1.98 seconds (files took 2.11 seconds to load)
+1 example, 0 failures
+```
+
+The handler column indicates how Puffing Billy handled your request:
+
+- proxy: This request was successfully routed to the original target
+- stubs: This was handled via a stub
+- error: This request was not handled by a stub, and was not successfully handled
+- cache: This response was handled by a previous cache
+
+If your `status` is set to in_flight this request has not yet been handled fully. Either puffing billy crashed
+internally on this request, or your test ended before it could complete successfully.
 
 `c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
 
