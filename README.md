@@ -132,8 +132,8 @@ If for any reason you'd need to reset stubs manually you can do it in two ways:
 
 ```ruby
 # reset a single stub
-proxy.unstub 'http://example.com/get/'
-proxy.unstub 'http://example.com/update/', :method => :post
+example_stub = proxy.stub('http://example.com/text/').and_return(:text => 'Foobar')
+proxy.unstub example_stub
 
 # reset all stubs
 proxy.reset

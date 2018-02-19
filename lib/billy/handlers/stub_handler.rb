@@ -34,9 +34,8 @@ module Billy
       new_stub
     end
 
-    def unstub(url, options = {:method => :get})
-      method = options[:method].to_s.upcase
-      stubs.delete_if { |stub| stub.matches?(method, url) }
+    def unstub(stub)
+      stubs.delete stub
     end
 
     private

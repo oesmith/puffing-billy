@@ -64,12 +64,10 @@ describe Billy::StubHandler do
   end
 
   describe '#unstub' do
-    before do
-      handler.stub('http://example.post/', method: :post)
-      handler.stub('http://example.get/')
-    end
+    let!(:get_stub) { handler.stub('http://example.get/') }
+    let!(:post_stub) { handler.stub('http://example.post/', method: :post) }
 
-    it 'removes the stub a one GET request' do
+    it 'removes a single stub' do
       expect(handler.handles_request?('GET',
                                       'http://example.get/',
                                       request[:headers],
@@ -79,7 +77,7 @@ describe Billy::StubHandler do
                                       request[:headers],
                                       request[:body])).to be true
 
-      handler.unstub 'http://example.get/'
+      handler.unstub get_stub
 
       expect(handler.handles_request?('GET',
                                       'http://example.get/',
@@ -89,28 +87,6 @@ describe Billy::StubHandler do
                                       'http://example.post/',
                                       request[:headers],
                                       request[:body])).to be true
-    end
-
-    it 'removes the stub for a POST request' do
-      expect(handler.handles_request?('GET',
-                                      'http://example.get/',
-                                      request[:headers],
-                                      request[:body])).to be true
-      expect(handler.handles_request?('POST',
-                                      'http://example.post/',
-                                      request[:headers],
-                                      request[:body])).to be true
-
-      handler.unstub 'http://example.post/', :method => :post
-
-      expect(handler.handles_request?('GET',
-                                      'http://example.get/',
-                                      request[:headers],
-                                      request[:body])).to be true
-      expect(handler.handles_request?('POST',
-                                      'http://example.post/',
-                                      request[:headers],
-                                      request[:body])).to be false
     end
 
     it 'does not raise errors for not existing stub' do
