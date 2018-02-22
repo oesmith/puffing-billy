@@ -9,7 +9,7 @@ end
 RSpec.configure do |config|
   config.include(Billy::RspecHelper)
 
-  config.after(:each) do
+  config.prepend_after(:each) do
     proxy.reset
   end
 end
