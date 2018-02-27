@@ -51,7 +51,8 @@ module Billy
           profile.proxy = Selenium::WebDriver::Proxy.new(
             http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
             ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
-          ::Capybara::Selenium::Driver.new(app, profile: profile)
+          options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
+          ::Capybara::Selenium::Driver.new(app, options: options)
         end
 
         ::Capybara.register_driver :selenium_chrome_billy do |app|
