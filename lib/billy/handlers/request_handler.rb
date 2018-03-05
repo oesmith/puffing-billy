@@ -23,6 +23,8 @@ module Billy
 
       body_msg = Billy.config.cache_request_body_methods.include?(method) ? " with body '#{body}'" : ''
       { error: "Connection to #{url}#{body_msg} not cached and new http connections are disabled" }
+    rescue => error
+      { error: error.message }
     end
 
     def handles_request?(method, url, headers, body)

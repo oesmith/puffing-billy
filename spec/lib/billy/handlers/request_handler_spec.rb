@@ -104,6 +104,21 @@ describe Billy::RequestHandler do
         expect(proxy_handler).to receive(:handle_request).with(*args)
         expect(subject.handle_request(*args)).to eql(error: "Connection to url with body 'body' not cached and new http connections are disabled")
       end
+
+      it 'returns an error hash on unhandled exceptions' do
+        # Allow handling requests initially
+        allow(stub_handler).to receive(:handle_request)
+        allow(cache_handler).to receive(:handle_request)
+
+        allow(proxy_handler).to receive(:handle_request).and_raise("Any Proxy Error")
+        expect(subject.handle_request(*args)).to eql(error: "Any Proxy Error")
+
+        allow(cache_handler).to receive(:handle_request).and_raise("Any Cache Error")
+        expect(subject.handle_request(*args)).to eql(error: "Any Cache Error")
+
+        allow(stub_handler).to receive(:handle_request).and_raise("Any Stub Error")
+        expect(subject.handle_request(*args)).to eql(error: "Any Stub Error")
+      end
     end
 
     describe '#stub' do
