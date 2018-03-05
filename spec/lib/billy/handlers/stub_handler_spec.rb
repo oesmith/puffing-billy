@@ -63,6 +63,37 @@ describe Billy::StubHandler do
     end
   end
 
+  describe '#unstub' do
+    let!(:get_stub) { handler.stub('http://example.get/') }
+    let!(:post_stub) { handler.stub('http://example.post/', method: :post) }
+
+    it 'removes a single stub' do
+      expect(handler.handles_request?('GET',
+                                      'http://example.get/',
+                                      request[:headers],
+                                      request[:body])).to be true
+      expect(handler.handles_request?('POST',
+                                      'http://example.post/',
+                                      request[:headers],
+                                      request[:body])).to be true
+
+      handler.unstub get_stub
+
+      expect(handler.handles_request?('GET',
+                                      'http://example.get/',
+                                      request[:headers],
+                                      request[:body])).to be false
+      expect(handler.handles_request?('POST',
+                                      'http://example.post/',
+                                      request[:headers],
+                                      request[:body])).to be true
+    end
+
+    it 'does not raise errors for not existing stub' do
+      expect { handler.unstub 'http://example.option/' }.not_to raise_error
+    end
+  end
+
   it '#stubs requests' do
     handler.stub('http://example.test:8080/index')
     expect(handler.handles_request?('GET',

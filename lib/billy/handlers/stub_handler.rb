@@ -34,6 +34,10 @@ module Billy
       new_stub
     end
 
+    def unstub(stub)
+      stubs.delete stub
+    end
+
     private
 
     attr_writer :stubs

@@ -128,6 +128,17 @@ proxy.stub('http://example.com/api', :method => :options).and_return(
 Stubs are reset between tests.  Any requests that are not stubbed will be
 proxied to the remote server.
 
+If for any reason you'd need to reset stubs manually you can do it in two ways:
+
+```ruby
+# reset a single stub
+example_stub = proxy.stub('http://example.com/text/').and_return(:text => 'Foobar')
+proxy.unstub example_stub
+
+# reset all stubs
+proxy.reset
+```
+
 ## Cucumber Usage
 
 An example feature:
