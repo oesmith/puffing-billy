@@ -157,16 +157,38 @@ describe Billy::ProxyRequestStub do
       expected_headers = { 'header1' => 'three', 'header2' => 'four' }
       expected_body = 'body text'
 
-      subject.and_return(proc do |params, headers, body|
+      # Required due to the instance_exec implementation
+      subject.extend(RSpec::Matchers)
+
+      subject.and_return(proc do |params, headers, body, url, method|
         expect(params).to eql expected_params
         expect(headers).to eql expected_headers
         expect(body).to eql 'body text'
+        expect(url).to eql 'url'
+        expect(method).to eql 'GET'
         { code: 418, text: 'success' }
       end)
-      expect(subject.call('', '', expected_params, expected_headers, expected_body)).to eql [
+      expect(subject.call('GET', 'url', expected_params, expected_headers, expected_body)).to eql [
         418,
         { 'Content-Type' => 'text/plain' },
         'success'
+      ]
+    end
+
+    it 'should use a callable with pass_request' do
+      # Required due to the instance_exec implementation
+      subject.extend(RSpec::Matchers)
+
+      subject.and_return(proc do |*args|
+        response = pass_request(*args)
+        response[:body] = 'modified'
+        response[:code] = 205
+        response
+      end)
+
+      expect(subject.call('GET', @http_url, {}, {}, 'original')).to eql [
+        205,
+        'modified'
       ]
     end
   end

@@ -103,9 +103,25 @@ proxy.stub('https://example.com:443/secure/').and_return(:text => 'secrets!!1!')
 #   params:  Query string parameters hash, CGI::escape-style
 #   headers: Headers hash
 #   body:    Request body string
-#
-proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, body|
-  { :text => "Hello, #{params['name'][0]}"}
+#   url:     The actual URL which was requested
+#   method:  The HTTP verb which was requested
+proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, body, url, method|
+  {
+    :code => 200,
+    :text => "Hello, #{params['name'][0]}"
+  }
+})
+
+# You can also use Puffing Billy to intercept requests and responses. Just pass
+# a Proc and use the pass_request method. You can manipulate the request
+# (headers, URL, HTTP method, etc) and also the response from the upstream
+# server.
+proxy.stub('http://example.com/').and_return(Proc.new { |*args|
+  response = pass_request(*args)
+  response[:headers]['Content-Type'] = 'text/plain'
+  response[:body] = 'Hello World!'
+  response[:code] = 200
+  response
 })
 
 # Stub out a POST. Don't forget to allow a CORS request and set the method to 'post'
