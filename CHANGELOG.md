@@ -1,3 +1,10 @@
+v1.0.0, 2018-03-05
+-------------------
+  * Add #unstub method, replace deprecated watir-webdriver with watir [#212](https://github.com/oesmith/puffing-billy/pull/212)
+    * Watir upgrade requires puffing-billy to drop support for ruby 1.9.3
+  * Prepend rspec puffing billy reset hook [#227](https://github.com/oesmith/puffing-billy/pull/227)
+  * Catch unhandled request handler errors [#228](https://github.com/oesmith/puffing-billy/pull/228)
+
 v0.12.0, 2018-02-07
 -------------------
   * Follow cache file symlinks [#220](https://github.com/oesmith/puffing-billy/pull/220)
