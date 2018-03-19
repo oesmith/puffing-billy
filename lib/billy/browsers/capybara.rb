@@ -20,8 +20,6 @@ module Billy
         end
       end
 
-      private
-
       def self.register_poltergeist_driver
         ::Capybara.register_driver :poltergeist_billy do |app|
           options = {
