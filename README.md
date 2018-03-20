@@ -64,6 +64,28 @@ Capybara.javascript_driver = :selenium_billy # Uses Firefox
 `:webkit_billy` for headless specs when using puffing-billy for other local rack apps.
 See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
 
+#### Advanced setup
+If you need to configure additional settings on the driver -- for example, to
+simulate browsing as an anonymous user -- you can manually register a driver
+and pass it a profile object.
+
+```ruby
+require 'capybara/rspec'
+require 'billy/browsers/capybara'
+require 'billy/init/rspec'
+
+# Get the anonymous profile
+profile = Selenium::WebDriver::Firefox::Profile.load(
+  Selenium::WebDriver::Firefox::Profile.ANONYMOUS_PROFILE_NAME
+)
+
+# Register the driver using the provided profile
+driver = Billy::Browsers::Capybara.register_selenium_firefox(profile)
+
+# Use the profile as the javascript driver
+Capybara.javascript_driver = driver
+```
+
 ### Setup for Watir
 
 In your `rails_helper.rb`:
