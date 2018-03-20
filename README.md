@@ -69,6 +69,8 @@ If you need to configure additional settings on the driver -- for example, to
 simulate browsing as an anonymous user -- you can manually register a driver
 and pass it a profile object.
 
+In your `rails_helper.rb`:
+
 ```ruby
 require 'capybara/rspec'
 require 'billy/browsers/capybara'
