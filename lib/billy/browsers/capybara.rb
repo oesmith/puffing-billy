@@ -25,7 +25,7 @@ module Billy
       # @param options [Hash] the options to pass to the driver
       def self.register_poltergeist_driver(options = {})
         ::Capybara.register_driver :poltergeist_billy do |app|
-          options.merge(
+          options = options.merge(
             phantomjs_options: [
               '--ignore-ssl-errors=yes',
               "--proxy=#{Billy.proxy.host}:#{Billy.proxy.port}"
@@ -39,7 +39,7 @@ module Billy
       # @param options [Hash] the options to pass to the driver
       def self.register_webkit_driver(options = {})
         ::Capybara.register_driver :webkit_billy do |app|
-          options.merge(
+          options = options.merge(
             ignore_ssl_errors: true,
             proxy: { host: Billy.proxy.host, port: Billy.proxy.port }
           )
