@@ -59,7 +59,7 @@ module Billy
       # Register firefox with a proxy
       # @param profile [Capybara::WebDriver::Firefox::Profile] the profile
       # to pass to the driver
-      def self.register_selenium_firefox(profile)
+      def self.register_selenium_firefox(profile = nil)
         ::Capybara.register_driver :selenium_billy do |app|
           profile ||= Selenium::WebDriver::Firefox::Profile.new
           profile.assume_untrusted_certificate_issuer = false
@@ -74,7 +74,7 @@ module Billy
       # Register chrome with a proxy
       # @param options [Capybara::WebDriver::Chrome::Options] the options
       # to pass to the driver
-      def self.register_selenium_chrome(options)
+      def self.register_selenium_chrome(options = nil)
         ::Capybara.register_driver :selenium_chrome_billy do |app|
           options ||= Selenium::WebDriver::Chrome::Options.new
           options.add_argument(
