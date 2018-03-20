@@ -78,7 +78,7 @@ require 'billy/init/rspec'
 
 # Get the anonymous profile
 profile = Selenium::WebDriver::Firefox::Profile.load(
-  Selenium::WebDriver::Firefox::Profile.ANONYMOUS_PROFILE_NAME
+  Selenium::WebDriver::Firefox::Profile::ANONYMOUS_PROFILE_NAME
 )
 
 # Register the driver using the provided profile
