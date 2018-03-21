@@ -82,10 +82,10 @@ profile = Selenium::WebDriver::Firefox::Profile.load(
 )
 
 # Register the driver using the provided profile
-driver = Billy::Browsers::Capybara.register_selenium_firefox(profile)
+Billy::Browsers::Capybara.register_selenium_firefox(profile)
 
 # Use the profile as the javascript driver
-Capybara.javascript_driver = driver
+Capybara.javascript_driver = :selenium_billy
 ```
 
 ### Setup for Watir
