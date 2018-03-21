@@ -66,8 +66,8 @@ See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for 
 
 #### Advanced setup
 If you need to configure additional settings on the driver -- for example, to
-simulate browsing as an anonymous user -- you can manually register a driver
-and pass it a profile object.
+simulate browsing at different screen sizes -- you can manually register a driver
+and pass it an options object.
 
 In your `rails_helper.rb`:
 
@@ -76,16 +76,12 @@ require 'capybara/rspec'
 require 'billy/browsers/capybara'
 require 'billy/init/rspec'
 
-# Get the anonymous profile
-profile = Selenium::WebDriver::Firefox::Profile.load(
-  Selenium::WebDriver::Firefox::Profile::ANONYMOUS_PROFILE_NAME
-)
-
 # Register the driver using the provided profile
-Billy::Browsers::Capybara.register_selenium_firefox(profile)
+# Change the screen size to exercise desktop/mobile logic
+Billy::Browsers::Capybara.register_poltergeist_driver(screen_size: [1920, 1080])
 
 # Use the profile as the javascript driver
-Capybara.javascript_driver = :selenium_billy
+Capybara.javascript_driver = :poltergeist_billy
 ```
 
 ### Setup for Watir

@@ -4,18 +4,13 @@ module Billy
   module Browsers
     # Additional methods for Capybara
     class Capybara
-      DRIVERS = {
-        poltergeist: 'capybara/poltergeist',
-        webkit: 'capybara/webkit',
-        selenium: 'selenium/webdriver'
-      }.freeze
+      DRIVERS = %w[poltergeist webkit selenium]
 
       # Register proxy drivers
       def self.register_drivers
-        DRIVERS.each do |name, driver|
+        DRIVERS.each do |name|
           begin
-            require driver
-            send("register_#{name}_driver")
+            send("register_#{name.to_s}_driver")
           rescue LoadError
           end
         end
@@ -24,6 +19,7 @@ module Billy
       # Register poltergeist with a proxy
       # @param options [Hash] the options to pass to the driver
       def self.register_poltergeist_driver(options = {})
+        require 'capybara/poltergeist'
         ::Capybara.register_driver :poltergeist_billy do |app|
           options = options.merge(
             phantomjs_options: [
@@ -38,6 +34,7 @@ module Billy
       # Register webkit with a proxy
       # @param options [Hash] the options to pass to the driver
       def self.register_webkit_driver(options = {})
+        require 'capybara/webkit'
         ::Capybara.register_driver :webkit_billy do |app|
           options = options.merge(
             ignore_ssl_errors: true,
@@ -60,6 +57,7 @@ module Billy
       # @param profile [Capybara::WebDriver::Firefox::Profile] the profile
       # to pass to the driver
       def self.register_selenium_firefox(profile = nil)
+        require 'selenium/webdriver'
         ::Capybara.register_driver :selenium_billy do |app|
           profile ||= Selenium::WebDriver::Firefox::Profile.new
           profile.assume_untrusted_certificate_issuer = false
@@ -75,6 +73,7 @@ module Billy
       # @param options [Capybara::WebDriver::Chrome::Options] the options
       # to pass to the driver
       def self.register_selenium_chrome(options = nil)
+        require 'selenium/webdriver'
         ::Capybara.register_driver :selenium_chrome_billy do |app|
           options ||= Selenium::WebDriver::Chrome::Options.new
           options.add_argument(
