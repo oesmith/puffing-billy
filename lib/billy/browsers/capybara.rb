@@ -54,18 +54,19 @@ module Billy
       end
 
       # Register firefox with a proxy
-      # @param profile [Capybara::WebDriver::Firefox::Profile] the profile
+      # @param profile [Capybara::WebDriver::Firefox::Options] the options
       # to pass to the driver
-      def self.register_selenium_firefox(profile = nil)
+      def self.register_selenium_firefox(options = nil)
         require 'selenium/webdriver'
         ::Capybara.register_driver :selenium_billy do |app|
-          profile ||= Selenium::WebDriver::Firefox::Profile.new
+          options ||= Selenium::WebDriver::Firefox::Options.new
+          profile = options.profile || Selenium::WebDriver::Firefox::Profile.new
           profile.assume_untrusted_certificate_issuer = false
           profile.proxy = Selenium::WebDriver::Proxy.new(
             http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
             ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}"
           )
-          ::Capybara::Selenium::Driver.new(app, profile: profile)
+          ::Capybara::Selenium::Driver.new(app, options: options)
         end
       end
 
