@@ -157,17 +157,50 @@ describe Billy::ProxyRequestStub do
       expected_headers = { 'header1' => 'three', 'header2' => 'four' }
       expected_body = 'body text'
 
-      subject.and_return(proc do |params, headers, body|
+      # Required due to the instance_exec implementation
+      subject.extend(RSpec::Matchers)
+
+      subject.and_return(proc do |params, headers, body, url, method|
         expect(params).to eql expected_params
         expect(headers).to eql expected_headers
         expect(body).to eql 'body text'
+        expect(url).to eql 'url'
+        expect(method).to eql 'GET'
         { code: 418, text: 'success' }
       end)
-      expect(subject.call('', '', expected_params, expected_headers, expected_body)).to eql [
+      expect(subject.call('GET', 'url', expected_params, expected_headers, expected_body)).to eql [
         418,
         { 'Content-Type' => 'text/plain' },
         'success'
       ]
+    end
+
+    it 'should use a callable with pass_request' do
+      # Add the missing em-synchrony call which is done by
+      # ProxyConnection#handle_request instead.
+      EM.synchrony do
+        # Required due to the instance_exec implementation
+        subject.extend(RSpec::Matchers)
+
+        subject.and_return(proc do |*args|
+          response = pass_request(*args)
+          response[:body] = 'modified'
+          response[:code] = 205
+          response
+        end)
+
+        # The test server can't be used at this scenario due to the limitations
+        # of the Ruby GIL. We cannot use fibers (via eventmachine) and ask
+        # ourself on a different thread to serve a HTTP request. This results
+        # in +fiber called across threads (FiberError)+ errors. Unfortunately
+        # we have to ask an external resource.
+        url = 'http://google.com'
+
+        expect(subject.call('GET', url, {}, {}, 'original')).to eql [
+          205,
+          'modified'
+        ]
+      end
     end
   end
 
