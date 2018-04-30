@@ -69,11 +69,16 @@ describe Billy::RequestHandler do
     end
 
     describe '#handle_request' do
+      before do
+        allow(Billy::config).to receive(:record_requests).and_return(true)
+      end
+
       it 'returns stubbed responses' do
         expect(stub_handler).to receive(:handle_request).with(*args).and_return('foo')
         expect(cache_handler).to_not receive(:handle_request)
         expect(proxy_handler).to_not receive(:handle_request)
         expect(subject.handle_request(*args)).to eql 'foo'
+        expect(subject.requests).to eql([{status: :complete, handler: :stubs, method: 'get', url: 'url', headers: 'headers', body: 'body'}])
       end
 
       it 'returns cached responses' do
@@ -81,6 +86,7 @@ describe Billy::RequestHandler do
         expect(cache_handler).to receive(:handle_request).with(*args).and_return('bar')
         expect(proxy_handler).to_not receive(:handle_request)
         expect(subject.handle_request(*args)).to eql 'bar'
+        expect(subject.requests).to eql([{status: :complete, handler: :cache, method: 'get', url: 'url', headers: 'headers', body: 'body'}])
       end
 
       it 'returns proxied responses' do
@@ -88,6 +94,7 @@ describe Billy::RequestHandler do
         expect(cache_handler).to receive(:handle_request).with(*args)
         expect(proxy_handler).to receive(:handle_request).with(*args).and_return('baz')
         expect(subject.handle_request(*args)).to eql 'baz'
+        expect(subject.requests).to eql([{status: :complete, handler: :proxy, method: 'get', url: 'url', headers: 'headers', body: 'body'}])
       end
 
       it 'returns an error hash if request is not handled' do
@@ -95,6 +102,7 @@ describe Billy::RequestHandler do
         expect(cache_handler).to receive(:handle_request).with(*args)
         expect(proxy_handler).to receive(:handle_request).with(*args)
         expect(subject.handle_request(*args)).to eql(error: 'Connection to url not cached and new http connections are disabled')
+        expect(subject.requests).to eql([{status: :complete, handler: :error, method: 'get', url: 'url', headers: 'headers', body: 'body'}])
       end
 
       it 'returns an error hash with body message if request cached based on body is not handled' do
@@ -103,6 +111,7 @@ describe Billy::RequestHandler do
         expect(cache_handler).to receive(:handle_request).with(*args)
         expect(proxy_handler).to receive(:handle_request).with(*args)
         expect(subject.handle_request(*args)).to eql(error: "Connection to url with body 'body' not cached and new http connections are disabled")
+        expect(subject.requests).to eql([{status: :complete, handler: :error, method: 'post', url: 'url', headers: 'headers', body: 'body'}])
       end
 
       it 'returns an error hash on unhandled exceptions' do
@@ -140,6 +149,7 @@ describe Billy::RequestHandler do
         handlers.each do |_key, handler|
           expect(handler).to receive(:reset)
         end
+        expect(subject.request_log).to receive(:reset)
         subject.reset
       end
     end
