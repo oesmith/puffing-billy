@@ -44,18 +44,18 @@ describe Billy::StubHandler do
   end
 
   describe '#reset' do
-    before do
+    it 'resets the stubs' do
       # Can't use request params when creating the stub.
       # See https://github.com/oesmith/puffing-billy/issues/21
-      handler.stub('http://example.test:8080/index')
-    end
+      stub = handler.stub('http://example.test:8080/index')
 
-    it 'resets the stubs' do
+      expect(handler.stubs).to eql([stub])
       expect(handler.handles_request?('GET',
                                       request[:url],
                                       request[:headers],
                                       request[:body])).to be true
       handler.reset
+      expect(handler.stubs).to be_empty
       expect(handler.handles_request?('GET',
                                       request[:url],
                                       request[:headers],
@@ -100,5 +100,18 @@ describe Billy::StubHandler do
                                     request[:url],
                                     request[:headers],
                                     request[:body])).to be true
+  end
+
+  describe '#stubs' do
+    it 'is empty by default' do
+      expect(handler.stubs).to be_empty
+    end
+
+    it 'keeps track of created stubs' do
+      stub1 = handler.stub('http://example.test:8080/index')
+      stub2 = handler.stub('http://example.test:8080/index')
+
+      expect(handler.stubs).to eql([stub2, stub1])
+    end
   end
 end

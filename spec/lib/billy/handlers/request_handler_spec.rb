@@ -121,6 +121,13 @@ describe Billy::RequestHandler do
       end
     end
 
+    describe '#stubs' do
+      it 'delegates to the stub_handler' do
+        expect(stub_handler).to receive(:stubs)
+        subject.stubs
+      end
+    end
+
     describe '#stub' do
       it 'delegates to the stub_handler' do
         expect(stub_handler).to receive(:stub).with('some args')

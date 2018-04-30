@@ -69,6 +69,14 @@ shared_examples_for 'a request stub' do
       .and_return(text: 'hello, OPTIONS!')
     expect(http.run_request(:options, '/bim', nil, nil).body).to eql 'hello, OPTIONS!'
   end
+
+  it 'should expose the currently registered stubs' do
+    stub1 = proxy.stub("#{url}/foo", method: :options)
+      .and_return(text: 'hello, OPTIONS!')
+    stub2 = proxy.stub("#{url}/bar", method: :options)
+              .and_return(text: 'hello, OPTIONS!')
+    expect(proxy.stubs).to eql([stub2, stub1])
+  end
 end
 
 shared_examples_for 'a cache' do
