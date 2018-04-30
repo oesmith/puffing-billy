@@ -1,5 +1,6 @@
 require 'cgi'
 require 'eventmachine'
+require 'timeout'
 
 module Billy
   class Proxy
@@ -22,6 +23,14 @@ module Billy
       end
     end
 
+    def stop
+      return if @signature.nil?
+
+      server_port = port
+      EM.stop
+      wait_for_server_shutdown! server_port
+    end
+
     def url
       "http://#{host}:#{port}"
     end
@@ -39,6 +48,23 @@ module Billy
     end
 
     protected
+
+    def wait_for_server_shutdown!(server_port)
+      Timeout::timeout(60) do
+        sleep(0.01) while port_in_use? server_port
+      end
+    rescue Timeout::Error
+      Billy.log(:error, "puffing-billy: Event machine not shutdown correctly on port #{port}")
+    end
+
+    def port_in_use?(port)
+      s = TCPSocket.new(host, port)
+      s.close
+      Billy.log(:info, "puffing-billy: Waiting for event machine to shutdown on port #{port}")
+      s
+    rescue Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL
+      false
+    end
 
     def main_loop
       EM.run do
