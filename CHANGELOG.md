@@ -1,3 +1,10 @@
+v1.1.0, 2018-04-29
+-------------------
+  * Expose stub instances via puffing billy [#224](https://github.com/oesmith/puffing-billy/pull/224)
+  * Add additional request tracking [#225](https://github.com/oesmith/puffing-billy/pull/225)
+  * Allow request/response interception on stubs [#232](https://github.com/oesmith/puffing-billy/pull/232)
+  * Add after suite stop hook for event machine [#239](https://github.com/oesmith/puffing-billy/pull/239)
+
 v1.0.0, 2018-03-05
 -------------------
   * Add #unstub method, replace deprecated watir-webdriver with watir [#212](https://github.com/oesmith/puffing-billy/pull/212)
