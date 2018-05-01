@@ -21,7 +21,7 @@ module Billy
       push_request(method, url, params, headers, body)
 
       if @response.respond_to?(:call)
-        res = instance_exec(params, headers, body, url, method, &@response)
+        res = @response.call(params, headers, body, url, method)
       else
         res = @response
       end
@@ -69,16 +69,6 @@ module Billy
           Billy.config.strip_query_params ? (url.split('?')[0] == @url) : (url == @url)
         end
       end
-    end
-
-    def pass_request(params, headers, body, url, method)
-      handler = Billy.proxy.request_handler.handlers[:proxy]
-      response = handler.handle_request(method, url, headers, body)
-      {
-        code: response[:status],
-        body: response[:content],
-        headers: response[:headers]
-      }
     end
 
     private

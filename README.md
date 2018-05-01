@@ -115,9 +115,10 @@ proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, 
 # You can also use Puffing Billy to intercept requests and responses. Just pass
 # a Proc and use the pass_request method. You can manipulate the request
 # (headers, URL, HTTP method, etc) and also the response from the upstream
-# server.
+# server. The scope of the delivered callable is the user scope where
+# it was defined.
 proxy.stub('http://example.com/').and_return(Proc.new { |*args|
-  response = pass_request(*args)
+  response = Billy.pass_request(*args)
   response[:headers]['Content-Type'] = 'text/plain'
   response[:body] = 'Hello World!'
   response[:code] = 200

@@ -157,9 +157,6 @@ describe Billy::ProxyRequestStub do
       expected_headers = { 'header1' => 'three', 'header2' => 'four' }
       expected_body = 'body text'
 
-      # Required due to the instance_exec implementation
-      subject.extend(RSpec::Matchers)
-
       subject.and_return(proc do |params, headers, body, url, method|
         expect(params).to eql expected_params
         expect(headers).to eql expected_headers
@@ -175,15 +172,12 @@ describe Billy::ProxyRequestStub do
       ]
     end
 
-    it 'should use a callable with pass_request' do
+    it 'should use a callable with Billy.pass_request' do
       # Add the missing em-synchrony call which is done by
       # ProxyConnection#handle_request instead.
       EM.synchrony do
-        # Required due to the instance_exec implementation
-        subject.extend(RSpec::Matchers)
-
         subject.and_return(proc do |*args|
-          response = pass_request(*args)
+          response = Billy.pass_request(*args)
           response[:body] = 'modified'
           response[:code] = 205
           response

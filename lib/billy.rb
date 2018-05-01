@@ -28,4 +28,18 @@ module Billy
   def self.certificate_authority
     @certificate_authority ||= Billy::Authority.new
   end
+
+  # This global shortcut can be used inside of request stubs. You can modify
+  # the request beforehand and/or modify the actual response which is passed
+  # back by this method. But you can also implement a custom proxy passing
+  # method if you like to. This is just a shortcut.
+  def self.pass_request(params, headers, body, url, method)
+      handler = proxy.request_handler.handlers[:proxy]
+      response = handler.handle_request(method, url, headers, body)
+      {
+        code: response[:status],
+        body: response[:content],
+        headers: response[:headers]
+      }
+  end
 end
