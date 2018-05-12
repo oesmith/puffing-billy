@@ -1,3 +1,7 @@
+v1.1.1, 2018-05-12
+-------------------
+  * Fix scope breaking change of request/response interception [#242](https://github.com/oesmith/puffing-billy/pull/242)
+
 v1.1.0, 2018-04-29
 -------------------
   * Expose stub instances via puffing billy [#224](https://github.com/oesmith/puffing-billy/pull/224)
