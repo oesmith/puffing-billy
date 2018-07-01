@@ -1,3 +1,8 @@
+v1.1.2, 2018-07-01
+-------------------
+  * Don't attempt to print backtrace when it's not available [#245](https://github.com/oesmith/puffing-billy/pull/245)
+  * Rescue on Errno::ENETUNREACH when checking if port is in use [#247](https://github.com/oesmith/puffing-billy/pull/247)
+
 v1.1.1, 2018-05-12
 -------------------
   * Fix scope breaking change of request/response interception [#242](https://github.com/oesmith/puffing-billy/pull/242)
