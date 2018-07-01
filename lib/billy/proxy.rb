@@ -62,7 +62,7 @@ module Billy
       s.close
       Billy.log(:info, "puffing-billy: Waiting for event machine to shutdown on port #{port}")
       s
-    rescue Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL
+    rescue Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL, Errno::ENETUNREACH
       false
     end
 

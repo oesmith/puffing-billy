@@ -9,6 +9,7 @@ require 'fileutils'
 
 browser = Billy::Browsers::Watir.new :phantomjs
 Capybara.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
+Capybara.server = :webrick
 Capybara.javascript_driver = :poltergeist_billy
 
 Billy.configure do |config|
