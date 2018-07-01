@@ -70,7 +70,7 @@ module Billy
       EM.run do
         EM.error_handler do |e|
           Billy.log :error, "#{e.class} (#{e.message}):"
-          Billy.log :error, e.backtrace.join("\n")
+          Billy.log :error, e.backtrace.join("\n") unless e.backtrace.nil?
         end
 
         @signature = EM.start_server(host, Billy.config.proxy_port, ProxyConnection) do |p|
