@@ -26,11 +26,12 @@ module Billy
       request
     end
 
-    def complete(request, handler)
+    def complete(request, response, handler)
       return unless Billy.config.record_requests
 
       request.merge! status: :complete,
-                     handler: handler
+                     handler: handler,
+                     code: response[:status]
     end
   end
 end
