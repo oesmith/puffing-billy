@@ -1,7 +1,7 @@
 language: ruby
 cache: bundler
 before_install:
-  - gem install bundler
+  - gem install bundler -v '< 2'
   - export PHANTOMJS_VERSION='2.1.1'
   - export PHANTOMJS_URL='https://github.com/Medium/phantomjs'
   - export PHANTOMJS_URL+="/releases/download/v${PHANTOMJS_VERSION}"
