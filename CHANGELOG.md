@@ -1,3 +1,7 @@
+v1.1.3, 2019-01-07
+-------------------
+  * Update eventmachine gem from 1.0.4 to 1.2 [#251](https://github.com/oesmith/puffing-billy/pull/251)
+
 v1.1.2, 2018-07-01
 -------------------
   * Don't attempt to print backtrace when it's not available [#245](https://github.com/oesmith/puffing-billy/pull/245)
