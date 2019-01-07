@@ -35,9 +35,9 @@ module Billy
         end
       end
 
-      @http_url  = "http://localhost:#{q.pop}"
-      @https_url = "https://localhost:#{q.pop}"
-      @error_url = "http://localhost:#{q.pop}"
+      @http_url  = "http://127.0.0.1:#{q.pop}"
+      @https_url = "https://127.0.0.1:#{q.pop}"
+      @error_url = "http://127.0.0.1:#{q.pop}"
     end
 
     def echo_app_setup(response_code = 200)
