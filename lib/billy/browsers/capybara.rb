@@ -7,7 +7,8 @@ module Billy
       DRIVERS = {
         poltergeist: 'capybara/poltergeist',
         webkit: 'capybara/webkit',
-        selenium: 'selenium/webdriver'
+        selenium: 'selenium/webdriver',
+        apparition: 'capybara/apparition'
       }
 
       def self.register_drivers
@@ -65,6 +66,13 @@ module Billy
         end
       end
 
+      def self.register_apparition_driver
+        ::Capybara.register_driver :apparition_billy do |app|
+          ::Capybara::Apparition::Driver.new(app, ignore_https_errors: true).tap do |driver|
+            driver.set_proxy(Billy.proxy.host, Billy.proxy.port)
+          end
+        end
+      end
     end
   end
 end
