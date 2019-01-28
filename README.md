@@ -56,12 +56,14 @@ require 'billy/capybara/rspec'
 # select a driver for your chosen browser environment
 Capybara.javascript_driver = :selenium_billy # Uses Firefox
 # Capybara.javascript_driver = :selenium_chrome_billy
+# Capybara.javascript_driver = :apparition_billy
 # Capybara.javascript_driver = :webkit_billy
 # Capybara.javascript_driver = :poltergeist_billy
 ```
 
 > __Note__: `:poltergeist_billy` doesn't support proxying any localhosts, so you must use
-`:webkit_billy` for headless specs when using puffing-billy for other local rack apps.
+`:webkit_billy`, `:apparition_billy`, or a custom headless selenium registration for
+headless specs when using puffing-billy for other local rack apps.
 See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
 
 ### Setup for Watir
