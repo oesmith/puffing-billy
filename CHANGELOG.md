@@ -1,3 +1,8 @@
+v2.0.0, 2019-01-30
+-------------------
+  * Add driver registration for apparition driver [#258](https://github.com/oesmith/puffing-billy/pull/258)
+    * Apparition driver requires puffing-billy to drop support for ruby 2.0-2.2
+
 v1.1.3, 2019-01-07
 -------------------
   * Update eventmachine gem from 1.0.4 to 1.2 [#251](https://github.com/oesmith/puffing-billy/pull/251)
