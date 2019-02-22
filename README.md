@@ -542,12 +542,18 @@ RSpec.configure do |config|
   config.before :each do |x|
     feature_name = x.metadata[:example_group][:description].underscore.gsub(' ', '_')
     scenario_name = x.metadata[:description].underscore.gsub(' ', '_')
-    feature_folder_path = "spec/fixtures/puffing_billy/req_cache/#{feature_name}/"
-    scenario_folder_path = "spec/fixtures/puffing_billy/req_cache/#{feature_name}/#{scenario_name}/"
     Billy.configure do |c|
-      Dir.mkdir(feature_folder_path) unless File.exist?(feature_folder_path)
-      Dir.mkdir(scenario_folder_path) unless File.exist?(scenario_folder_path)
-      c.cache_path = scenario_folder_path
+      cache_feature_folder_path = "#{Billy.config.cache_path}/#{feature_name}/"
+      cache_scenario_folder_path = "#{Billy.config.cache_path}/#{feature_name}/#{scenario_name}/"
+      Dir.mkdir(cache_feature_folder_path) unless File.exist?(cache_feature_folder_path)
+      Dir.mkdir(cache_scenario_folder_path) unless File.exist?(cache_scenario_folder_path)
+      c.cache_path = cache_scenario_folder_path
+
+      certs_feature_folder_path = "#{Billy.config.certs_path}/#{feature_name}/"
+      certs_scenario_folder_path = "#{Billy.config.certs_path}/#{feature_name}/#{scenario_name}/"
+      Dir.mkdir(certs_feature_folder_path) unless File.exist?(certs_feature_folder_path)
+      Dir.mkdir(certs_scenario_folder_path) unless File.exist?(certs_scenario_folder_path)
+      c.certs_path = certs_scenario_folder_path
     end
   end
 end
