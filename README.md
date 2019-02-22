@@ -519,10 +519,11 @@ RSpec.configure do |config|
 end
 ```
 
-## Separate Cache Directory for Each Test (in Cucumber)
+## Separate Cache Directory for Each Test
+If you want the cache for each test to be independent, i.e. have it's own directory where the cache files are stored, you can do so.
 
-If you want the cache for each test to be independent, i.e. have it's own directory where the cache files are stored, you can use a Before tag like so:
-
+### in Cucumber
+use a Before tag:
 ```rb
 Before('@javascript') do |scenario, block|
   Billy.configure do |c|
@@ -533,6 +534,25 @@ Before('@javascript') do |scenario, block|
   end
 end
 ```
+
+### in Rspec
+use a before(:each) block:
+```rb
+RSpec.configure do |config|
+  config.before :each do |x|
+    feature_name = x.metadata[:example_group][:description].underscore.gsub(' ', '_')
+    scenario_name = x.metadata[:description].underscore.gsub(' ', '_')
+    feature_folder_path = "spec/fixtures/puffing_billy/req_cache/#{feature_name}/"
+    scenario_folder_path = "spec/fixtures/puffing_billy/req_cache/#{feature_name}/#{scenario_name}/"
+    Billy.configure do |c|
+      Dir.mkdir(feature_folder_path) unless File.exist?(feature_folder_path)
+      Dir.mkdir(scenario_folder_path) unless File.exist?(scenario_folder_path)
+      c.cache_path = scenario_folder_path
+    end
+  end
+end
+```
+
 
 ## Stub requests recording
 
