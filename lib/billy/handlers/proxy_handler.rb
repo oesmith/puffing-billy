@@ -67,7 +67,7 @@ module Billy
 
     def build_request_options(url, headers, body)
       headers = Hash[headers.map { |k, v| [k.downcase, v] }]
-      headers.delete('accept-encoding')
+      headers['accept-encoding'] = ''
 
       uri = Addressable::URI.parse(url)
       headers.merge!({'authorization' => [uri.user, uri.password]}) if uri.userinfo
