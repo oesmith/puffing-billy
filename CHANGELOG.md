@@ -1,3 +1,8 @@
+v2.1.0, 2019-03-17
+-------------------
+  * Allow stubbing all request methods [#263](https://github.com/oesmith/puffing-billy/pull/263)
+  * Accept all encodings [#265](https://github.com/oesmith/puffing-billy/pull/265)
+
 v2.0.0, 2019-01-30
 -------------------
   * Add driver registration for apparition driver [#258](https://github.com/oesmith/puffing-billy/pull/258)
