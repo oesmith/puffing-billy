@@ -62,7 +62,7 @@ module Billy
     end
 
     def matches?(method, url)
-      if method == @method
+      if @method == 'ALL' || method == @method
         if @url.is_a?(Regexp)
           url.match(@url)
         else

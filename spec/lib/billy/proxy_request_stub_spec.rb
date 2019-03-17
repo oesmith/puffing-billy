@@ -43,6 +43,17 @@ describe Billy::ProxyRequestStub do
       expect(stub.matches?('GET', 'http://example.com/foo/bar/')).to be
       expect(stub.matches?('GET', 'http://example.com/foo/bar/?baz=bap')).to be
     end
+
+    it 'should match all methods' do
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :all)
+        .matches?('GET', 'http://example.com')).to be
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :all)
+        .matches?('POST', 'http://example.com')).to be
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :all)
+        .matches?('OPTIONS', 'http://example.com')).to be
+      expect(Billy::ProxyRequestStub.new('http://example.com', method: :all)
+        .matches?('HEAD', 'http://example.com')).to be
+    end
   end
 
   context "#matches? (with strip_query_params false in config)" do
