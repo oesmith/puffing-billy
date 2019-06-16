@@ -1,3 +1,7 @@
+v2.1.1, 2019-06-15
+-------------------
+  * Add driver registration for chrome headless [#267](https://github.com/oesmith/puffing-billy/pull/267)
+
 v2.1.0, 2019-03-17
 -------------------
   * Allow stubbing all request methods [#263](https://github.com/oesmith/puffing-billy/pull/263)
