@@ -47,13 +47,15 @@ module Billy
 
       def self.register_selenium_driver
         ::Capybara.register_driver :selenium_billy do |app|
-          profile = Selenium::WebDriver::Firefox::Profile.new.tap do |prof|
-            prof.assume_untrusted_certificate_issuer = false
-            prof.proxy = Selenium::WebDriver::Proxy.new(
-              http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
-              ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
+          options = build_selenium_options_for_firefox
+          
+          ::Capybara::Selenium::Driver.new(app, options: options)
+        end
+
+        ::Capybara.register_driver :selenium_headless_billy do |app|
+          options = build_selenium_options_for_firefox.tap do |opts|
+            opts.add_argument '-headless'
           end
-          options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
           
           ::Capybara::Selenium::Driver.new(app, options: options)
         end
@@ -86,6 +88,17 @@ module Billy
             driver.set_proxy(Billy.proxy.host, Billy.proxy.port)
           end
         end
+      end
+
+      def self.build_selenium_options_for_firefox
+        profile = Selenium::WebDriver::Firefox::Profile.new.tap do |prof|
+          prof.assume_untrusted_certificate_issuer = false
+          prof.proxy = Selenium::WebDriver::Proxy.new(
+            http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
+            ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
+        end
+
+        options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
       end
     end
   end
