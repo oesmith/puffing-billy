@@ -98,7 +98,7 @@ module Billy
             ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
         end
 
-        options = Selenium::WebDriver::Firefox::Options.new(profile: profile)
+        Selenium::WebDriver::Firefox::Options.new(profile: profile)
       end
     end
   end
