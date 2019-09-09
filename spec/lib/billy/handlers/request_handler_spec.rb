@@ -128,6 +128,23 @@ describe Billy::RequestHandler do
         allow(stub_handler).to receive(:handle_request).and_raise("Any Stub Error")
         expect(subject.handle_request(*args)).to eql(error: "Any Stub Error")
       end
+
+      context 'before_handle_request activated' do
+        before do
+          handle_request = proc { |method, url, headers, body|
+            [method, url, headers, "#{body} modified"]
+          }
+          allow(Billy::config).to receive(:before_handle_request).and_return(handle_request)
+        end
+
+        it 'modify request before handling' do
+          expect(stub_handler).to receive(:handle_request).with(*args)
+          expect(cache_handler).to receive(:handle_request).with(*args).and_return('bar')
+          expect(proxy_handler).to_not receive(:handle_request)
+          expect(subject.handle_request(*args)).to eql 'bar'
+          expect(subject.requests).to eql([{status: :complete, handler: :cache, method: 'get', url: 'url', headers: 'headers', body: 'body modified'}])
+        end
+      end
     end
 
     describe '#stubs' do
