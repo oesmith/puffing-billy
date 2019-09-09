@@ -459,7 +459,7 @@ end
 
 ```
 c.before_handle_request = proc { |method, url, headers, body|
-  filtered_body = JSON.stringify(filter_secret_data(JSON.parse(body)))
+  filtered_body = JSON.dump(filter_secret_data(JSON.load(body)))
   [method, url, headers, filtered_body]
 }
 ```
