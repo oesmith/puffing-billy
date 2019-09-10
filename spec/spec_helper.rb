@@ -6,11 +6,17 @@ require 'billy/watir/rspec'
 require 'rack'
 require 'logger'
 require 'fileutils'
+require 'webdrivers'
 
-browser = Billy::Browsers::Watir.new :phantomjs
-Capybara.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
-Capybara.server = :webrick
-Capybara.javascript_driver = :poltergeist_billy
+$stdout.puts `#{::Selenium::WebDriver::Chrome::Service.driver_path.call} --version` if ENV['CI']
+
+browser = Billy::Browsers::Watir.new :chrome
+
+Capybara.configure do |config|
+  config.app = Rack::Directory.new(File.expand_path('../../examples', __FILE__))
+  config.server = :webrick
+  config.javascript_driver = :selenium_chrome_headless_billy
+end
 
 Billy.configure do |config|
   config.logger = Logger.new(File.expand_path('../../log/test.log', __FILE__))

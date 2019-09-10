@@ -132,17 +132,22 @@ describe Billy::RequestHandler do
       context 'before_handle_request activated' do
         before do
           handle_request = proc { |method, url, headers, body|
-            [method, url, headers, "#{body} modified"]
+            [method, url, headers, "#{body}_modified"]
           }
           allow(Billy::config).to receive(:before_handle_request).and_return(handle_request)
         end
 
+        after do
+          allow(Billy::config).to receive(:before_handle_request).and_call_original
+        end
+
         it 'modify request before handling' do
-          expect(stub_handler).to receive(:handle_request).with(*args)
-          expect(cache_handler).to receive(:handle_request).with(*args).and_return('bar')
+          new_args = %w(get url headers body_modified)
+          expect(stub_handler).to receive(:handle_request).with(*new_args)
+          expect(cache_handler).to receive(:handle_request).with(*new_args).and_return('bar')
           expect(proxy_handler).to_not receive(:handle_request)
           expect(subject.handle_request(*args)).to eql 'bar'
-          expect(subject.requests).to eql([{status: :complete, handler: :cache, method: 'get', url: 'url', headers: 'headers', body: 'body modified'}])
+          expect(subject.requests).to eql([{status: :complete, handler: :cache, method: 'get', url: 'url', headers: 'headers', body: 'body'}])
         end
       end
     end

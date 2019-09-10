@@ -60,19 +60,28 @@ module Billy
           options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
 
           ::Capybara::Selenium::Driver.new(
-            app, browser: :chrome,
-            options: options
+            app,
+            browser: :chrome,
+            options: options,
+            clear_local_storage: true,
+            clear_session_storage: true
           )
         end
-        
+
         ::Capybara.register_driver :selenium_chrome_headless_billy do |app|
-          options = Selenium::WebDriver::Chrome::Options.new(args: %w[headless disable-gpu no-sandbox
-                                                                      enable-features=NetworkService,NetworkServiceInProcess])
-          options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
+            options = Selenium::WebDriver::Chrome::Options.new
+            options.headless!
+            options.add_argument('--enable-features=NetworkService,NetworkServiceInProcess')
+            options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
+            options.add_argument('--disable-gpu') if Gem.win_platform?
+            options.add_argument('--no-sandbox') if ENV['CI']
 
           ::Capybara::Selenium::Driver.new(
-            app, browser: :chrome,
-            options: options
+            app,
+            browser: :chrome,
+            options: options,
+            clear_local_storage: true,
+            clear_session_storage: true
           )
         end
       end
