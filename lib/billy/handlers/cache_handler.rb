@@ -41,6 +41,7 @@ module Billy
     end
 
     def handles_request?(method, url, _headers, body)
+      return false if Billy.config.refresh_persisted_cache
       cached?(method, url, body)
     end
 

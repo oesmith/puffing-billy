@@ -12,6 +12,7 @@ module Billy
 
     def initialize
       reset
+      delete_persisted_cache if Billy.config.refresh_persisted_cache
     end
 
     def cached?(method, url, body)
@@ -52,16 +53,24 @@ module Billy
       @cache[key] = cached
 
       if Billy.config.persist_cache
-        Dir.mkdir(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
+        FileUtils.mkdir_p(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
 
         begin
           File.open(cache_file(key), 'w') do |f|
+            Billy.log(:info, "puffing-billy: Writing to cache: #{method} '#{url}'")
             f.write(cached.to_yaml(Encoding: :Utf8))
           end
         rescue StandardError => e
           Billy.log :error, "Error storing cache file: #{e.message}"
         end
       end
+    end
+
+    def delete_persisted_cache
+      Billy.log(:info, "puffing-billy: Deleting cache files: #{Billy.config.cache_path}")
+      FileUtils.rm_rf(Billy.config.cache_path) if File.exist?(Billy.config.cache_path)
+    rescue StandardError => e
+      Billy.log :error, "Error deleting cache file: #{e.message}"
     end
 
     def reset

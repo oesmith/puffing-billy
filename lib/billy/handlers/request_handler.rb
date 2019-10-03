@@ -15,6 +15,9 @@ module Billy
     end
 
     def handle_request(method, url, headers, body)
+      previous_duplicate_requests = request_log.requests.select {|x| x[:method] == method && x[:url] == url }
+      Billy.log(:info, "puffing-billy: Scoping cache to: #{Billy::Cache.instance.scope}")
+      Billy::Cache.instance.scope_to(previous_duplicate_requests.length)
       request = request_log.record(method, url, headers, body)
 
       # Process the handlers by order of importance
