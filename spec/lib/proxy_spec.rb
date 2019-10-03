@@ -232,7 +232,7 @@ shared_examples_for 'a cache' do
 
         it 'should raise error when disabled' do
           # TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
-          expect { http.get('/foo') }.to raise_error(Faraday::Error::ConnectionFailed, 'end of file reached')
+          expect { http.get('/foo') }.to raise_error(Faraday::ConnectionFailed, 'end of file reached')
         end
       end
 
@@ -261,7 +261,7 @@ shared_examples_for 'a cache' do
         end
 
         it 'should raise error for non-successful responses when :error' do
-          expect { http_error.get('/foo') }.to raise_error(Faraday::Error::ConnectionFailed)
+          expect { http_error.get('/foo') }.to raise_error(Faraday::ConnectionFailed)
         end
       end
     end
