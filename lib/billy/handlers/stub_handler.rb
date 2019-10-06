@@ -5,8 +5,8 @@ module Billy
   class StubHandler
     include Handler
 
-    def handle_request(method, url, headers, body)
-      if handles_request?(method, url, headers, body)
+    def handle_request(method, url, headers, body, cache_scope)
+      if handles_request?(method, url, headers, body, cache_scope)
         if (stub = find_stub(method, url))
           query_string = Addressable::URI.parse(url).query || ''
           params = CGI.parse(query_string)
@@ -20,7 +20,7 @@ module Billy
       nil
     end
 
-    def handles_request?(method, url, _headers, _body)
+    def handles_request?(method, url, _headers, _body, cache_scope)
       !find_stub(method, url).nil?
     end
 

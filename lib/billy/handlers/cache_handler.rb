@@ -15,10 +15,10 @@ module Billy
       @cache = Billy::Cache.instance
     end
 
-    def handle_request(method, url, headers, body)
+    def handle_request(method, url, headers, body, cache_scope)
       method = method.downcase
-      if handles_request?(method, url, headers, body)
-        if (response = cache.fetch(method, url, body))
+      if handles_request?(method, url, headers, body, cache_scope)
+        if (response = cache.fetch(method, url, body, cache_scope))
           Billy.log(:info, "puffing-billy: CACHE #{method} for '#{url}'")
 
           if Billy.config.dynamic_jsonp
@@ -40,9 +40,9 @@ module Billy
       nil
     end
 
-    def handles_request?(method, url, _headers, body)
+    def handles_request?(method, url, _headers, body, cache_scope)
       return false if Billy.config.refresh_persisted_cache
-      cached?(method, url, body)
+      cached?(method, url, body, cache_scope)
     end
 
     private

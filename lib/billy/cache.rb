@@ -12,26 +12,34 @@ module Billy
 
     def initialize
       reset
-      delete_persisted_cache if Billy.config.refresh_persisted_cache
     end
 
-    def cached?(method, url, body)
+    def cached?(method, url, body, cache_scope)
       # Only log the key the first time it's looked up (in this method)
-      key = key(method, url, body, true)
-      !@cache[key].nil? || persisted?(key)
+      key = key(method, url, body, cache_scope, true)
+      cached = !@cache[key].nil? || persisted?(key)
+      purl = url.match(/.*staging\.hirefrederick.com\:443(.*)/)
+      if purl && cached
+        puts "FOUND CACHE: #{scope} #{method} #{purl.captures[0]} #{key}"
+      elsif purl
+        puts "NO CACHE FOR: #{scope} #{method} #{purl.captures[0]} #{key}"
+      end
+      cached
     end
 
     def persisted?(key)
       Billy.config.persist_cache && File.exist?(cache_file(key))
     end
 
-    def fetch(method, url, body)
-      key = key(method, url, body)
+    def fetch(method, url, body, cache_scope)
+      key = key(method, url, body, cache_scope)
       @cache[key] || fetch_from_persistence(key)
     end
 
     def fetch_from_persistence(key)
-      @cache[key] = YAML.load_file(cache_file(key)) if persisted?(key)
+      response = YAML.load_file(cache_file(key)) if persisted?(key)
+      response[:cache_key] = key
+      @cache[key] = response
     rescue ArgumentError => e
       Billy.log :error, "Could not parse YAML: #{e.message}"
       nil
@@ -66,18 +74,12 @@ module Billy
       end
     end
 
-    def delete_persisted_cache
-      Billy.log(:info, "puffing-billy: Deleting cache files: #{Billy.config.cache_path}")
-      FileUtils.rm_rf(Billy.config.cache_path) if File.exist?(Billy.config.cache_path)
-    rescue StandardError => e
-      Billy.log :error, "Error deleting cache file: #{e.message}"
-    end
-
     def reset
       @cache = {}
     end
 
-    def key(method, orig_url, body, log_key = false)
+    def key(method, orig_url, body, cache_scope, log_key = false)
+      key_type = ''
       if Billy.config.use_ignore_params
         ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
       else
@@ -86,19 +88,24 @@ module Billy
       merge_cached_response_key = _merge_cached_response_key(orig_url)
       url = Addressable::URI.parse(format_url(orig_url, ignore_params))
       key = if merge_cached_response_key
-              method + '_' + Digest::SHA1.hexdigest(scope.to_s + merge_cached_response_key)
+              key_type = '1'
+              method + '_' + Digest::SHA1.hexdigest(cache_scope.to_s + merge_cached_response_key)
             else
-              method + '_' + url.host + '_' + Digest::SHA1.hexdigest(scope.to_s + url.to_s)
+              key_type = '2'
+              method + '_' + url.host + '_' + Digest::SHA1.hexdigest(cache_scope.to_s + url.to_s)
             end
       body_msg = ''
 
-      if Billy.config.cache_request_body_methods.include?(method) && !ignore_params && !merge_cached_response_key
-        body_formatted = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body.to_s) : body.to_s
-        body_msg = " with body '#{body_formatted}'"
-        key += '_' + Digest::SHA1.hexdigest(body_formatted)
-      end
+      #if Billy.config.cache_request_body_methods.include?(method) && !ignore_params && !merge_cached_response_key
+        #body_formatted = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body.to_s) : body.to_s
+        #body_msg = " with body '#{body_formatted}'"
+        #key_type = 3
+        #key += '_' + Digest::SHA1.hexdigest(body_formatted)
+      #end
 
       Billy.log(:info, "puffing-billy: CACHE KEY for '#{orig_url}#{body_msg}' is '#{key}'") if log_key
+      #purl = orig_url.match(/.*staging\.hirefrederick.com\:443(.*)/)
+      #puts "CREATING KEY TYPE: #{key_type} #{scope} #{method} #{purl.captures[0]} #{key}" if purl
       key
     end
 

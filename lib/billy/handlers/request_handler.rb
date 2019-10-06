@@ -16,14 +16,13 @@ module Billy
 
     def handle_request(method, url, headers, body)
       previous_duplicate_requests = request_log.requests.select {|x| x[:method] == method && x[:url] == url }
-      Billy.log(:info, "puffing-billy: Scoping cache to: #{Billy::Cache.instance.scope}")
-      Billy::Cache.instance.scope_to(previous_duplicate_requests.length)
-      request = request_log.record(method, url, headers, body)
+      cache_scope = previous_duplicate_requests.length
+      request = request_log.record(method, url, headers, body, cache_scope)
 
       # Process the handlers by order of importance
       [:stubs, :cache, :proxy].each do |key|
-        if (response = handlers[key].handle_request(method, url, headers, body))
-          @request_log.complete(request, key)
+        if (response = handlers[key].handle_request(method, url, headers, body, cache_scope))
+          @request_log.complete(request, key, response[:cache_key])
           return response
         end
       end
@@ -35,11 +34,11 @@ module Billy
       { error: error.message }
     end
 
-    def handles_request?(method, url, headers, body)
-      [:stubs, :cache, :proxy].any? do |key|
-        handlers[key].handles_request?(method, url, headers, body)
-      end
-    end
+    #def handles_request?(method, url, headers, body)
+      #[:stubs, :cache, :proxy].any? do |key|
+        #handlers[key].handles_request?(method, url, headers, body)
+      #end
+    #end
 
     def request_log
       @request_log ||= RequestLog.new
