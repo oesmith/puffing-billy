@@ -51,6 +51,7 @@ module Billy
           purl = url.match(/.*staging\.hirefrederick.com\:443(.*)/)
           if cacheable?(url, response[:headers], response[:status])
             puts "CACHING: #{cache_scope} #{method} #{purl.captures[0]} #{cache_key}" if purl
+
             Billy::Cache.instance.store(
               cache_key,
               cache_scope,
@@ -118,7 +119,8 @@ module Billy
     end
 
     def cacheable?(url, _headers, status)
-      return false unless Billy.config.cache
+      # Don't save a cache file if the cache is off or we're not refreshing the cache
+      return false if !Billy.config.cache || !Billy.config.refresh_persisted_cache
 
       #orig_url = url
       url = Addressable::URI.parse(url)
