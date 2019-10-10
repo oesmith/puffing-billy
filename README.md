@@ -247,7 +247,8 @@ In your `rails_helper.rb`:
 
 ```ruby
 Billy.configure do |c|
-  c.whitelist = ['test.host', 'localhost', '127.0.0.1']
+  c.whitelist = ['test.host', 'localhost', '127.0.0.1'] # To replace the default whitelist, OR
+  c.whitelist << 'mynewhost.local' # to append a host without overriding the defaults.
 end
 ```
 
