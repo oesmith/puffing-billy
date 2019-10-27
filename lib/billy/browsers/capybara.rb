@@ -47,12 +47,19 @@ module Billy
 
       def self.register_selenium_driver
         ::Capybara.register_driver :selenium_billy do |app|
-          profile = Selenium::WebDriver::Firefox::Profile.new
-          profile.assume_untrusted_certificate_issuer = false
-          profile.proxy = Selenium::WebDriver::Proxy.new(
-            http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
-            ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
-          ::Capybara::Selenium::Driver.new(app, profile: profile)
+          options = build_selenium_options_for_firefox
+          capabilities = Selenium::WebDriver::Remote::Capabilities.firefox(accept_insecure_certs: true)
+
+          ::Capybara::Selenium::Driver.new(app, options: options, desired_capabilities: capabilities)
+        end
+
+        ::Capybara.register_driver :selenium_headless_billy do |app|
+          options = build_selenium_options_for_firefox.tap do |opts|
+            opts.add_argument '-headless'
+          end
+          capabilities = Selenium::WebDriver::Remote::Capabilities.firefox(accept_insecure_certs: true)
+          
+          ::Capybara::Selenium::Driver.new(app, options: options, desired_capabilities: capabilities)
         end
 
         ::Capybara.register_driver :selenium_chrome_billy do |app|
@@ -92,6 +99,17 @@ module Billy
             driver.set_proxy(Billy.proxy.host, Billy.proxy.port)
           end
         end
+      end
+
+      def self.build_selenium_options_for_firefox
+        profile = Selenium::WebDriver::Firefox::Profile.new.tap do |prof|
+          prof.assume_untrusted_certificate_issuer = false
+          prof.proxy = Selenium::WebDriver::Proxy.new(
+            http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
+            ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}")
+        end
+
+        Selenium::WebDriver::Firefox::Options.new(profile: profile)
       end
     end
   end

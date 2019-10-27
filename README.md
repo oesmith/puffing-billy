@@ -55,6 +55,7 @@ require 'billy/capybara/rspec'
 
 # select a driver for your chosen browser environment
 Capybara.javascript_driver = :selenium_billy # Uses Firefox
+# Capybara.javascript_driver = :selenium_headless_billy # Uses Firefox in headless mode
 # Capybara.javascript_driver = :selenium_chrome_billy
 # Capybara.javascript_driver = :selenium_chrome_headless_billy
 # Capybara.javascript_driver = :apparition_billy
