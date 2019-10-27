@@ -1,3 +1,8 @@
+v2.2.0, 2019-10-26
+-------------------
+  * Before handle request method [#273](https://github.com/oesmith/puffing-billy/pull/273)
+  * Add Selenium headless driver [#272](https://github.com/oesmith/puffing-billy/pull/272)
+
 v2.1.1, 2019-06-15
 -------------------
   * Add driver registration for chrome headless [#267](https://github.com/oesmith/puffing-billy/pull/267)
