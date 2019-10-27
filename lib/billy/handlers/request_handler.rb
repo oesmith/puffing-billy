@@ -17,6 +17,10 @@ module Billy
     def handle_request(method, url, headers, body)
       request = request_log.record(method, url, headers, body)
 
+      if Billy.config.before_handle_request
+        method, url, headers, body = Billy.config.before_handle_request.call(method, url, headers, body)
+      end
+
       # Process the handlers by order of importance
       [:stubs, :cache, :proxy].each do |key|
         if (response = handlers[key].handle_request(method, url, headers, body))
