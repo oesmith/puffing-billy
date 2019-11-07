@@ -21,7 +21,7 @@ you can test it!
 
 ```ruby
 it 'should stub google' do
-  proxy.stub('http://www.google.com/').and_return(:text => "I'm not Google!")
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
   visit 'http://www.google.com/'
   expect(page).to have_content("I'm not Google!")
 end
@@ -85,21 +85,21 @@ require 'billy/watir/rspec'
 
 ```ruby
 # Stub and return text, json, jsonp (or anything else)
-proxy.stub('http://example.com/text/').and_return(:text => 'Foobar')
-proxy.stub('http://example.com/json/').and_return(:json => { :foo => 'bar' })
-proxy.stub('http://example.com/jsonp/').and_return(:jsonp => { :foo => 'bar' })
-proxy.stub('http://example.com/headers/').and_return({
-  :headers => { 'Access-Control-Allow-Origin' => '*' },
-  :json    => { :foo => 'bar' }
-})
-proxy.stub('http://example.com/wtf/').and_return(:body => 'WTF!?', :content_type => 'text/wtf')
+proxy.stub('http://example.com/text/').and_return(text: 'Foobar')
+proxy.stub('http://example.com/json/').and_return(json: { foo: 'bar' })
+proxy.stub('http://example.com/jsonp/').and_return(jsonp: { foo: 'bar' })
+proxy.stub('http://example.com/headers/').and_return(
+  headers: { 'Access-Control-Allow-Origin' => '*' },
+  json: { foo: 'bar' }
+)
+proxy.stub('http://example.com/wtf/').and_return(body: 'WTF!?', content_type: 'text/wtf')
 
 # Stub redirections and other return codes
-proxy.stub('http://example.com/redirect/').and_return(:redirect_to => 'http://example.com/other')
-proxy.stub('http://example.com/missing/').and_return(:code => 404, :body => 'Not found')
+proxy.stub('http://example.com/redirect/').and_return(redirect_to: 'http://example.com/other')
+proxy.stub('http://example.com/missing/').and_return(code: 404, body: 'Not found')
 
 # Even stub HTTPS!
-proxy.stub('https://example.com:443/secure/').and_return(:text => 'secrets!!1!')
+proxy.stub('https://example.com:443/secure/').and_return(text: 'secrets!!1!')
 
 # Pass a Proc (or Proc-style object) to create dynamic responses.
 #
@@ -111,8 +111,8 @@ proxy.stub('https://example.com:443/secure/').and_return(:text => 'secrets!!1!')
 #   method:  The HTTP verb which was requested
 proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, body, url, method|
   {
-    :code => 200,
-    :text => "Hello, #{params['name'][0]}"
+    code: 200,
+    text: "Hello, #{params['name'][0]}"
   }
 })
 
@@ -122,7 +122,7 @@ proxy.stub('https://example.com/proc/').and_return(Proc.new { |params, headers, 
 # server. The scope of the delivered callable is the user scope where
 # it was defined. Setting method to 'all' will intercept requests regardless of
 # the method.
-proxy.stub('http://example.com/', method => 'all').and_return(Proc.new { |*args|
+proxy.stub('http://example.com/', method: 'all').and_return(Proc.new { |*args|
   response = Billy.pass_request(*args)
   response[:headers]['Content-Type'] = 'text/plain'
   response[:body] = 'Hello World!'
@@ -131,19 +131,19 @@ proxy.stub('http://example.com/', method => 'all').and_return(Proc.new { |*args|
 })
 
 # Stub out a POST. Don't forget to allow a CORS request and set the method to 'post'
-proxy.stub('http://example.com/api', :method => 'post').and_return(
-  :headers => { 'Access-Control-Allow-Origin' => '*' },
-  :code => 201
+proxy.stub('http://example.com/api', method: 'post').and_return(
+  headers: { 'Access-Control-Allow-Origin' => '*' },
+  code: 201
 )
 
 # Stub out an OPTIONS request. Set the headers to the values you require.
-proxy.stub('http://example.com/api', :method => :options).and_return(
-  :headers => {
+proxy.stub('http://example.com/api', method: 'options').and_return(
+  headers: {
     'Access-Control-Allow-Methods' => 'GET, PATCH, POST, PUT, OPTIONS',
     'Access-Control-Allow-Headers' => 'X-Requested-With, X-Prototype-Version, Content-Type',
     'Access-Control-Allow-Origin'  => '*'
   },
-  :code => 200
+  code: 200
 )
 ```
 
@@ -154,7 +154,7 @@ If for any reason you'd need to reset stubs manually you can do it in two ways:
 
 ```ruby
 # reset a single stub
-example_stub = proxy.stub('http://example.com/text/').and_return(:text => 'Foobar')
+example_stub = proxy.stub('http://example.com/text/').and_return(text: 'Foobar')
 proxy.unstub example_stub
 
 # reset all stubs
@@ -193,7 +193,7 @@ Before('@billy') do
 end
 
 And /^a stub for google$/ do
-  proxy.stub('http://www.google.com/').and_return(:text => "I'm not Google!")
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
   visit 'http://www.google.com/'
   expect(page).to have_content("I'm not Google!")
 end
@@ -224,7 +224,7 @@ Before('@billy') do
 end
 
 And /^a stub for google$/ do
-  proxy.stub('http://www.google.com/').and_return(:text => "I'm not Google!")
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
   @browser.goto 'http://www.google.com/'
   expect(@browser.text).to eq("I'm not Google!")
 end
