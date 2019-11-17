@@ -294,7 +294,7 @@ Billy.configure do |c|
   c.proxy_port = 12345 # defaults to random
   c.proxied_request_host = nil
   c.proxied_request_port = 80
-  c.proxied_whitelist = []
+  c.cache_whitelist = []
   c.record_requests = true # defaults to false
   c.cache_request_body_methods = ['post', 'patch', 'put'] # defaults to ['post']
 end
