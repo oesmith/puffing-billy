@@ -175,6 +175,34 @@ describe Billy::ProxyHandler do
                                request[:body])
       end
 
+      it 'does NOT cache the response if the host is whitelisted but not cache_whitelisted' do
+        uri = Addressable::URI.parse(request[:url])
+
+        expect(subject).to receive(:allowed_response_code?).and_return(true)
+        expect(Billy.config).to receive(:whitelist).and_return([uri.host])
+        expect(Billy.config).to receive(:cache_whitelist).and_return([])
+
+        expect(Billy::Cache.instance).not_to receive(:store)
+        subject.handle_request(request[:method],
+                               request[:url],
+                               request[:headers],
+                               request[:body])
+      end
+
+      it 'caches the response if the host is whitelisted AND cache_whitelisted' do
+        uri = Addressable::URI.parse(request[:url])
+
+        expect(subject).to receive(:allowed_response_code?).and_return(true)
+        expect(Billy.config).to receive(:whitelist).and_return([uri.host])
+        expect(Billy.config).to receive(:cache_whitelist).and_return([uri.host])
+
+        expect(Billy::Cache.instance).to receive(:store)
+        subject.handle_request(request[:method],
+                               request[:url],
+                               request[:headers],
+                               request[:body])
+      end
+
       it 'uses the timeouts defined in configuration' do
         allow(Billy.config).to receive(:proxied_request_inactivity_timeout).and_return(42)
         allow(Billy.config).to receive(:proxied_request_connect_timeout).and_return(24)

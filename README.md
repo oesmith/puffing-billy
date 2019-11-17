@@ -263,6 +263,8 @@ server = Capybara.current_session.server
 Billy.config.whitelist = ["#{server.host}:#{server.port}"]
 ```
 
+If you would like to cache whitelisted URLs, you can define them in `c.cache_whitelist`. This is useful for scenarios where you may want to set `c.non_whitelisted_requests_disabled` to `true` to only allow whitelisted URLs to be accessed, but still allow specific URLs to be treated as if they were non-whitelisted.
+
 If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr)
 you can turn on cache persistence. This way you don't have to manually mock out
 everything as requests are automatically recorded and played back. With cache
@@ -292,6 +294,7 @@ Billy.configure do |c|
   c.proxy_port = 12345 # defaults to random
   c.proxied_request_host = nil
   c.proxied_request_port = 80
+  c.proxied_whitelist = []
   c.record_requests = true # defaults to false
   c.cache_request_body_methods = ['post', 'patch', 'put'] # defaults to ['post']
 end
