@@ -1,0 +1,22 @@
+<!doctype html>
+<body>
+  <h1>Latest news</h1>
+  <div id="news"></div>
+
+  <script type='text/javascript' src='http://code.jquery.com/jquery-1.8.2.min.js'></script>
+  <script type='text/javascript'>
+  $(function () {
+    var url = 'https://blog.howmanyleft.co.uk/api/read/json?callback=?&type=text&num=3&filter=text';
+    $.getJSON(url, function (data) {
+      $.each(data.posts, function (idx, post) {
+        var title = post['regular-title'];
+        var href = post['url-with-slug'];
+        var body = post['regular-body'];
+        $('#news').append(
+          '<h3><a href="' + href + '">' + title + '</a></h3>' +
+          '<p>' + body + '</p>');
+      });
+    });
+  })
+  </script>
+</body>

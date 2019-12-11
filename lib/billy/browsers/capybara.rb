@@ -64,6 +64,7 @@ module Billy
 
         ::Capybara.register_driver :selenium_chrome_billy do |app|
           options = Selenium::WebDriver::Chrome::Options.new
+          options.add_argument('--ignore-certificate-errors')
           options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
 
           ::Capybara::Selenium::Driver.new(
@@ -79,6 +80,7 @@ module Billy
             options = Selenium::WebDriver::Chrome::Options.new
             options.headless!
             options.add_argument('--enable-features=NetworkService,NetworkServiceInProcess')
+            options.add_argument('--ignore-certificate-errors')
             options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
             options.add_argument('--disable-gpu') if Gem.win_platform?
             options.add_argument('--no-sandbox') if ENV['CI']
