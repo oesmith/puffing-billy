@@ -22,7 +22,7 @@ module Billy
       end
 
       # Process the handlers by order of importance
-      [:stubs, :cache, :proxy].each do |key|
+      [:cache, :stubs, :proxy].each do |key|
         if (response = handlers[key].handle_request(method, url, headers, body))
           @request_log.complete(request, key)
           return response
