@@ -118,6 +118,29 @@ shared_examples_for 'a cache' do
     end
   end
 
+  context 'cache_whitelist GET requests' do
+    before do
+      Billy.config.whitelist = [http.host]
+      Billy.config.cache_whitelist = [http.host]
+    end
+
+    it 'should be cached' do
+      assert_cached_url
+    end
+
+    context 'with ports' do
+      before do
+        rack_app_url = URI(http.url_prefix)
+        Billy.config.whitelist = ["#{rack_app_url.host}:#{rack_app_url.port + 1}"]
+        Billy.config.cache_whitelist = Billy.config.whitelist
+      end
+
+      it 'should be cached' do
+        assert_cached_url
+      end
+    end
+  end
+
   context 'ignore_params GET requests' do
     before do
       Billy.config.ignore_params = ['/analytics']
