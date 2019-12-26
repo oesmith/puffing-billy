@@ -1,3 +1,8 @@
+v2.3.0, 2019-12-26
+-------------------
+  * Add `cache_whitelist` config option [#279](https://github.com/oesmith/puffing-billy/pull/279)
+  * Ignore certificate errors in Chrome [#280](https://github.com/oesmith/puffing-billy/pull/280)
+
 v2.2.0, 2019-10-26
 -------------------
   * Before handle request method [#273](https://github.com/oesmith/puffing-billy/pull/273)
