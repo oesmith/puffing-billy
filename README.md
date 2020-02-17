@@ -14,9 +14,9 @@ Billy spawns an EventMachine-based proxy server, which it uses to intercept
 requests sent by your browser. It has a simple API for configuring which
 requests need stubbing and what they should return.
 
-Billy lets you test against known, repeatable data.  It also allows you to
+Billy lets you test against known, repeatable data. It also allows you to
 test for failure cases.  Does your twitter (or facebook/google/etc)
-integration degrade gracefully when the API starts returning 500s?  Well now
+integration degrade gracefully when the API starts returning 500s? Well now
 you can test it!
 
 ```ruby
@@ -32,21 +32,25 @@ You can also record HTTP interactions and replay them later. See
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
-    gem 'puffing-billy'
+```ruby
+gem 'puffing-billy', group: :test
+```
 
 And then execute:
 
-    $ bundle
+```sh
+$ bundle
+```
 
 Or install it yourself as:
 
-    $ gem install puffing-billy
+```sh
+$ gem install puffing-billy
+```
 
-## RSpec Usage
-
-### Setup for Capybara
+## Setup for Capybara
 
 In your `rails_helper.rb`:
 
@@ -68,7 +72,7 @@ Capybara.javascript_driver = :selenium_billy # Uses Firefox
 headless specs when using puffing-billy for other local rack apps.
 See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
 
-### Setup for Watir
+## Setup for Watir
 
 In your `rails_helper.rb`:
 
@@ -81,7 +85,82 @@ require 'billy/watir/rspec'
 # @browser = Billy::Browsers::Watir.new = :phantomjs
 ```
 
-### In your tests (Capybara/Watir)
+## Setup for Cucumber
+
+An example feature:
+
+```
+Feature: Stubbing via billy
+
+  @javascript @billy
+  Scenario: Test billy
+    And a stub for google
+```
+
+### Setup for Cucumber + Capybara
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/capybara/cucumber'
+
+After do
+  Capybara.use_default_driver
+end
+```
+
+And in steps:
+
+```ruby
+Before('@billy') do
+  Capybara.current_driver = :poltergeist_billy
+end
+
+And /^a stub for google$/ do
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
+  visit 'http://www.google.com/'
+  expect(page).to have_content("I'm not Google!")
+end
+```
+
+It's good practice to reset the driver after each scenario, so having an
+`@billy` tag switches the drivers on for a given scenario. Also note that
+stubs are reset after each step, so any usage of a stub should be in the
+same step that it was created in.
+
+### Setup for Cucumber + Watir
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/watir/cucumber'
+
+After do
+  @browser.close
+end
+```
+
+And in steps:
+
+```ruby
+Before('@billy') do
+  @browser = Billy::Browsers::Watir.new :firefox
+end
+
+And /^a stub for google$/ do
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
+  @browser.goto 'http://www.google.com/'
+  expect(@browser.text).to eq("I'm not Google!")
+end
+```
+
+## Minitest Usage
+
+Please see [this link](https://gist.github.com/sauy7/1b081266dd453a1b737b) for
+details and report back to [Issue #49](https://github.com/oesmith/puffing-billy/issues/49)
+if you get it fully working.
+
+## Examples
 
 ```ruby
 # Stub and return text, json, jsonp (or anything else)
@@ -160,81 +239,6 @@ proxy.unstub example_stub
 # reset all stubs
 proxy.reset
 ```
-
-## Cucumber Usage
-
-An example feature:
-
-```
-Feature: Stubbing via billy
-
-  @javascript @billy
-  Scenario: Test billy
-    And a stub for google
-```
-
-### Capybara
-
-In your `features/support/env.rb`:
-
-```ruby
-require 'billy/capybara/cucumber'
-
-After do
-  Capybara.use_default_driver
-end
-```
-
-And in steps:
-
-```ruby
-Before('@billy') do
-  Capybara.current_driver = :poltergeist_billy
-end
-
-And /^a stub for google$/ do
-  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
-  visit 'http://www.google.com/'
-  expect(page).to have_content("I'm not Google!")
-end
-```
-
-It's good practice to reset the driver after each scenario, so having an
-`@billy` tag switches the drivers on for a given scenario. Also note that
-stubs are reset after each step, so any usage of a stub should be in the
-same step that it was created in.
-
-### Watir
-
-In your `features/support/env.rb`:
-
-```ruby
-require 'billy/watir/cucumber'
-
-After do
-  @browser.close
-end
-```
-
-And in steps:
-
-```ruby
-Before('@billy') do
-  @browser = Billy::Browsers::Watir.new :firefox
-end
-
-And /^a stub for google$/ do
-  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
-  @browser.goto 'http://www.google.com/'
-  expect(@browser.text).to eq("I'm not Google!")
-end
-```
-
-## Minitest Usage
-
-Please see [this link](https://gist.github.com/sauy7/1b081266dd453a1b737b) for
-details and report back to [Issue #49](https://github.com/oesmith/puffing-billy/issues/49)
-if you get it fully working.
 
 ## Caching
 
@@ -539,7 +543,8 @@ end
 If you want the cache for each test to be independent, i.e. have it's own directory where the cache files are stored, you can do so.
 
 ### in Cucumber
-use a Before tag:
+
+use a `Before` tag:
 ```rb
 Before('@javascript') do |scenario, block|
   Billy.configure do |c|
@@ -552,7 +557,9 @@ end
 ```
 
 ### in Rspec
-use a before(:each) block:
+
+use a `before(:each)` block:
+
 ```rb
 RSpec.configure do |config|
   base_cache_path = Billy.config.cache_path
@@ -572,7 +579,6 @@ RSpec.configure do |config|
   end
 end
 ```
-
 
 ## Stub requests recording
 
@@ -617,6 +623,7 @@ and tell it to ignore SSL certificate warnings. See
 to see how Billy's default drivers are configured.
 
 ## Working with VCR and Webmock
+
 If you use VCR and Webmock elsewhere in your specs, you may need to disable them
 for your specs utilizing Puffing Billy. To do so, you can configure your `rails_helper.rb`
 as shown below:
@@ -646,7 +653,7 @@ Note that this approach may cause unexpected behavior if your backend sends the 
 
 ### Raising errors from stubs
 
-By default PuffingBilly suppress errors from stub-blocks.
+By default Puffing Billy suppresses errors from stub-blocks.
 To make it raise errors instead, add this test initializers:
 
 ```ruby
@@ -739,12 +746,6 @@ custom on-after hook.
 * [Integration Testing Stripe.js With Mocked Network Requests](http://dev.contractual.ly/testing-stripe-js-with-mocked-network/)
 * [Clean-up unused cache files periodically with this config](https://github.com/oesmith/puffing-billy/pull/26#issuecomment-29905030)
 
-## FAQ
-
-1. Why name it after a train?
-
-   Trains are *cool*.
-
 ## Contributing
 
 1. Fork it
@@ -755,5 +756,5 @@ custom on-after hook.
 
 ## TODO
 
-1. Integration for test frameworks other than rspec.
+1. Integration for test frameworks other than RSpec.
 2. Show errors from the EventMachine reactor loop in the test output.
