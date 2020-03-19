@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'thin'
-  gem.add_development_dependency 'faraday'
+  gem.add_development_dependency 'faraday', '>= 0.9.0'
   gem.add_development_dependency 'apparition'
   gem.add_development_dependency 'capybara'
   gem.add_development_dependency 'selenium-webdriver'
