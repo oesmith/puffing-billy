@@ -1,3 +1,7 @@
+v2.3.1, 2020-03-19
+-------------------
+  * Update min 'faraday' gem version required [#285](https://github.com/oesmith/puffing-billy/pull/285)
+
 v2.3.0, 2019-12-26
 -------------------
   * Add `cache_whitelist` config option [#279](https://github.com/oesmith/puffing-billy/pull/279)
