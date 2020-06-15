@@ -16,6 +16,10 @@ module Billy
         opts = { inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
                  connect_timeout:    Billy.config.proxied_request_connect_timeout }
 
+        if url =~ /^https/
+          opts.merge!({tls: {verify_peer: Billy.config.verify_peer}})
+        end
+
         if Billy.config.proxied_request_host && !bypass_internal_proxy?(url)
           opts.merge!({ proxy: { host: Billy.config.proxied_request_host,
                                  port: Billy.config.proxied_request_port }} )
