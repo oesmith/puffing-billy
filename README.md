@@ -740,6 +740,20 @@ the system store. So after a run of your the suite only one certificate will be
 left over. If this is not enough you can handling the cleanup again with a
 custom on-after hook.
 
+### TLS hostname validation
+
+em-http-request was modified to emit a warning if being used without the TLS
+``verify_peer`` option.  Puffing Billy defaults to specifying ``verify_peer: false``
+but you can now modify configuration to do peer verification. So if you've
+gone to the trouble of setting up your own certificate authority and self-signed
+certs you can enable it like so:
+
+```ruby
+Billy.configure do |c|
+  c.verify_peer = true
+end
+```
+
 ## Resources
 
 * [Bring Ruby VCR to Javascript testing with Capybara and puffing-billy](http://architects.dzone.com/articles/bring-ruby-vcr-javascript)
