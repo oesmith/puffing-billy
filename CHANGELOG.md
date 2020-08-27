@@ -1,3 +1,8 @@
+v2.4.0, 2020-08-26
+-------------------
+  * Make verify_peer configurable and default it to false [#294](https://github.com/oesmith/puffing-billy/pull/294)
+  * Include pid in names of temporary files [#290](https://github.com/oesmith/puffing-billy/pull/290)
+
 v2.3.1, 2020-03-19
 -------------------
   * Update min 'faraday' gem version required [#285](https://github.com/oesmith/puffing-billy/pull/285)
