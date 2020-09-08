@@ -1,10 +1,7 @@
 language: ruby
 
 rvm:
-  - 2.3
-  - 2.4
-  - 2.5
-  - 2.6
+  - truffleruby-head
 
 cache:
   bundler: true
@@ -20,10 +17,7 @@ sudo: false
 dist: xenial
 
 rvm:
-  - 2.3
-  - 2.4
-  - 2.5
-  - 2.6
+  - truffleruby-head
 
 matrix:
   fast_finish: true
