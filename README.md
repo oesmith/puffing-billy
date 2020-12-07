@@ -437,7 +437,7 @@ The handler column indicates how Puffing Billy handled your request:
 - error: This request was not handled by a stub, and was not successfully handled
 - cache: This response was handled by a previous cache
 
-If your `status` is set to in_flight this request has not yet been handled fully. Either puffing billy crashed
+If your `status` is set to `inflight` this request has not yet been handled fully. Either puffing billy crashed
 internally on this request, or your test ended before it could complete successfully.
 
 `c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
