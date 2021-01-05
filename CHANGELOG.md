@@ -1,3 +1,7 @@
+v2.4.1, 2021-01-05
+-------------------
+  * Rescue Errno::ECONNRESET in shutdown phase [#307](https://github.com/oesmith/puffing-billy/pull/307)
+
 v2.4.0, 2020-08-26
 -------------------
   * Make verify_peer configurable and default it to false [#294](https://github.com/oesmith/puffing-billy/pull/294)
