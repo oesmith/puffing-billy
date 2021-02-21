@@ -30,6 +30,7 @@ module Billy
 
         req = EventMachine::HttpRequest.new(url, opts)
         req = req.send(method.downcase, build_request_options(url, headers, body))
+        har_log.record(req)
 
         if req.error
           return { error: "Request to #{url} failed with error: #{req.error}" }
@@ -151,6 +152,10 @@ module Billy
 
     def bypass_internal_proxy?(url)
       url.include?('localhost') || url.include?('127.') || url.include?('.dev') || url.include?('.fin')
+    end
+
+    def har_log
+      @har_log ||= HarLog.new
     end
   end
 end
