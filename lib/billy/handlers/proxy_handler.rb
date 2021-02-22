@@ -68,6 +68,10 @@ module Billy
       nil
     end
 
+    def reset
+      har_log.reset
+    end
+
     def har_log
       @har_log ||= HarLog.new
     end
