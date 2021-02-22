@@ -7,7 +7,7 @@ module Billy
     extend Forwardable
     attr_reader :request_handler
 
-    def_delegators :request_handler, :stub, :stubs, :unstub, :reset, :reset_cache, :restore_cache, :requests, :handle_request, :har_log
+    def_delegators :request_handler, :stub, :stubs, :unstub, :reset, :reset_cache, :restore_cache, :requests, :handle_request, :har
 
     def initialize
       @request_handler = Billy::RequestHandler.new

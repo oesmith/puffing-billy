@@ -55,8 +55,8 @@ module Billy
       request_log.reset
     end
 
-    def har_log
-      handlers[:proxy].har_log
+    def har
+      handlers[:proxy].har_log.har
     end
 
     def reset_stubs
