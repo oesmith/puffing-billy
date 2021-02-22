@@ -68,6 +68,10 @@ module Billy
       nil
     end
 
+    def har_log
+      @har_log ||= HarLog.new
+    end
+
   private
 
     def build_request_options(url, headers, body)
@@ -152,10 +156,6 @@ module Billy
 
     def bypass_internal_proxy?(url)
       url.include?('localhost') || url.include?('127.') || url.include?('.dev') || url.include?('.fin')
-    end
-
-    def har_log
-      @har_log ||= HarLog.new
     end
   end
 end
