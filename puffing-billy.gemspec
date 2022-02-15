@@ -8,13 +8,12 @@ Gem::Specification.new do |gem|
   gem.summary       = 'Easy request stubs for browser tests.'
   gem.homepage      = 'https://github.com/oesmith/puffing-billy'
 
-  gem.files         = `git ls-files`.split($OUTPUT_RECORD_SEPARATOR)
-  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
+  gem.files         = %w[LICENSE CHANGELOG.md README.md] + Dir['lib/**/*.rb']
   gem.name          = 'puffing-billy'
   gem.require_paths = ['lib']
   gem.version       = Billy::VERSION
   gem.required_ruby_version = '>= 2.6.0'
+  gem.license       = 'MIT'
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'thin'
@@ -28,7 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rb-inotify'
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'cucumber'
-  gem.add_development_dependency 'watir', '>= 7.0.0'
+  gem.add_development_dependency 'watir', '~> 7.1.0'
   gem.add_development_dependency 'webdrivers', '>= 5.0.0'
   gem.add_development_dependency 'webrick'
   gem.add_runtime_dependency 'addressable', '~> 2.5'
