@@ -1,3 +1,7 @@
+v3.0.1, 2022-02-15
+-------------------
+  * Adapt to newer versions selenium webdriver [#314](https://github.com/oesmith/puffing-billy/pull/314)
+
 v3.0.0, 2022-02-15
 -------------------
   * Add support for Ruby 2.7+, remove support for Ruby 2.4 and 2.5
