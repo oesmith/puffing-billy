@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.name          = 'puffing-billy'
   gem.require_paths = ['lib']
   gem.version       = Billy::VERSION
+  gem.required_ruby_version = '>= 2.6.0'
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'thin'
@@ -29,6 +30,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'cucumber'
   gem.add_development_dependency 'watir', '>= 7.0.0'
   gem.add_development_dependency 'webdrivers', '>= 5.0.0'
+  gem.add_development_dependency 'webrick'
   gem.add_runtime_dependency 'addressable', '~> 2.5'
   gem.add_runtime_dependency 'eventmachine', '~> 1.2'
   gem.add_runtime_dependency 'em-synchrony'
