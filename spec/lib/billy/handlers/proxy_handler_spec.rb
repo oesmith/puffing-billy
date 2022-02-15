@@ -208,8 +208,10 @@ describe Billy::ProxyHandler do
         allow(Billy.config).to receive(:proxied_request_connect_timeout).and_return(24)
 
         expect(EventMachine::HttpRequest).to receive(:new).with(request[:url],
-                                                                inactivity_timeout: 42,
-                                                                connect_timeout: 24
+                                                                {
+                                                                  inactivity_timeout: 42,
+                                                                  connect_timeout: 24
+                                                                }
         )
 
         subject.handle_request(request[:method],
@@ -223,9 +225,11 @@ describe Billy::ProxyHandler do
         allow(Billy.config).to receive(:proxied_request_port).and_return('2080')
 
         expect(EventMachine::HttpRequest).to receive(:new).with(request[:url],
-                                                                inactivity_timeout: 10,
-                                                                connect_timeout: 5,
-                                                                proxy: { host: '10.10.10.10', port: '2080' }
+                                                                {
+                                                                  inactivity_timeout: 10,
+                                                                  connect_timeout: 5,
+                                                                  proxy: { host: '10.10.10.10', port: '2080' }
+                                                                }
         )
 
         subject.handle_request(request[:method],
