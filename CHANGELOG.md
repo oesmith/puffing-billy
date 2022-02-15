@@ -1,3 +1,7 @@
+v3.0.0, 2022-02-15
+-------------------
+  * Add support for Ruby 2.7+, remove support for Ruby 2.4 and 2.5
+
 v2.4.1, 2021-01-05
 -------------------
   * Rescue Errno::ECONNRESET in shutdown phase [#307](https://github.com/oesmith/puffing-billy/pull/307)
