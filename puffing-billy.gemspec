@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary       = 'Easy request stubs for browser tests.'
   gem.homepage      = 'https://github.com/oesmith/puffing-billy'
 
-  gem.files         = %w[LICENSE CHANGELOG.md README.md] + Dir['lib/**/*.rb']
+  gem.files         = %w[LICENSE CHANGELOG.md README.md] + Dir['lib/**/*.rb'] + Dir['lib/**/*.rake']
   gem.name          = 'puffing-billy'
   gem.require_paths = ['lib']
   gem.version       = Billy::VERSION
