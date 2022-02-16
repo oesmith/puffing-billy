@@ -1,3 +1,7 @@
+v3.0.2, 2022-02-16
+-------------------
+  * Add rake tasks inside files DSL in gemspec [#321](https://github.com/oesmith/puffing-billy/pull/321)
+
 v3.0.1, 2022-02-15
 -------------------
   * Adapt to newer versions selenium webdriver [#314](https://github.com/oesmith/puffing-billy/pull/314)
