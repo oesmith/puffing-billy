@@ -15,6 +15,8 @@ module Billy
     end
 
     def cached?(method, url, body)
+      return false unless Billy.config.cache
+
       # Only log the key the first time it's looked up (in this method)
       key = key(method, url, body, true)
       !@cache[key].nil? || persisted?(key)
