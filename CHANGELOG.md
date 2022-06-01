@@ -1,3 +1,7 @@
+v3.0.3, 2022-05-31
+-------------------
+  * Only calculate cache scope and key if request is cacheable [#324](https://github.com/oesmith/puffing-billy/pull/324)
+
 v3.0.2, 2022-02-16
 -------------------
   * Add rake tasks inside files DSL in gemspec [#321](https://github.com/oesmith/puffing-billy/pull/321)
