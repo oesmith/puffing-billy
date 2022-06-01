@@ -25,9 +25,6 @@ module Billy
                                  port: Billy.config.proxied_request_port }} )
         end
 
-        cache_scope = Billy::Cache.instance.scope
-        cache_key = Billy::Cache.instance.key(method.downcase, url, body)
-
         req = EventMachine::HttpRequest.new(url, opts)
         req = req.send(method.downcase, build_request_options(url, headers, body))
 
@@ -47,6 +44,9 @@ module Billy
           end
 
           if cacheable?(url, response[:headers], response[:status])
+            cache_scope = Billy::Cache.instance.scope
+            cache_key = Billy::Cache.instance.key(method.downcase, url, body)
+
             Billy::Cache.instance.store(
               cache_key,
               cache_scope,
