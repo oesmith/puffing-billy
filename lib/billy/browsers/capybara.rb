@@ -8,7 +8,8 @@ module Billy
         poltergeist: 'capybara/poltergeist',
         webkit: 'capybara/webkit',
         selenium: 'selenium/webdriver',
-        apparition: 'capybara/apparition'
+        apparition: 'capybara/apparition',
+        cuprite: 'capybara/cuprite'
       }
 
       def self.register_drivers
@@ -103,6 +104,20 @@ module Billy
       def self.register_apparition_driver
         ::Capybara.register_driver :apparition_billy do |app|
           ::Capybara::Apparition::Driver.new(app, ignore_https_errors: true).tap do |driver|
+            driver.set_proxy(Billy.proxy.host, Billy.proxy.port)
+          end
+        end
+      end
+
+      def self.register_cuprite_driver
+        driver_otions = {
+          browser_options: {
+            'ignore-certificate-errors' => nil
+          }
+        }.deep_merge(Billy.config.cuprite_options)
+
+        ::Capybara.register_driver :cuprite_billy do |app|
+          ::Capybara::Cuprite::Driver.new(app, **driver_otions).tap do |driver|
             driver.set_proxy(Billy.proxy.host, Billy.proxy.port)
           end
         end
