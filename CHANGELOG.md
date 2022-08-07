@@ -1,3 +1,7 @@
+v3.0.4, 2022-08-07
+------------------
+  * Adds a configurable Cuprite driver [#327](https://github.com/oesmith/puffing-billy/pull/327)
+
 v3.0.3, 2022-05-31
 -------------------
   * Only calculate cache scope and key if request is cacheable [#324](https://github.com/oesmith/puffing-billy/pull/324)
