@@ -65,6 +65,7 @@ Capybara.javascript_driver = :selenium_billy # Uses Firefox
 # Capybara.javascript_driver = :apparition_billy
 # Capybara.javascript_driver = :webkit_billy
 # Capybara.javascript_driver = :poltergeist_billy
+# Capybara.javascript_driver = :cuprite_billy
 ```
 
 > __Note__: `:poltergeist_billy` doesn't support proxying any localhosts, so you must use
@@ -153,6 +154,20 @@ And /^a stub for google$/ do
   expect(@browser.text).to eq("I'm not Google!")
 end
 ```
+
+### Setup remote Chrome
+
+In the case you are using a Chrome instance, running on another machine, or in
+another Docker container, you need to :
+* Fix the Billy proxy host and port
+* Passes the `--proxy-server=<billy host>:<billy port>`
+
+#### WebSockets
+
+Puffing billy doesn't support websockets, so if you are using them,
+or ActionCable for the Ruby On Rails developers, you can tell Chrome to bypass
+the proxy for websockets by adding the flag `--proxy-bypass-list=ws://*` to
+your remote chrome intance or Docker container.
 
 ## Minitest Usage
 
