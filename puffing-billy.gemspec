@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.license       = 'MIT'
 
   gem.add_development_dependency 'rspec'
-  gem.add_development_dependency 'thin'
+  gem.add_development_dependency 'thin', '~> 1.8.1'
   gem.add_development_dependency 'faraday', '>= 0.9.0'
   gem.add_development_dependency 'apparition'
   gem.add_development_dependency 'capybara'
