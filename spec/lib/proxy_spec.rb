@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'resolv'
 
 shared_examples_for 'a proxy server' do
@@ -255,7 +254,7 @@ shared_examples_for 'a cache' do
 
         it 'should raise error when disabled' do
           # TODO: Suppress stderr output: https://gist.github.com/adamstegman/926858
-          expect { http.get('/foo') }.to raise_error(Faraday::ConnectionFailed, 'end of file reached')
+          expect { http.get('http://non-whitelisted.test') }.to raise_error(Faraday::ConnectionFailed, 'end of file reached')
         end
       end
 
