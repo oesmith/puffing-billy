@@ -1,3 +1,7 @@
+v3.1.0, 2023-03-10
+------------------
+  * Add support for Ruby 3.2 [#330](https://github.com/oesmith/puffing-billy/pull/330)
+
 v3.0.4, 2022-08-07
 ------------------
   * Adds a configurable Cuprite driver [#327](https://github.com/oesmith/puffing-billy/pull/327)
