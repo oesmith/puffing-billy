@@ -289,6 +289,11 @@ you can turn on cache persistence. This way you don't have to manually mock out
 everything as requests are automatically recorded and played back. With cache
 persistence you can take tests completely offline.
 
+The cache works with all types of requests and will distinguish between
+different POST requests to the same URL.
+
+### Params
+
 ```ruby
 Billy.configure do |c|
   c.cache = true
@@ -319,89 +324,123 @@ Billy.configure do |c|
 end
 ```
 
-The cache works with all types of requests and will distinguish between
-different POST requests to the same URL.
-
-`c.cache_request_headers` is used to store the outgoing request headers in the cache.
+- `c.cache_request_headers` is used to store the outgoing request headers in the cache.
 It is also saved to yml if `persist_cache` is enabled.  This additional information
 is useful for debugging (for example: viewing the referer of the request).
 
-`c.ignore_params` is used to ignore parameters of certain requests when
+- `c.ignore_params` is used to ignore parameters of certain requests when
 caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
-`c.allow_params` is used to allow parameters of certain requests when caching. This is best used when a site
+- `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
+including whitelisted ones.  This is useful if your AUT has routes that get data
+from external services, such as `/api` where the ajax request is a local URL but
+the actual data is coming from a different application that you want to cache.
+
+- `c.merge_cached_responses_whitelist = []` is used to group together the cached
+responses for specific uri regexes that match any part of the url. This is useful
+for ensuring that any kind of analytics and various social buttons that have
+slightly different urls each time can be recorded once and reused nicely. Note
+that the request body is ignored for requests that contain a body.
+
+- `c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
+is useful when caching local paths (via `path_blacklist`) or other local rack apps
+that are running on random ports.
+
+- `c.non_successful_cache_disabled` is used to not cache responses without 200-series
+or 304 status codes.  This prevents unauthorized or internal server errors from
+being cached and used for future test runs.
+
+- `c.non_successful_error_level` is used to log when non-successful responses are
+received.  By default, it just writes to the log file, but when set to `:error`
+it throws an error with the URL and status code received for easier debugging.
+
+- `c.non_whitelisted_requests_disabled` is used to disable hitting new URLs when
+no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
+allowed, all others will throw an error with the URL attempted to be accessed.
+This is useful for debugging issues in isolated environments (ie.
+continuous integration).
+
+- `c.cache_path` can be used to locate the cache directory to a different place
+other than `system temp directory/puffing-billy`.
+
+- `c.certs_path` can be used to locate the directory for dynamically generated
+SSL certificates to a different place other than `system temp
+directory/puffing-billy/certs`.
+
+- `c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
+
+- `c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
+server is required to access the internet.  Most common in larger companies.
+
+- `c.allow_params` is used to allow parameters of certain requests when caching. This is best used when a site
 has a large number of analytics and social buttons. `c.allow_params` is the opposite of `c.ignore_params`,
 a whitelist to a blacklist. In order to toggle between using one or the other, use `c.use_ignore_params`.
 
-`c.strip_query_params` is used to strip query parameters when you stub some requests
+- `c.strip_query_params` is used to strip query parameters when you stub some requests
 with query parameters. Default value is true. For example, `proxy.stub('http://myapi.com/user/?country=FOO')`
 is considered the same as: `proxy.stub('http://myapi.com/user/?anything=FOO')` and
 generally the same as: `proxy.stub('http://myapi.com/user/')`. When you need to distinguish between all these requests,
 you may set this config value to false.
 
-`c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
+- `c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
 callback parameter. For example, if a request to `http://example.com/foo?callback=bar`
 returns `bar({"some": "json"});` and is recorded, then a later request to
 `http://example.com/foo?callback=baz` will be a cache hit and respond with
 `baz({"some": "json"});` This is useful because most JSONP implementations
 base the callback name off of a timestamp or something else dynamic.
 
-`c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
+- `c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
 using `c.dynamic_jsonp`. This is helpful when JSONP APIs use cache-busting
 parameters. For example, if you want `http://example.com/foo?callback=bar&id=1&cache_bust=12345` and `http://example.com/foo?callback=baz&id=1&cache_bust=98765` to be cache hits for each other, you would set `c.dynamic_jsonp_keys = ['callback', 'cache_bust']` to ignore both params. Note
 that in this example the `id` param would still be considered important.
 
-`c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback
+- `c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback
 parameter. The default is `callback`.
 
-`c.path_blacklist = []` is used to always cache specific paths on any hostnames,
-including whitelisted ones.  This is useful if your AUT has routes that get data
-from external services, such as `/api` where the ajax request is a local URL but
-the actual data is coming from a different application that you want to cache.
-
-`c.merge_cached_responses_whitelist = []` is used to group together the cached
-responses for specific uri regexes that match any part of the url. This is useful
-for ensuring that any kind of analytics and various social buttons that have
-slightly different urls each time can be recorded once and reused nicely. Note
-that the request body is ignored for requests that contain a body.
-
-`c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
-is useful when caching local paths (via `path_blacklist`) or other local rack apps
-that are running on random ports.
-
-`c.non_successful_cache_disabled` is used to not cache responses without 200-series
-or 304 status codes.  This prevents unauthorized or internal server errors from
-being cached and used for future test runs.
-
-`c.non_successful_error_level` is used to log when non-successful responses are
-received.  By default, it just writes to the log file, but when set to `:error`
-it throws an error with the URL and status code received for easier debugging.
-
-`c.non_whitelisted_requests_disabled` is used to disable hitting new URLs when
-no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
-allowed, all others will throw an error with the URL attempted to be accessed.
-This is useful for debugging issues in isolated environments (ie.
-continuous integration).
-
-`c.cache_path` can be used to locate the cache directory to a different place
-other than `system temp directory/puffing-billy`.
-
-`c.certs_path` can be used to locate the directory for dynamically generated
-SSL certificates to a different place other than `system temp
-directory/puffing-billy/certs`.
-
-`c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
-
-`c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
-server is required to access the internet.  Most common in larger companies.
-
-`c.record_requests` can be used to record all requests that puffing billy proxied.
+- `c.record_requests` can be used to record all requests that puffing billy proxied.
 This can be useful for debugging purposes, for instance if you are unsure why
 your stubbed requests are not being successfully proxied.
 
-Example usage:
+- `c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
+
+- `c.use_ignore_params` is used to choose whether to use the ignore_params blacklist or the allow_params whitelist. Set to `true` to use `c.ignore_params`,
+`false` to use `c.allow_params`
+
+- `c.before_handle_request` is used to modify `method`, `url`, `headers`, `body` before handle request by `stubs`, `cache` or `proxy`. Method accept 4 argumens and must return array of this arguments:
+
+  ```ruby
+  c.before_handle_request = proc { |method, url, headers, body|
+    filtered_body = JSON.dump(filter_secret_data(JSON.load(body)))
+    [method, url, headers, filtered_body]
+  }
+  ```
+
+- `c.cache_simulates_network_delays` is used to add some delay before cache returns response. When set to `true`, cached requests will wait from configured delay time before responding. This allows to catch various race conditions in asynchronous front-end requests. The default is `false`.
+
+- `c.cache_simulates_network_delay_time` is used to configure time (in seconds) to wait until responding from cache. The default is `0.1`.
+
+- `c.after_cache_handles_request` is used to configure a callback that can operate on the response after it has been retrieved from the cache but before it is returned. The callback receives the request and response as arguments, with a request object like: `{ method: method, url: url, headers: headers, body: body }`. An example usage would be manipulating the Access-Control-Allow-Origin header so that your test server doesn't always have to run on the same port in order to accept cached responses to CORS requests:
+
+  ```ruby
+  Billy.configure do |c|
+    ...
+    fix_cors_header = proc do |_request, response|
+      allowed_origins = response[:headers]['Access-Control-Allow-Origin']
+      if allowed_origins.present?
+        localhost_port_pattern = %r{(?<=http://127\.0\.0\.1:)(\d+)}
+        allowed_origins.sub!(
+          localhost_port_pattern, Capybara.current_session.server.port.to_s
+        )
+      end
+    end
+    c.after_cache_handles_request = fix_cors_header
+    ...
+  end
+  ```
+
+### Example usage:
 
 ```ruby
 require 'table_print' # Add this dependency to your gemfile
@@ -454,43 +493,6 @@ The handler column indicates how Puffing Billy handled your request:
 
 If your `status` is set to `inflight` this request has not yet been handled fully. Either puffing billy crashed
 internally on this request, or your test ended before it could complete successfully.
-
-`c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
-
-`c.after_cache_handles_request` is used to configure a callback that can operate on the response after it has been retrieved from the cache but before it is returned. The callback receives the request and response as arguments, with a request object like: `{ method: method, url: url, headers: headers, body: body }`. An example usage would be manipulating the Access-Control-Allow-Origin header so that your test server doesn't always have to run on the same port in order to accept cached responses to CORS requests:
-
-```
-Billy.configure do |c|
-  ...
-  fix_cors_header = proc do |_request, response|
-    allowed_origins = response[:headers]['Access-Control-Allow-Origin']
-    if allowed_origins.present?
-      localhost_port_pattern = %r{(?<=http://127\.0\.0\.1:)(\d+)}
-      allowed_origins.sub!(
-        localhost_port_pattern, Capybara.current_session.server.port.to_s
-      )
-    end
-  end
-  c.after_cache_handles_request = fix_cors_header
-  ...
-end
-```
-
-`c.use_ignore_params` is used to choose whether to use the ignore_params blacklist or the allow_params whitelist. Set to `true` to use `c.ignore_params`,
-`false` to use `c.allow_params`
-
-`c.before_handle_request` is used to modify `method`, `url`, `headers`, `body` before handle request by `stubs`, `cache` or `proxy`. Method accept 4 argumens and must return array of this arguments:
-
-```
-c.before_handle_request = proc { |method, url, headers, body|
-  filtered_body = JSON.dump(filter_secret_data(JSON.load(body)))
-  [method, url, headers, filtered_body]
-}
-```
-
-`c.cache_simulates_network_delays` is used to add some delay before cache returns response. When set to `true`, cached requests will wait from configured delay time before responding. This allows to catch various race conditions in asynchronous front-end requests. The default is `false`.
-
-`c.cache_simulates_network_delay_time` is used to configure time (in seconds) to wait until responding from cache. The default is `0.1`.
 
 ### Cache Scopes
 
@@ -618,7 +620,7 @@ end
 
 ## Proxy timeouts
 
-By default, the Puffing Billy proxy will use the EventMachine:HttpRequest timeouts of 5 seconds
+By default, the Puffing Billy proxy will use the `EventMachine::HttpRequest` timeouts of 5 seconds
 for connect and 10 seconds for inactivity when talking to downstream servers.
 
 These can be configured as follows:
