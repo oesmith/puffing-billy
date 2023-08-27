@@ -1,3 +1,7 @@
+v3.2.0, 2023-08-27
+------------------
+  * Replace deprecated headless! Selenium::WebDriver::Chrome::Options [#333](https://github.com/oesmith/puffing-billy/pull/333)
+
 v3.1.0, 2023-03-10
 ------------------
   * Add support for Ruby 3.2 [#330](https://github.com/oesmith/puffing-billy/pull/330)
