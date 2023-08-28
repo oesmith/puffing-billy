@@ -48,24 +48,17 @@ module Billy
 
       def self.register_selenium_driver
         ::Capybara.register_driver :selenium_billy do |app|
-          capabilities = [
-            build_selenium_options_for_firefox,
-            Selenium::WebDriver::Remote::Capabilities.firefox(accept_insecure_certs: true)
-          ]
+          options = build_selenium_options_for_firefox
 
-          ::Capybara::Selenium::Driver.new(app, capabilities: capabilities)
+          ::Capybara::Selenium::Driver.new(app, options: options)
         end
 
         ::Capybara.register_driver :selenium_headless_billy do |app|
           options = build_selenium_options_for_firefox.tap do |opts|
             opts.add_argument '-headless'
           end
-          capabilities = [
-            options,
-            Selenium::WebDriver::Remote::Capabilities.firefox(accept_insecure_certs: true)
-          ]
 
-          ::Capybara::Selenium::Driver.new(app, capabilities: capabilities)
+          ::Capybara::Selenium::Driver.new(app, options: options)
         end
 
         ::Capybara.register_driver :selenium_chrome_billy do |app|
