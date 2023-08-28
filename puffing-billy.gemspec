@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.name          = 'puffing-billy'
   gem.require_paths = ['lib']
   gem.version       = Billy::VERSION
-  gem.required_ruby_version = '>= 2.6.0'
+  gem.required_ruby_version = '>= 2.7.0'
   gem.license       = 'MIT'
 
   gem.add_development_dependency 'rspec'
