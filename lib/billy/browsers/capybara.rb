@@ -69,7 +69,7 @@ module Billy
           ::Capybara::Selenium::Driver.new(
             app,
             browser: :chrome,
-            capabilities: options,
+            options: options,
             clear_local_storage: true,
             clear_session_storage: true
           )
@@ -87,7 +87,7 @@ module Billy
           ::Capybara::Selenium::Driver.new(
             app,
             browser: :chrome,
-            capabilities: options,
+            options: options,
             clear_local_storage: true,
             clear_session_storage: true
           )
