@@ -1,3 +1,9 @@
+v4.0.0, 2023-08-30
+------------------
+  * Drop Ruby 2.6 support [#337](https://github.com/oesmith/puffing-billy/pull/337)
+  * Fix removed Selenium::WebDriver::Remote::Capabilities.firefox method [#336](https://github.com/oesmith/puffing-billy/pull/336)
+  * Use :options argument instead of :capabilities [#338](https://github.com/oesmith/puffing-billy/pull/338)
+
 v3.2.0, 2023-08-27
 ------------------
   * Replace deprecated headless! Selenium::WebDriver::Chrome::Options [#333](https://github.com/oesmith/puffing-billy/pull/333)
