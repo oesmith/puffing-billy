@@ -86,6 +86,12 @@ module Billy
       body_msg = ''
 
       if Billy.config.cache_request_body_methods.include?(method) && !ignore_params && !merge_cached_response_key
+
+        if Billy.config.ignore_keys_in_body_for_generating_cache_key.any?
+          body_hash = JSONUtils.json?(body.to_s) ? JSON.parse(body.to_s) : Rack::Utils.parse_query(body.to_s)
+          body_hash = body_hash.reject { |k, _v| Billy.config.ignore_keys_in_body_for_generating_cache_key.include?(k) }
+          body = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body_hash.to_json) : Rack::Utils.build_query(body_hash)
+        end
         body_formatted = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body.to_s) : body.to_s
         body_msg = " with body '#{body_formatted}'"
         key += '_' + Digest::SHA1.hexdigest(body_formatted)

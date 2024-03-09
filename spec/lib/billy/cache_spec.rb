@@ -116,6 +116,20 @@ describe Billy::Cache do
     end
   end
 
+  context 'with ignore_keys_in_body_for_generating_cache_key' do
+    before do
+      allow(Billy.config).to receive(:ignore_keys_in_body_for_generating_cache_key) {
+        ['foo']
+      }
+    end
+
+    it 'should ignore the specified keys when generating the cache key' do
+      key1 = cache.key('post', "http://example.com", 'foo=bar&baz=quux')
+      key2 = cache.key('post', "http://example.com", 'foo=quux&baz=quux')
+      expect(key1).to eq key2
+    end
+  end
+
   describe 'key' do
     context 'with use_ignore_params set to false' do
       before do
