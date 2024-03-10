@@ -1,3 +1,9 @@
+v4.0.0-tesote.2, 2024-03-10
+------------------
+  * add in support for ignoring keys with :ignore_keys_in_body_for_generating_cache_key
+  * add in support for :match_requests_on, similar to VCR functionality to give more control over how requests are matched
+
+
 v4.0.0, 2023-08-30
 ------------------
   * Drop Ruby 2.6 support [#337](https://github.com/oesmith/puffing-billy/pull/337)
