@@ -71,6 +71,8 @@ module Billy
     end
 
     def key(method, orig_url, body, log_key = false)
+      return custom_matching_key(method, orig_url, body, log_key) if Billy.config.match_requests_on
+
       if Billy.config.use_ignore_params
         ignore_params = Billy.config.ignore_params.include?(format_url(orig_url, true))
       else
@@ -98,6 +100,55 @@ module Billy
       end
 
       Billy.log(:info, "puffing-billy: CACHE KEY for '#{orig_url}#{body_msg}' is '#{key}'") if log_key
+      key
+    end
+
+    def custom_matching_key(method, orig_url, body, log_key)
+      uri = Addressable::URI.parse(orig_url)
+
+      # rule should be an array like [:host, :path, :method]
+      rules = Billy.config.match_requests_on
+
+      rule = rules.except(:all).detect { |k, _v| orig_url.match?(k) }&.last
+      rule = rules[:all] unless rule
+
+      raise "Couldn't find matching rule for #{orig_url}" unless rule
+
+      key_parts = []
+      digest_key_parts = []
+
+      if rule.include?(:method)
+        key_parts << method
+      end
+
+      if rule.include?(:host)
+        key_parts << uri.host
+      end
+
+      if rule.include?(:path)
+        digest_key_parts << uri.path
+      end
+
+      if rule.include?(:query)
+        digest_key_parts << uri.query
+      end
+
+      body_msg = ''
+      if rule.include?(:body)
+        body_formatted = JSONUtils.json?(body.to_s) ? JSONUtils.sort_json(body.to_s) : body.to_s
+        body_msg = " with body '#{body_formatted}'"
+
+        digest_key_parts << body_formatted
+      end
+
+      base_key = key_parts.join('_')
+
+      digest_part = digest_key_parts.any? ? Digest::SHA1.hexdigest(digest_key_parts.join('_')) : nil
+
+      key = "#{base_key}#{digest_part}"
+
+      Billy.log(:info, "puffing-billy: CACHE KEY for '#{orig_url}#{body_msg}' is '#{key}'") if log_key
+
       key
     end
 
