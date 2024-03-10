@@ -130,6 +130,65 @@ describe Billy::Cache do
     end
   end
 
+  describe 'match_requests_on' do
+    before do
+      allow(Billy.config).to receive(:match_requests_on) {
+        match_requests_on
+      }
+    end
+
+    let(:match_requests_on) do
+      { all: [:host, :path] }
+    end
+
+    let(:key1) do
+      cache.key('post', 'http://example.com/AAAA', 'foo=bar&baz=quux')
+    end
+
+    let(:key2) do
+      cache.key('get', 'http://example.com/AAAA?x=1', 'foo=bar&baz=dddd')
+    end
+
+    it { expect(key1).to eq key2 }
+
+    context 'when path is different' do
+      let(:key2) do
+        cache.key('get', 'http://example.com/BBBB', 'foo=bar&baz=dddd')
+      end
+
+      it { expect(key1).not_to eq key2 }
+    end
+
+    context 'when matching by host, path and method' do
+      let(:match_requests_on) do
+        { all: [:method, :host, :path] }
+      end
+
+      it { expect(key1).not_to eq key2 }
+    end
+
+    context 'when matching by host, path and query' do
+      let(:match_requests_on) do
+        { all: [:host, :path, :query] }
+      end
+
+      it 'works' do
+        expect(key1).not_to eq key2
+      end
+    end
+
+    context 'with specific matchers' do
+      let(:match_requests_on) do
+        {
+          all: [:host, :path],
+          'example.com' => [:host, :path, :query]
+        }
+      end
+
+      it { expect(key1).not_to eq key2 }
+    end
+  end
+
   describe 'key' do
     context 'with use_ignore_params set to false' do
       before do
