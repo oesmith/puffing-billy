@@ -103,14 +103,14 @@ module Billy
       end
 
       def self.register_cuprite_driver
-        driver_otions = {
+        driver_options = {
           browser_options: {
             'ignore-certificate-errors' => nil
           }
         }.deep_merge(Billy.config.cuprite_options)
 
         ::Capybara.register_driver :cuprite_billy do |app|
-          ::Capybara::Cuprite::Driver.new(app, **driver_otions).tap do |driver|
+          ::Capybara::Cuprite::Driver.new(app, **driver_options).tap do |driver|
             driver.set_proxy(Billy.proxy.host, Billy.proxy.port)
           end
         end
