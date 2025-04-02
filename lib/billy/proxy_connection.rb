@@ -22,7 +22,7 @@ module Billy
 
     def on_message_begin
       @headers = nil
-      @body = ''
+      @body = +''
     end
 
     def on_headers_complete(headers)
