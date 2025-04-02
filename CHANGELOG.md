@@ -1,3 +1,7 @@
+Unreleased
+------------------
+  * Update http-parser to 0.8.0 [#352](https://github.com/oesmith/puffing-billy/pull/352)
+
 v4.0.0, 2023-08-30
 ------------------
   * Drop Ruby 2.6 support [#337](https://github.com/oesmith/puffing-billy/pull/337)
