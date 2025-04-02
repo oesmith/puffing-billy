@@ -35,6 +35,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'em-synchrony'
   gem.add_runtime_dependency 'em-http-request', '~> 1.1', '>= 1.1.0'
   gem.add_runtime_dependency 'eventmachine_httpserver'
-  gem.add_runtime_dependency 'http_parser.rb', '~> 0.6.0'
+  gem.add_runtime_dependency 'http_parser.rb', '~> 0.8.0'
   gem.add_runtime_dependency 'multi_json'
 end
