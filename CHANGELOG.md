@@ -1,4 +1,4 @@
-Unreleased
+v4.0.1, 2025-04-08
 ------------------
   * Update http-parser to 0.8.0 [#352](https://github.com/oesmith/puffing-billy/pull/352)
 
