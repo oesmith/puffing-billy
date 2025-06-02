@@ -1,3 +1,7 @@
+v4.0.2, 2025-06-02
+------------------
+  * Add unary operator to mutable string [#351](https://github.com/oesmith/puffing-billy/pull/351)
+
 v4.0.1, 2025-04-08
 ------------------
   * Update http-parser to 0.8.0 [#352](https://github.com/oesmith/puffing-billy/pull/352)
