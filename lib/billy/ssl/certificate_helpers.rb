@@ -27,7 +27,7 @@ module Billy
     # and ensure the location is safely created. Pass
     # back the resulting path.
     def write_file(name, contents)
-      path = File.join(Billy.config.certs_path, name)
+      path = File.join(Billy.config.certs_path, "#{Process.pid}-#{name}")
       FileUtils.mkdir_p(File.dirname(path))
       File.write(path, contents)
       path

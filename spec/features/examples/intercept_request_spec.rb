@@ -7,7 +7,7 @@ describe 'intercept request example', type: :feature, js: true do
   end
 
   it 'should intercept a GET request directly' do
-    stub = proxy.stub('http://example.com/').and_return(
+    stub = proxy.stub('https://example.com:443/').and_return(
       headers: { 'Access-Control-Allow-Origin' => '*' },
       code: 200
     )

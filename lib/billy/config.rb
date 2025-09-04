@@ -6,12 +6,13 @@ module Billy
     DEFAULT_WHITELIST = ['127.0.0.1', 'localhost']
     RANDOM_AVAILABLE_PORT = 0 # https://github.com/eventmachine/eventmachine/wiki/FAQ#wiki-can-i-start-a-server-on-a-random-available-port
 
-    attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :path_blacklist, :ignore_params, :allow_params,
+    attr_accessor :logger, :cache, :cache_request_headers, :whitelist, :cache_whitelist, :path_blacklist, :ignore_params, :allow_params,
                   :persist_cache, :ignore_cache_port, :non_successful_cache_disabled, :non_successful_error_level,
-                  :non_whitelisted_requests_disabled, :cache_path, :certs_path, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
+                  :non_whitelisted_requests_disabled, :cache_path, :certs_path, :verify_peer, :proxy_host, :proxy_port, :proxied_request_inactivity_timeout,
                   :proxied_request_connect_timeout, :dynamic_jsonp, :dynamic_jsonp_keys, :dynamic_jsonp_callback_name, :merge_cached_responses_whitelist,
                   :strip_query_params, :proxied_request_host, :proxied_request_port, :cache_request_body_methods, :after_cache_handles_request,
-                  :cache_simulates_network_delays, :cache_simulates_network_delay_time, :record_requests, :record_stub_requests, :use_ignore_params, :before_handle_request
+                  :cache_simulates_network_delays, :cache_simulates_network_delay_time, :record_requests, :record_stub_requests, :use_ignore_params,
+                  :before_handle_request, :cuprite_options
 
     def initialize
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
@@ -21,6 +22,7 @@ module Billy
     def reset
       @cache = true
       @cache_request_headers = false
+      @cache_whitelist = []
       @whitelist = DEFAULT_WHITELIST
       @path_blacklist = []
       @merge_cached_responses_whitelist = []
@@ -36,6 +38,7 @@ module Billy
       @non_whitelisted_requests_disabled = false
       @cache_path = File.join(Dir.tmpdir, 'puffing-billy')
       @certs_path = File.join(Dir.tmpdir, 'puffing-billy', 'certs')
+      @verify_peer = false
       @proxy_host = 'localhost'
       @proxy_port = RANDOM_AVAILABLE_PORT
       @proxied_request_inactivity_timeout = 10 # defaults from https://github.com/igrigorik/em-http-request/wiki/Redirects-and-Timeouts
@@ -51,6 +54,7 @@ module Billy
       @record_stub_requests = false
       @use_ignore_params = true
       @before_handle_request = nil
+      @cuprite_options = {}
     end
   end
 

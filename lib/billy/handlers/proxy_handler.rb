@@ -16,13 +16,14 @@ module Billy
         opts = { inactivity_timeout: Billy.config.proxied_request_inactivity_timeout,
                  connect_timeout:    Billy.config.proxied_request_connect_timeout }
 
+        if url =~ /^https/
+          opts.merge!({tls: {verify_peer: Billy.config.verify_peer}})
+        end
+
         if Billy.config.proxied_request_host && !bypass_internal_proxy?(url)
           opts.merge!({ proxy: { host: Billy.config.proxied_request_host,
                                  port: Billy.config.proxied_request_port }} )
         end
-
-        cache_scope = Billy::Cache.instance.scope
-        cache_key = Billy::Cache.instance.key(method.downcase, url, body)
 
         req = EventMachine::HttpRequest.new(url, opts)
         req = req.send(method.downcase, build_request_options(url, headers, body))
@@ -43,6 +44,9 @@ module Billy
           end
 
           if cacheable?(url, response[:headers], response[:status])
+            cache_scope = Billy::Cache.instance.scope
+            cache_key = Billy::Cache.instance.key(method.downcase, url, body)
+
             Billy::Cache.instance.store(
               cache_key,
               cache_scope,
@@ -110,11 +114,21 @@ module Billy
 
       url = Addressable::URI.parse(url)
       # Cache the responses if they aren't whitelisted host[:port]s but always cache blacklisted paths on any hosts
-      cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path))
+      cacheable_status?(status) && (!whitelisted_url?(url) || blacklisted_path?(url.path) || cache_whitelisted_url?(url))
     end
 
     def whitelisted_url?(url)
       Billy.config.whitelist.any? do |value|
+        if value.is_a?(Regexp)
+          url.to_s =~ value || url.omit(:port).to_s =~ value
+        else
+          value =~ /^#{url.host}(?::#{url.port})?$/
+        end
+      end
+    end
+
+    def cache_whitelisted_url?(url)
+      Billy.config.cache_whitelist.any? do |value|
         if value.is_a?(Regexp)
           url.to_s =~ value || url.omit(:port).to_s =~ value
         else

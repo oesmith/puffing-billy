@@ -1,3 +1,63 @@
+v4.0.2, 2025-06-02
+------------------
+  * Add unary operator to mutable string [#351](https://github.com/oesmith/puffing-billy/pull/351)
+
+v4.0.1, 2025-04-08
+------------------
+  * Update http-parser to 0.8.0 [#352](https://github.com/oesmith/puffing-billy/pull/352)
+
+v4.0.0, 2023-08-30
+------------------
+  * Drop Ruby 2.6 support [#337](https://github.com/oesmith/puffing-billy/pull/337)
+  * Fix removed Selenium::WebDriver::Remote::Capabilities.firefox method [#336](https://github.com/oesmith/puffing-billy/pull/336)
+  * Use :options argument instead of :capabilities [#338](https://github.com/oesmith/puffing-billy/pull/338)
+
+v3.2.0, 2023-08-27
+------------------
+  * Replace deprecated headless! Selenium::WebDriver::Chrome::Options [#333](https://github.com/oesmith/puffing-billy/pull/333)
+
+v3.1.0, 2023-03-10
+------------------
+  * Add support for Ruby 3.2 [#330](https://github.com/oesmith/puffing-billy/pull/330)
+
+v3.0.4, 2022-08-07
+------------------
+  * Adds a configurable Cuprite driver [#327](https://github.com/oesmith/puffing-billy/pull/327)
+
+v3.0.3, 2022-05-31
+-------------------
+  * Only calculate cache scope and key if request is cacheable [#324](https://github.com/oesmith/puffing-billy/pull/324)
+
+v3.0.2, 2022-02-16
+-------------------
+  * Add rake tasks inside files DSL in gemspec [#321](https://github.com/oesmith/puffing-billy/pull/321)
+
+v3.0.1, 2022-02-15
+-------------------
+  * Adapt to newer versions selenium webdriver [#314](https://github.com/oesmith/puffing-billy/pull/314)
+
+v3.0.0, 2022-02-15
+-------------------
+  * Add support for Ruby 2.7+, remove support for Ruby 2.4 and 2.5
+
+v2.4.1, 2021-01-05
+-------------------
+  * Rescue Errno::ECONNRESET in shutdown phase [#307](https://github.com/oesmith/puffing-billy/pull/307)
+
+v2.4.0, 2020-08-26
+-------------------
+  * Make verify_peer configurable and default it to false [#294](https://github.com/oesmith/puffing-billy/pull/294)
+  * Include pid in names of temporary files [#290](https://github.com/oesmith/puffing-billy/pull/290)
+
+v2.3.1, 2020-03-19
+-------------------
+  * Update min 'faraday' gem version required [#285](https://github.com/oesmith/puffing-billy/pull/285)
+
+v2.3.0, 2019-12-26
+-------------------
+  * Add `cache_whitelist` config option [#279](https://github.com/oesmith/puffing-billy/pull/279)
+  * Ignore certificate errors in Chrome [#280](https://github.com/oesmith/puffing-billy/pull/280)
+
 v2.2.0, 2019-10-26
 -------------------
   * Before handle request method [#273](https://github.com/oesmith/puffing-billy/pull/273)

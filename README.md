@@ -1,4 +1,4 @@
-# Puffing Billy [![Gem Version](https://badge.fury.io/rb/puffing-billy.svg)](https://badge.fury.io/rb/puffing-billy) [![Build Status](https://travis-ci.org/oesmith/puffing-billy.svg?branch=master)](https://travis-ci.org/oesmith/puffing-billy)
+# Puffing Billy [![Gem Version](https://badge.fury.io/rb/puffing-billy.svg)](https://badge.fury.io/rb/puffing-billy) ![Build Status](https://github.com/oesmith/puffing-billy/actions/workflows/ci.yml/badge.svg)
 
 A rewriting web proxy for testing interactions between your browser and
 external sites. Works with ruby + rspec.
@@ -14,9 +14,9 @@ Billy spawns an EventMachine-based proxy server, which it uses to intercept
 requests sent by your browser. It has a simple API for configuring which
 requests need stubbing and what they should return.
 
-Billy lets you test against known, repeatable data.  It also allows you to
+Billy lets you test against known, repeatable data. It also allows you to
 test for failure cases.  Does your twitter (or facebook/google/etc)
-integration degrade gracefully when the API starts returning 500s?  Well now
+integration degrade gracefully when the API starts returning 500s? Well now
 you can test it!
 
 ```ruby
@@ -32,21 +32,25 @@ You can also record HTTP interactions and replay them later. See
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
-    gem 'puffing-billy'
+```ruby
+gem 'puffing-billy', group: :test
+```
 
 And then execute:
 
-    $ bundle
+```sh
+$ bundle
+```
 
 Or install it yourself as:
 
-    $ gem install puffing-billy
+```sh
+$ gem install puffing-billy
+```
 
-## RSpec Usage
-
-### Setup for Capybara
+## Setup for Capybara
 
 In your `rails_helper.rb`:
 
@@ -61,6 +65,7 @@ Capybara.javascript_driver = :selenium_billy # Uses Firefox
 # Capybara.javascript_driver = :apparition_billy
 # Capybara.javascript_driver = :webkit_billy
 # Capybara.javascript_driver = :poltergeist_billy
+# Capybara.javascript_driver = :cuprite_billy
 ```
 
 > __Note__: `:poltergeist_billy` doesn't support proxying any localhosts, so you must use
@@ -68,7 +73,7 @@ Capybara.javascript_driver = :selenium_billy # Uses Firefox
 headless specs when using puffing-billy for other local rack apps.
 See [this phantomjs issue](https://github.com/ariya/phantomjs/issues/11342) for any updates.
 
-### Setup for Watir
+## Setup for Watir
 
 In your `rails_helper.rb`:
 
@@ -81,7 +86,96 @@ require 'billy/watir/rspec'
 # @browser = Billy::Browsers::Watir.new = :phantomjs
 ```
 
-### In your tests (Capybara/Watir)
+## Setup for Cucumber
+
+An example feature:
+
+```
+Feature: Stubbing via billy
+
+  @javascript @billy
+  Scenario: Test billy
+    And a stub for google
+```
+
+### Setup for Cucumber + Capybara
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/capybara/cucumber'
+
+After do
+  Capybara.use_default_driver
+end
+```
+
+And in steps:
+
+```ruby
+Before('@billy') do
+  Capybara.current_driver = :poltergeist_billy
+end
+
+And /^a stub for google$/ do
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
+  visit 'http://www.google.com/'
+  expect(page).to have_content("I'm not Google!")
+end
+```
+
+It's good practice to reset the driver after each scenario, so having an
+`@billy` tag switches the drivers on for a given scenario. Also note that
+stubs are reset after each step, so any usage of a stub should be in the
+same step that it was created in.
+
+### Setup for Cucumber + Watir
+
+In your `features/support/env.rb`:
+
+```ruby
+require 'billy/watir/cucumber'
+
+After do
+  @browser.close
+end
+```
+
+And in steps:
+
+```ruby
+Before('@billy') do
+  @browser = Billy::Browsers::Watir.new :firefox
+end
+
+And /^a stub for google$/ do
+  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
+  @browser.goto 'http://www.google.com/'
+  expect(@browser.text).to eq("I'm not Google!")
+end
+```
+
+### Setup remote Chrome
+
+In the case you are using a Chrome instance, running on another machine, or in
+another Docker container, you need to :
+* Fix the Billy proxy host and port
+* Passes the `--proxy-server=<billy host>:<billy port>`
+
+#### WebSockets
+
+Puffing billy doesn't support websockets, so if you are using them,
+or ActionCable for the Ruby On Rails developers, you can tell Chrome to bypass
+the proxy for websockets by adding the flag `--proxy-bypass-list=ws://*` to
+your remote chrome intance or Docker container.
+
+## Minitest Usage
+
+Please see [this link](https://gist.github.com/sauy7/1b081266dd453a1b737b) for
+details and report back to [Issue #49](https://github.com/oesmith/puffing-billy/issues/49)
+if you get it fully working.
+
+## Examples
 
 ```ruby
 # Stub and return text, json, jsonp (or anything else)
@@ -161,81 +255,6 @@ proxy.unstub example_stub
 proxy.reset
 ```
 
-## Cucumber Usage
-
-An example feature:
-
-```
-Feature: Stubbing via billy
-
-  @javascript @billy
-  Scenario: Test billy
-    And a stub for google
-```
-
-### Capybara
-
-In your `features/support/env.rb`:
-
-```ruby
-require 'billy/capybara/cucumber'
-
-After do
-  Capybara.use_default_driver
-end
-```
-
-And in steps:
-
-```ruby
-Before('@billy') do
-  Capybara.current_driver = :poltergeist_billy
-end
-
-And /^a stub for google$/ do
-  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
-  visit 'http://www.google.com/'
-  expect(page).to have_content("I'm not Google!")
-end
-```
-
-It's good practice to reset the driver after each scenario, so having an
-`@billy` tag switches the drivers on for a given scenario. Also note that
-stubs are reset after each step, so any usage of a stub should be in the
-same step that it was created in.
-
-### Watir
-
-In your `features/support/env.rb`:
-
-```ruby
-require 'billy/watir/cucumber'
-
-After do
-  @browser.close
-end
-```
-
-And in steps:
-
-```ruby
-Before('@billy') do
-  @browser = Billy::Browsers::Watir.new :firefox
-end
-
-And /^a stub for google$/ do
-  proxy.stub('http://www.google.com/').and_return(text: "I'm not Google!")
-  @browser.goto 'http://www.google.com/'
-  expect(@browser.text).to eq("I'm not Google!")
-end
-```
-
-## Minitest Usage
-
-Please see [this link](https://gist.github.com/sauy7/1b081266dd453a1b737b) for
-details and report back to [Issue #49](https://github.com/oesmith/puffing-billy/issues/49)
-if you get it fully working.
-
 ## Caching
 
 Requests routed through the external proxy are cached.
@@ -263,10 +282,17 @@ server = Capybara.current_session.server
 Billy.config.whitelist = ["#{server.host}:#{server.port}"]
 ```
 
+If you would like to cache whitelisted URLs, you can define them in `c.cache_whitelist`. This is useful for scenarios where you may want to set `c.non_whitelisted_requests_disabled` to `true` to only allow whitelisted URLs to be accessed, but still allow specific URLs to be treated as if they were non-whitelisted.
+
 If you want to use puffing-billy like you would [VCR](https://github.com/vcr/vcr)
 you can turn on cache persistence. This way you don't have to manually mock out
 everything as requests are automatically recorded and played back. With cache
 persistence you can take tests completely offline.
+
+The cache works with all types of requests and will distinguish between
+different POST requests to the same URL.
+
+### Params
 
 ```ruby
 Billy.configure do |c|
@@ -292,94 +318,129 @@ Billy.configure do |c|
   c.proxy_port = 12345 # defaults to random
   c.proxied_request_host = nil
   c.proxied_request_port = 80
+  c.cache_whitelist = []
   c.record_requests = true # defaults to false
   c.cache_request_body_methods = ['post', 'patch', 'put'] # defaults to ['post']
 end
 ```
 
-The cache works with all types of requests and will distinguish between
-different POST requests to the same URL.
-
-`c.cache_request_headers` is used to store the outgoing request headers in the cache.
+- `c.cache_request_headers` is used to store the outgoing request headers in the cache.
 It is also saved to yml if `persist_cache` is enabled.  This additional information
 is useful for debugging (for example: viewing the referer of the request).
 
-`c.ignore_params` is used to ignore parameters of certain requests when
+- `c.ignore_params` is used to ignore parameters of certain requests when
 caching. You should mostly use this for analytics and various social buttons as
 they use cache avoidance techniques, but return practically the same response
 that most often does not affect your test results.
 
-`c.allow_params` is used to allow parameters of certain requests when caching. This is best used when a site
+- `c.path_blacklist = []` is used to always cache specific paths on any hostnames,
+including whitelisted ones.  This is useful if your AUT has routes that get data
+from external services, such as `/api` where the ajax request is a local URL but
+the actual data is coming from a different application that you want to cache.
+
+- `c.merge_cached_responses_whitelist = []` is used to group together the cached
+responses for specific uri regexes that match any part of the url. This is useful
+for ensuring that any kind of analytics and various social buttons that have
+slightly different urls each time can be recorded once and reused nicely. Note
+that the request body is ignored for requests that contain a body.
+
+- `c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
+is useful when caching local paths (via `path_blacklist`) or other local rack apps
+that are running on random ports.
+
+- `c.non_successful_cache_disabled` is used to not cache responses without 200-series
+or 304 status codes.  This prevents unauthorized or internal server errors from
+being cached and used for future test runs.
+
+- `c.non_successful_error_level` is used to log when non-successful responses are
+received.  By default, it just writes to the log file, but when set to `:error`
+it throws an error with the URL and status code received for easier debugging.
+
+- `c.non_whitelisted_requests_disabled` is used to disable hitting new URLs when
+no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
+allowed, all others will throw an error with the URL attempted to be accessed.
+This is useful for debugging issues in isolated environments (ie.
+continuous integration).
+
+- `c.cache_path` can be used to locate the cache directory to a different place
+other than `system temp directory/puffing-billy`.
+
+- `c.certs_path` can be used to locate the directory for dynamically generated
+SSL certificates to a different place other than `system temp
+directory/puffing-billy/certs`.
+
+- `c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
+
+- `c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
+server is required to access the internet.  Most common in larger companies.
+
+- `c.allow_params` is used to allow parameters of certain requests when caching. This is best used when a site
 has a large number of analytics and social buttons. `c.allow_params` is the opposite of `c.ignore_params`,
 a whitelist to a blacklist. In order to toggle between using one or the other, use `c.use_ignore_params`.
 
-`c.strip_query_params` is used to strip query parameters when you stub some requests
+- `c.strip_query_params` is used to strip query parameters when you stub some requests
 with query parameters. Default value is true. For example, `proxy.stub('http://myapi.com/user/?country=FOO')`
 is considered the same as: `proxy.stub('http://myapi.com/user/?anything=FOO')` and
 generally the same as: `proxy.stub('http://myapi.com/user/')`. When you need to distinguish between all these requests,
 you may set this config value to false.
 
-`c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
+- `c.dynamic_jsonp` is used to rewrite the body of JSONP responses based on the
 callback parameter. For example, if a request to `http://example.com/foo?callback=bar`
 returns `bar({"some": "json"});` and is recorded, then a later request to
 `http://example.com/foo?callback=baz` will be a cache hit and respond with
 `baz({"some": "json"});` This is useful because most JSONP implementations
 base the callback name off of a timestamp or something else dynamic.
 
-`c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
+- `c.dynamic_jsonp_keys` is used to configure which parameters to ignore when
 using `c.dynamic_jsonp`. This is helpful when JSONP APIs use cache-busting
 parameters. For example, if you want `http://example.com/foo?callback=bar&id=1&cache_bust=12345` and `http://example.com/foo?callback=baz&id=1&cache_bust=98765` to be cache hits for each other, you would set `c.dynamic_jsonp_keys = ['callback', 'cache_bust']` to ignore both params. Note
 that in this example the `id` param would still be considered important.
 
-`c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback
+- `c.dynamic_jsonp_callback_name` is used to configure the name of the JSONP callback
 parameter. The default is `callback`.
 
-`c.path_blacklist = []` is used to always cache specific paths on any hostnames,
-including whitelisted ones.  This is useful if your AUT has routes that get data
-from external services, such as `/api` where the ajax request is a local URL but
-the actual data is coming from a different application that you want to cache.
-
-`c.merge_cached_responses_whitelist = []` is used to group together the cached
-responses for specific uri regexes that match any part of the url. This is useful
-for ensuring that any kind of analytics and various social buttons that have
-slightly different urls each time can be recorded once and reused nicely. Note
-that the request body is ignored for requests that contain a body.
-
-`c.ignore_cache_port` is used to strip the port from the URL if it exists.  This
-is useful when caching local paths (via `path_blacklist`) or other local rack apps
-that are running on random ports.
-
-`c.non_successful_cache_disabled` is used to not cache responses without 200-series
-or 304 status codes.  This prevents unauthorized or internal server errors from
-being cached and used for future test runs.
-
-`c.non_successful_error_level` is used to log when non-successful responses are
-received.  By default, it just writes to the log file, but when set to `:error`
-it throws an error with the URL and status code received for easier debugging.
-
-`c.non_whitelisted_requests_disabled` is used to disable hitting new URLs when
-no cache file exists.  Only whitelisted URLs (on non-blacklisted paths) are
-allowed, all others will throw an error with the URL attempted to be accessed.
-This is useful for debugging issues in isolated environments (ie.
-continuous integration).
-
-`c.cache_path` can be used to locate the cache directory to a different place
-other than `system temp directory/puffing-billy`.
-
-`c.certs_path` can be used to locate the directory for dynamically generated
-SSL certificates to a different place other than `system temp
-directory/puffing-billy/certs`.
-
-`c.proxy_host` and `c.proxy_port` are used for the Billy proxy itself which runs locally.
-
-`c.proxied_request_host` and `c.proxied_request_port` are used if an internal proxy
-server is required to access the internet.  Most common in larger companies.
-
-`c.record_requests` can be used to record all requests that puffing billy proxied.
+- `c.record_requests` can be used to record all requests that puffing billy proxied.
 This can be useful for debugging purposes, for instance if you are unsure why
 your stubbed requests are not being successfully proxied.
 
-Example usage:
+- `c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
+
+- `c.use_ignore_params` is used to choose whether to use the ignore_params blacklist or the allow_params whitelist. Set to `true` to use `c.ignore_params`,
+`false` to use `c.allow_params`
+
+- `c.before_handle_request` is used to modify `method`, `url`, `headers`, `body` before handle request by `stubs`, `cache` or `proxy`. Method accept 4 argumens and must return array of this arguments:
+
+  ```ruby
+  c.before_handle_request = proc { |method, url, headers, body|
+    filtered_body = JSON.dump(filter_secret_data(JSON.load(body)))
+    [method, url, headers, filtered_body]
+  }
+  ```
+
+- `c.cache_simulates_network_delays` is used to add some delay before cache returns response. When set to `true`, cached requests will wait from configured delay time before responding. This allows to catch various race conditions in asynchronous front-end requests. The default is `false`.
+
+- `c.cache_simulates_network_delay_time` is used to configure time (in seconds) to wait until responding from cache. The default is `0.1`.
+
+- `c.after_cache_handles_request` is used to configure a callback that can operate on the response after it has been retrieved from the cache but before it is returned. The callback receives the request and response as arguments, with a request object like: `{ method: method, url: url, headers: headers, body: body }`. An example usage would be manipulating the Access-Control-Allow-Origin header so that your test server doesn't always have to run on the same port in order to accept cached responses to CORS requests:
+
+  ```ruby
+  Billy.configure do |c|
+    ...
+    fix_cors_header = proc do |_request, response|
+      allowed_origins = response[:headers]['Access-Control-Allow-Origin']
+      if allowed_origins.present?
+        localhost_port_pattern = %r{(?<=http://127\.0\.0\.1:)(\d+)}
+        allowed_origins.sub!(
+          localhost_port_pattern, Capybara.current_session.server.port.to_s
+        )
+      end
+    end
+    c.after_cache_handles_request = fix_cors_header
+    ...
+  end
+  ```
+
+### Example usage:
 
 ```ruby
 require 'table_print' # Add this dependency to your gemfile
@@ -430,45 +491,8 @@ The handler column indicates how Puffing Billy handled your request:
 - error: This request was not handled by a stub, and was not successfully handled
 - cache: This response was handled by a previous cache
 
-If your `status` is set to in_flight this request has not yet been handled fully. Either puffing billy crashed
+If your `status` is set to `inflight` this request has not yet been handled fully. Either puffing billy crashed
 internally on this request, or your test ended before it could complete successfully.
-
-`c.cache_request_body_methods` is used to specify HTTP methods of requests that you would like to cache separately based on the contents of the request body. The default is ['post'].
-
-`c.after_cache_handles_request` is used to configure a callback that can operate on the response after it has been retrieved from the cache but before it is returned. The callback receives the request and response as arguments, with a request object like: `{ method: method, url: url, headers: headers, body: body }`. An example usage would be manipulating the Access-Control-Allow-Origin header so that your test server doesn't always have to run on the same port in order to accept cached responses to CORS requests:
-
-```
-Billy.configure do |c|
-  ...
-  fix_cors_header = proc do |_request, response|
-    allowed_origins = response[:headers]['Access-Control-Allow-Origin']
-    if allowed_origins.present?
-      localhost_port_pattern = %r{(?<=http://127\.0\.0\.1:)(\d+)}
-      allowed_origins.sub!(
-        localhost_port_pattern, Capybara.current_session.server.port.to_s
-      )
-    end
-  end
-  c.after_cache_handles_request = fix_cors_header
-  ...
-end
-```
-
-`c.use_ignore_params` is used to choose whether to use the ignore_params blacklist or the allow_params whitelist. Set to `true` to use `c.ignore_params`,
-`false` to use `c.allow_params`
-
-`c.before_handle_request` is used to modify `method`, `url`, `headers`, `body` before handle request by `stubs`, `cache` or `proxy`. Method accept 4 argumens and must return array of this arguments:
-
-```
-c.before_handle_request = proc { |method, url, headers, body|
-  filtered_body = JSON.dump(filter_secret_data(JSON.load(body)))
-  [method, url, headers, filtered_body]
-}
-```
-
-`c.cache_simulates_network_delays` is used to add some delay before cache returns response. When set to `true`, cached requests will wait from configured delay time before responding. This allows to catch various race conditions in asynchronous front-end requests. The default is `false`.
-
-`c.cache_simulates_network_delay_time` is used to configure time (in seconds) to wait until responding from cache. The default is `0.1`.
 
 ### Cache Scopes
 
@@ -536,20 +560,23 @@ end
 If you want the cache for each test to be independent, i.e. have it's own directory where the cache files are stored, you can do so.
 
 ### in Cucumber
-use a Before tag:
+
+use a `Before` tag:
 ```rb
 Before('@javascript') do |scenario, block|
   Billy.configure do |c|
     feature_name = scenario.feature.name.underscore
     scenario_name = scenario.name.underscore
     c.cache_path = "features/support/fixtures/req_cache/#{feature_name}/#{scenario_name}/"
-    Dir.mkdir_p(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
+    FileUtils.mkdir_p(Billy.config.cache_path) unless File.exist?(Billy.config.cache_path)
   end
 end
 ```
 
 ### in Rspec
-use a before(:each) block:
+
+use a `before(:each)` block:
+
 ```rb
 RSpec.configure do |config|
   base_cache_path = Billy.config.cache_path
@@ -569,7 +596,6 @@ RSpec.configure do |config|
   end
 end
 ```
-
 
 ## Stub requests recording
 
@@ -594,7 +620,7 @@ end
 
 ## Proxy timeouts
 
-By default, the Puffing Billy proxy will use the EventMachine:HttpRequest timeouts of 5 seconds
+By default, the Puffing Billy proxy will use the `EventMachine::HttpRequest` timeouts of 5 seconds
 for connect and 10 seconds for inactivity when talking to downstream servers.
 
 These can be configured as follows:
@@ -614,6 +640,7 @@ and tell it to ignore SSL certificate warnings. See
 to see how Billy's default drivers are configured.
 
 ## Working with VCR and Webmock
+
 If you use VCR and Webmock elsewhere in your specs, you may need to disable them
 for your specs utilizing Puffing Billy. To do so, you can configure your `rails_helper.rb`
 as shown below:
@@ -643,7 +670,7 @@ Note that this approach may cause unexpected behavior if your backend sends the 
 
 ### Raising errors from stubs
 
-By default PuffingBilly suppress errors from stub-blocks.
+By default Puffing Billy suppresses errors from stub-blocks.
 To make it raise errors instead, add this test initializers:
 
 ```ruby
@@ -730,17 +757,24 @@ the system store. So after a run of your the suite only one certificate will be
 left over. If this is not enough you can handling the cleanup again with a
 custom on-after hook.
 
+### TLS hostname validation
+
+em-http-request was modified to emit a warning if being used without the TLS
+``verify_peer`` option.  Puffing Billy defaults to specifying ``verify_peer: false``
+but you can now modify configuration to do peer verification. So if you've
+gone to the trouble of setting up your own certificate authority and self-signed
+certs you can enable it like so:
+
+```ruby
+Billy.configure do |c|
+  c.verify_peer = true
+end
+```
+
 ## Resources
 
-* [Bring Ruby VCR to Javascript testing with Capybara and puffing-billy](http://architects.dzone.com/articles/bring-ruby-vcr-javascript)
-* [Integration Testing Stripe.js With Mocked Network Requests](http://dev.contractual.ly/testing-stripe-js-with-mocked-network/)
+* [Bring Ruby VCR to Javascript testing with Capybara and puffing-billy](https://dzone.com/articles/bring-ruby-vcr-javascript)
 * [Clean-up unused cache files periodically with this config](https://github.com/oesmith/puffing-billy/pull/26#issuecomment-29905030)
-
-## FAQ
-
-1. Why name it after a train?
-
-   Trains are *cool*.
 
 ## Contributing
 
@@ -752,5 +786,5 @@ custom on-after hook.
 
 ## TODO
 
-1. Integration for test frameworks other than rspec.
+1. Integration for test frameworks other than RSpec.
 2. Show errors from the EventMachine reactor loop in the test output.

@@ -1,3 +1,3 @@
 module Billy
-  VERSION = '2.2.0'
+  VERSION = '4.0.2'
 end

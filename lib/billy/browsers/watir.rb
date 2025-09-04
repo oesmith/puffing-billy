@@ -20,8 +20,10 @@ module Billy
 
       def configure_chrome(args)
         args[:headless] = true
-        args[:switches] ||= []
-        args[:switches] += %W[--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}]
+        args[:proxy] = {
+          http: "#{Billy.proxy.host}:#{Billy.proxy.port}",
+          ssl: "#{Billy.proxy.host}:#{Billy.proxy.port}"
+        }
         args
       end
 
