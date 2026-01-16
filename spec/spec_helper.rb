@@ -6,9 +6,6 @@ require 'billy/watir/rspec'
 require 'rack'
 require 'logger'
 require 'fileutils'
-require 'webdrivers'
-
-$stdout.puts `#{::Selenium::WebDriver::Chrome::Service.driver_path.call} --version` if ENV['CI']
 
 browser = Billy::Browsers::Watir.new :chrome
 
