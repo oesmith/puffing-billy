@@ -138,6 +138,7 @@ describe Billy::ProxyHandler do
 
       before do
         allow(subject).to receive(:handles_request?).and_return(true)
+        allow(em_response).to receive(:dup).and_return(em_response)
         allow(em_response).to receive(:force_encoding).and_return('The response body')
         allow(EventMachine::HttpRequest).to receive(:new).and_return(em_request)
         expect(em_request).to receive(:post).and_return(em_request)
