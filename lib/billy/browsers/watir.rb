@@ -13,7 +13,7 @@ module Billy
           else
             raise NameError, "Invalid browser driver specified. (Expected: :chrome, :phantomjs, :firefox)"
         end
-        super
+        super(name, **args)
       end
 
       private
