@@ -1,3 +1,7 @@
+v4.0.3, 2026-01-23
+------------------
+  * Update proxy_handler to resolve literal string warning [#356](https://github.com/oesmith/puffing-billy/pull/356)
+
 v4.0.2, 2025-06-02
 ------------------
   * Add unary operator to mutable string [#351](https://github.com/oesmith/puffing-billy/pull/351)
