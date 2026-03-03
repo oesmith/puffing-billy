@@ -319,6 +319,43 @@ shared_examples_for 'a cache' do
   end
 end
 
+describe Billy::Proxy, '#stop' do
+  let(:proxy) { Billy::Proxy.new }
+
+  context 'when signature is nil' do
+    it 'returns early without calling EM.stop' do
+      expect(EM).not_to receive(:reactor_running?)
+      expect(EM).not_to receive(:stop)
+      proxy.stop
+    end
+  end
+
+  context 'when reactor is not running' do
+    before { proxy.instance_variable_set(:@signature, 'fake-sig') }
+
+    it 'returns early without calling EM.stop' do
+      allow(EM).to receive(:reactor_running?).and_return(false)
+      expect(EM).not_to receive(:stop)
+      proxy.stop
+    end
+  end
+
+  context 'when reactor is running' do
+    before do
+      proxy.instance_variable_set(:@signature, 'fake-sig')
+      allow(EM).to receive(:reactor_running?).and_return(true)
+      allow(EM).to receive(:get_sockname).and_return(Socket.sockaddr_in(12345, '127.0.0.1'))
+      allow(EM).to receive(:stop)
+      allow(proxy).to receive(:wait_for_server_shutdown!)
+    end
+
+    it 'stops the reactor' do
+      proxy.stop
+      expect(EM).to have_received(:stop)
+    end
+  end
+end
+
 describe Billy::Proxy do
   before do
     # Adding non-valid Faraday options throw an error: https://github.com/arsduo/koala/pull/311

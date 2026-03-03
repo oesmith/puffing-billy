@@ -25,6 +25,7 @@ module Billy
 
     def stop
       return if @signature.nil?
+      return unless EM.reactor_running?
 
       server_port = port
       EM.stop
