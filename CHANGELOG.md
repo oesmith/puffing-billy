@@ -1,3 +1,7 @@
+v4.0.4, 2026-03-13
+------------------
+  * Guard Proxy#stop against already-stopped EventMachine reactor [#359](https://github.com/oesmith/puffing-billy/pull/358)
+
 v4.0.3, 2026-01-23
 ------------------
   * Update proxy_handler to resolve literal string warning [#356](https://github.com/oesmith/puffing-billy/pull/356)
